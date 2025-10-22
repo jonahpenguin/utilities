@@ -41,6 +41,11 @@
                     }
                 }
             }
+            window.addEventListener('keypress', (event) => {
+                if (event.key == "Enter") {
+                    dev();
+                }
+            }, false);
             function loadNormal() {
                 let html = '';
                 for (let i = 0;i<links.length;i++) {
