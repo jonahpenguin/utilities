@@ -1,0 +1,67 @@
+<html>
+    <head>
+        <title>Index</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            let links = ["shhs.adFreeYT.html"];
+            window.addEventListener('load', () => {
+                if (localStorage.getItem(atob('aXNEZXY='))) {
+                    dev(localStorage.getItem(atob('aXNEZXY=')),true);
+                } else {
+                    loadNormal();
+                }
+            }, false);
+            function logOut() {
+                let isSure = confirm('Log out?')
+                if (isSure) {
+                    localStorage.removeItem(atob('aXNEZXY='));
+                    location.reload();
+                }
+            }
+            function dev(pass=0,fromLocal=false) {
+                if (pass == 0) {
+                    pass = document.getElementById('passIn').value;
+                }
+                if (pass == atob("aW5kQHg=")) {
+                    localStorage.setItem(atob('aXNEZXY='),pass)
+                    document.getElementById('devBox').innerHTML = '<button onclick="logOut()">Log out</button>';
+                    document.getElementById('helpBox').outerHTML = '';
+                    loadNormal();
+                    let devLinks = ["someLink.html"];
+                    let html = '<br><br>';
+                    for (let i = 0;i<devLinks.length;i++) {
+                        html += '<a href="'+devLinks[i]+'">'+devLinks[i]+'</a><br><br>';
+                    }
+                    document.getElementById('content').innerHTML += html;
+                } else {
+                    if (fromLocal) {
+                        alert("Local storage error")
+                    } else {
+                        alert("Invalid password")
+                    }
+                }
+            }
+            function loadNormal() {
+                let html = '';
+                for (let i = 0;i<links.length;i++) {
+                    html += '<a href="'+links[i]+'">'+links[i]+'</a>';
+                }
+                document.getElementById('content').innerHTML = html;
+            }
+        </script>
+    </head>
+    <body>
+        <br>
+        <h1>Index</h1>
+        <span id="helpBox">If you're finding yourself here, you probably were looking for one of these below pages :)</span>
+        <br><br>
+        <div id="content">
+            <a href="shhs.adFreeYT.html">SHHS Ad Free YouTube</a>
+        </div>
+        <br><br>
+        <span id="devBox">
+            Password: <input type="password" id="passIn" placeholder="Password...">
+            <button onclick="dev()">Enable Developer Mode</button>
+        </span>
+    </body>
+</html>
