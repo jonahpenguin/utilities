@@ -1,0 +1,29 @@
+body {
+    background-color: darkblue;
+    color: white;
+    text-align: center;
+    font-family: comic sans ms, helvetica;
+}
+a {
+    color: white;
+}
+a:hover {
+    background-color: white;
+    color: darkblue;
+}
+a:focus {
+    background-color: white;
+    color: darkblue;
+}
+button {
+    background-color: white;
+    color: black;
+}
+button:hover {
+    background-color: black;
+    color: white;
+}
+button:focus {
+    background-color: black;
+    color: white;
+}
