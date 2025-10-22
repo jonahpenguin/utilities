@@ -1,0 +1,459 @@
+<html>
+    <head>
+        <title id="title">Ad Free YouTube</title>
+        <link rel="icon" href="shhs.png">
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            if (location.href.includes('?import=') && false) {
+                // Didn't work; disabled
+                let loca = location.href.split('?import=');
+                loca = loca[1];
+                localStorage.setItem('savedSHHS',loca);
+                location.replace('shhs.adFreeYT.html');
+            }
+        </script>
+        <style>
+            .triangle {
+                width:0;
+                height:0;
+                border-bottom:72px solid red; 
+                background-color:transparent;
+                border-left:36px solid #980b1a; 
+                border-right:36px solid #980b1a;
+                transform:skewX(27deg);
+                position:fixed;
+                top:15%;
+                left:2%;
+                z-index:3;
+                rotate:90deg;
+            }
+            button {
+                cursor: hand;
+            }
+            iframe {
+                position: fixed;
+                bottom: 0%;
+                left: 0%;
+                width: 100%;
+                height: 80%;
+                border: none;
+                border-top: 3px dashed gold;
+                z-index: 80;
+            }
+            body {
+                z-index: 1;
+                background-color:#980b1a;
+                color:gold;
+            }
+            button#fsbutton {
+                bottom: 80%;
+                right: 0%;
+                position: fixed;
+            }
+            button#sharebutton {
+                position: fixed;
+                top: 0;
+                right: 0;
+            }
+            input:focus {
+                border:none;
+                outline:2px dashed gold;
+            }
+        </style>
+        <script>
+            let vidLoaded = false;
+            let vidId;
+            function share() {
+                let win2 = open('about:blank', 'win2', 'width=100', 'height=100');
+                win2.document.open();
+                win2.document.write(
+                    '<style>body{background-color:#980b1a;color:gold;text-align:center;font-family:comic sans ms;}</style>' +
+                    '<h1>Copy the link below and send it to anybody!</h1>' +
+                    location.href
+                )
+                win2.document.close();
+            }
+            /*
+            // Get the current URL's query parameters
+const urlParams = new URLSearchParams(window.location.search);
+
+// Get the value of the 'v' parameter (if it exists)
+const vValue = urlParams.get('v');
+
+console.log(vValue); // Will log the value of 'v' or null if it's not present
+            */
+            function openurl() {
+                let vidid = document.getElementById('userin').value;
+                if (vidid.includes('https:')) {
+                if (false && location.href.includes('dev20651')) {
+                    if (vidid.includes('v=')) {
+                        vidid = vidid.split('v=');
+                        vidid = vidid[1];
+                        if (vidid.includes('&')) {
+                            vidid = vidid.split('&');
+                            vidid = vidid[0];
+                        }
+                    } else if (vidid.includes('si=')) {
+                        vidid = vidid.split('si=');
+                        vidid = vidid[1];
+                        if (vidid.includes('&')) {
+                            vidid = vidid.split('&');
+                            vidid = vidid[0];
+                        }
+                    }
+                } else {
+                    vidid = vidid.split('?');
+                    vidid = vidid[1].split('&');
+                    //if (vidid.includes('v=')) {
+                        vidid = vidid[0].split('v=');
+                        if (vidid.length >= 2) {
+                            vidid = vidid[1];
+                        } else {
+                            alert('Invalid URL; try opening the video in YouTube again and copying the new link after it finishes loading.')
+                            return
+                        }
+                    //} else {
+                        //vidid = vidid[0].split('si=');
+                        //vidid = vidid[0];
+                    //}
+                }
+                if (vidid == undefined || vidid == 'undefined' || vidid == '') {
+                    alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidid[1] + '\nJoined ID: ' + document.getElementById('userin').value);
+                } else {
+                    if (vidLoaded) {
+                        document.getElementById('userin').value = '';
+                        window.open('?' + vidid);
+                    } else {
+                        location.replace('?' + vidid);
+                    }
+                }
+                } else {
+                    // when there is not a url and a normal str instead
+                    window.open('https://www.youtube.com/results?search_query='+vidid);
+                }
+            }
+            //https://youtu.be/lY-H1x7I-1s?si=7DGL1Yrj6Xvq5XpZ
+            function makenew() {
+                window.open('adfreeyt.html');
+            }
+            window.addEventListener('keypress', (event) => {
+                if (event.key == 'f' && location.href.includes('?')) {
+                    openFullscreen();
+                }
+            }, false);
+            function openFullscreen() {
+                isenteringfs = true;
+                document.getElementById('videoframe').style.height = '100%';
+                document.getElementById('videoframe').style.top = '0%';
+                document.getElementById('videoframe').style.borderTop = 'none';
+            const elem = document.body;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+  setTimeout(() => {isenteringfs = false;}, 500);
+            }
+            function exitHandler() {
+                if (!isenteringfs) {
+                    document.getElementById('videoframe').style.height = '80%';
+                    document.getElementById('videoframe').style.top = '20%';
+                    document.getElementById('videoframe').style.borderTop = '3px dashed gold';
+                }
+            }
+        if (document.addEventListener) {
+ document.addEventListener('fullscreenchange', exitHandler, false);
+ document.addEventListener('mozfullscreenchange', exitHandler, false);
+ document.addEventListener('MSFullscreenChange', exitHandler, false);
+ document.addEventListener('webkitfullscreenchange', exitHandler, false);
+}
+            let triedEmbed = false;
+            window.addEventListener('load', () => {
+                let loca = location.href;
+                if (loca.includes('?')) {
+                    loca = loca.split('?');
+                    let vf = document.createElement('iframe');
+                    vf.setAttribute('id', 'videoframe');
+                    vf.src = 'https://www.youtube.com/embed/' + loca[1];
+                        let hrs = new Date();
+                        hrs = hrs.getHours();
+                        if (hrs > 20 || hrs < 4) {
+                            let nd = document.createElement('div');
+                            nd.innerHTML = '<br><br><i>Ad Free Youtube is closed for the night. See you tomorrow!</i>';
+                            nd.style = 'border-top:3px dashed gold;background-color:#980b1a;position:fixed;bottom:0;left:0;width:100%;height:80%;z-index:98.9;';
+                            document.body.appendChild(nd);
+                            document.getElementById('nw').outerHTML = '';
+                        } else {
+                            document.body.appendChild(vf);
+                        }
+                        let nw = document.createElement('button');
+                        nw.setAttribute('id','nw');
+                        nw.addEventListener('click', () => {
+                            if (!triedEmbed) {
+                                window.open('https://youtube.com/embed/'+loca[1])
+                                document.getElementById('nw').innerText = 'Still not working?';
+                                triedEmbed = true;
+                            } else {
+                                window.open('https://docs.google.com/forms/d/e/1FAIpQLSdMSf78fP6Fo_dLzFnLs_9BQ_qwIgXl0CQcKeJhA8E3ObgM0Q/viewform')
+                            }
+                        }, false);
+                        nw.style = 'position:fixed;left:0;bottom:80%;z-index:6;'
+                        nw.innerText = 'Not working?';
+                        document.body.appendChild(nw)
+                    let sp = document.createElement('span');
+                    sp.style = 'position:fixed;top:0;right:0;';
+                    sp.setAttribute('id','sharespan');
+                    sp.innerHTML = '<br><br>';
+                    //document.body.appendChild(sp);
+                    let sb = document.createElement('button');
+                    sb.addEventListener('click', share);
+                    sb.setAttribute('id', 'sharebutton');
+                    sb.innerText = 'Share...';
+                    //document.getElementById('sharespan').appendChild(sb);
+                    let saveb = document.createElement('button');
+                    saveb.addEventListener('click',addVid);
+                    saveb.innerText = 'Save this video';
+                    document.getElementById('saveSpan').appendChild(saveb);
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                        document.getElementById('videoframe').style.height = '75%';
+                    } else {
+                        let fb = document.createElement('button');
+                        fb.addEventListener('click', openFullscreen);
+                        fb.setAttribute('id', 'fsbutton');
+                        fb.innerText = 'Fullscreen';
+                        document.body.appendChild(fb);
+                    }
+                    vidLoaded = true;
+                    vidId = loca[1];
+                    /*document.getElementById('content').innerHTML =
+                        '<button onclick="makenew()" style="position: fixed; bottom: 80%; left: 42%; width: 16%;">Make a new ad-free YT video</button>' +
+                        '<button onclick="share()" id="sharebutton">Share...</button>' +
+                        '<button onclick="openFullscreen()" id="fsbutton">Fullscreen</button>' +
+                        '<iframe id="videoframe" src="https://www.youtube.com/embed/' + loca[1] + '"></iframe>';*/
+                } else {
+                    document.getElementById('userin').focus()
+            document.getElementById('content').innerHTML += '<br><br><br><br><button onclick="nerdyStuff()">How this works</button>';
+                }
+            }, false);
+            let isdev = false;
+            if (localStorage.getItem('shhsDev')) {
+                isdev = true;
+            }
+            function dev() {
+                if (isdev) {
+                    try {
+                        eval(prompt('Enter command'));
+                    } catch(e) {
+                        alert(e.stack);
+                    }
+                } else {
+                    let devkey = prompt('Enter key');
+                    if (devkey == atob('MTkyMTY4')) {
+                        isdev = true;
+                        localStorage.setItem('shhsDev', true)
+                        alert('Dev enabled; use ~ to run commands')
+                        //dev();
+                    }
+                }
+            }
+            function exitDev() {
+                localStorage.removeItem('shhsDev');
+                isdev = false;
+                alert('Dev disabled')
+            }
+            // This is strictly for dev verification; keylog data is not saved or sent anywhere
+            let keylog = [];
+            window.addEventListener('keyup', (event) => {
+                if (isdev && event.key == '~') {
+                    dev();
+                }
+                keylog.push(event.key);
+                if (event.key == 'Backspace') {
+                    keylog = [];
+                }
+                if (keylog.length > 6) {
+                    keylog = [];
+                }
+                if (keylog.join('').includes('dev')) {
+                    dev();
+                }
+                if (event.key == 'Escape' && document.getElementById('closeb')) {
+                    document.getElementById('closeb').click();
+                }
+            }, false);
+            function popup(html) {
+                document.getElementById('popup').innerHTML = '<button id="closeb" onclick="closepop()" style="float:left;">X Close</button><br>' + html;
+                document.getElementById('semi').style.display = '';
+                document.getElementById('popup').style.display = '';
+            }
+            function closepop() {
+                document.getElementById('semi').style.display = 'none';
+                document.getElementById('popup').style.display = 'none';
+            }
+            let saved = [];
+            /*
+            Example:
+            let saved = [
+                [songName,id]
+            ]
+            
+            Saved as:
+            songName&id;
+            */
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('savedSHHS')) {
+                    let saveStr = localStorage.getItem('savedSHHS').split(';');
+                    let i = 0;
+                    while(i<saveStr.length-1) {
+                        let vidInfo = saveStr[i].split('&');
+                        if (vidInfo != '-') {
+                            saved.push([vidInfo[0],vidInfo[1]]);
+                        }
+                        i++;
+                    }
+                }
+            }, false);
+            function saveSaved() {
+                if (saved.length > 0) {
+                    let saveStr = '';
+                    let i = 0;
+                    while(i<saved.length) {
+                        saveStr += saved[i][0] + '&' + saved[i][1] + ';'
+                        i++;
+                    }
+                    localStorage.setItem('savedSHHS',saveStr);
+                } else {
+                    alert('No videos to save');
+                }
+            }
+            function savedVids() {
+                let output = '<i>No videos saved yet. Use the button in the top right of the page to save one!</i>';
+                if (saved.length > 0) {
+                    let i = 0;
+                    output = '';
+                    while(i<saved.length) {
+                        if (saved[i].includes('-') == false) {
+                            output +=
+                                '<button onclick="if(vidLoaded){window.open(\'shhs.adFreeYT.html?'+saved[i][1]+'\');closepop();}else{location.replace(\'shhs.adFreeYT.html?'+saved[i][1]+'\')}">'+
+                                'Load "' + saved[i][0]+'"</button> ~ <button onclick="renameVid('+i+')">Rename</button> ~ ' +
+                                '<button onclick="delVid('+i+')" style="background-color:red;">Delete</button><br>';
+                        }
+                        i++;
+                    }
+                    if (output == '') {
+                        if (localStorage.getItem('savedSHHS')) {
+                            localStorage.removeItem('savedSHHS');
+                        }
+                        saved=[];
+                        output = '<i>No videos saved yet. Use the button in the top right of the page to save one!</i>';
+                    } else {
+                        output +=
+                            '<br>' +
+                            '<button onclick="let issure=confirm(\'Delete all videos? This cannot be undone\');if(!issure){return;}localStorage.removeItem(\'savedSHHS\');saved=[];closepop();savedVids();" style="background-color:red;">Delete all videos</button>'
+                    }
+                }
+                popup(
+                    '<h1>Saved Videos</h1>' +
+                    output
+                )
+            }
+            function renameVid(index) {
+                try{
+                let vidName = prompt('Enter a new name for "' + saved[index][0] + '":');
+                if (vidName != '' && vidName != null && vidName != undefined) {
+                    saved[index][0] = vidName;
+                    saveSaved();
+                    alert('Video renamed!');
+                    closepop();
+                    savedVids();
+                }
+                }catch(e){
+                    alert(e.stack)
+                }
+            }
+            function delVid(index,showConf=true) {
+                let issure;
+                if (showConf) {
+                    issure = confirm('Delete "' + saved[index][0] + '"?');
+                } else {
+                    issure = true;
+                }
+                if (!issure) {return;}
+                saved[index] = ['-','-'];
+                saveSaved();
+                if (showConf) {
+                    alert('Video deleted');
+                }
+                closepop();
+                savedVids();
+            }
+            function addVid() {
+                if (vidLoaded) {
+                    let vidName = prompt('Enter a name for this video:')
+                    if (vidName != '' && vidName != null && vidName != undefined) {
+                        saved.push([vidName,vidId]);
+                        saveSaved();
+                        alert('Video saved!');
+                    }
+                } else {
+                    alert('No video loaded');
+                }
+            }
+            function nerdyStuff() {
+                popup(
+                    '<h1>Nerdy Explanation</h1>' +
+                    'This page started as an interesting observation - I noticed that embedded YouTube<br>' +
+                    'videos do not show ads. So what I did was place the textbox, and then I parsed the link<br>' +
+                    'pasted to get the video ID (the part after v=). I then used that to get the embed link for<br>'+
+                    'the video, which looks like "https://www.youtube.com/embed/[video id]". Finally, I put that<br>'+ 
+                    'in the frame you see onscreen, with the video inside. Some fancy CSS styling and extra stuff<br>' +
+                    'for video saving and now there\'s this thing!'
+                )
+            }
+        </script>
+<style>
+body {
+
+
+    font-family: comic sans ms, helvetica;
+    text-align: center;
+}
+
+button {
+    background-color: white;
+    color: black;
+}
+button:hover {
+    background-color: black;
+    color: white;
+}
+button:focus {
+    background-color: black;
+    color: white;
+}</style>
+</head>
+    <body>
+        <div id="semi" style="position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;z-index:99;display:none;"></div>
+        <div id="popup" style="position:fixed;top:5%;left:5%;width:90%;height:90%;background-color:#980b1a;border:3px dashed gold;z-index:100;display:none;"></div>
+        <img hidden src="shhs.png" style="position:fixed;top:2%;left:2%;width:10%;height:15%;z-index:5;">
+        <img hidden src="banner.png" style="position:fixed;top:0%;left:1.5%;width:11%;height:33%;z-index:4;">
+        <button hidden onclick="dev()" style="position:fixed;top:0;right:0;">Dev</button>
+        <span id="saveSpan" style="text-align:right;position:fixed;top:0;right:0;">
+            <button onclick="savedVids()">View/Edit Saved Videos</button><br>
+        </span>
+        <script>
+        </script>
+        <h1 style="cursor:hand;display:inline;" onclick="location.replace('shhs.adFreeYT.html')" id="header">Ad Free YouTube</h1>
+        <br><br>
+        <div id="content">
+            Paste the YouTube URL:
+            <br>
+            <input type="text" id="userin" onkeypress="if(event.key=='Enter'){openurl()}" placeholder="Paste the YouTube URL...">
+            <button onclick="openurl()">Go 🡆</button>
+        </div>
+        <span onclick="this.outerHTML='';" style="position:fixed;bottom:0;right:0;z-index:90;opacity:0.5;font-size:15px;">Created by Jonah DeRenzo</span>
+    </body>
+    <script>document.getElementById('userin').focus();</script>
+</html>
