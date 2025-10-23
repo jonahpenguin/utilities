@@ -1,0 +1,146 @@
+<html>
+    <head>
+        <title>Binary Checker</title>
+        <style>
+            body {
+                background-color: black;
+                color: lime;
+                font-family: monospace;
+                text-align: center;
+                zoom: 200%;
+            }
+            #timeDisp {
+                font-size: 24px;
+            }
+            button {
+                background-color: white;
+                color: black;
+            }
+            button:hover {
+                background-color: black;
+                color: white;
+            }
+            button:focus {
+                background-color: black;
+                color: white;
+            }
+        </style>
+        <script>
+            let num = 0;
+            let binNum = [];
+            let timeCount = 0;
+            let timeInt;
+            let state = 0;
+            // 0 for start page, 1 for running, 2 for results
+            function genNumber() {
+                num = Math.floor(Math.random()*256);
+                let i = 3;
+                state = 0.5;
+                content.innerHTML = "<h1>3</h1>"
+                let int = setInterval(() => {
+                    i--;
+                    if (i <= 0) {
+                        clearInterval(int);
+                        start();
+                    } else {
+                        content.innerHTML =
+                            "<h1>"+i+"</h1>";
+                    }
+                }, 1000);
+            }
+            function start() {
+                state = 1;
+                content.innerHTML = "<h1>"+num+"</h1><br><br><span id='timeDisp'>0 seconds</span><br><br><br><i>Hit Space to stop</i>"
+                timeInt = setInterval(() => {
+                    timeCount++;
+                    document.getElementById('timeDisp').innerText = (timeCount/100)+" seconds";
+                }, 10);
+            }
+            function toBinary(val) {
+                binNum = [];
+                if (val >= 128) {
+                    val -= 128;
+                    binNum.push(1);
+                } else {
+                    binNum.push(0);
+                }
+                if (val >= 64) {
+                    val -= 64;
+                    binNum.push(1);
+                } else {
+                    binNum.push(0);
+                }
+                if (val >= 32) {
+                    val -= 32;
+                    binNum.push(1)
+                } else {
+                    binNum.push(0);
+                }
+                if (val >= 16) {
+                    val -= 16;
+                    binNum.push(1);
+                } else {
+                    binNum.push(0);
+                }
+                if (val >= 8) {
+                    val -= 8;
+                    binNum.push(1);
+                } else {
+                    binNum.push(0);
+                }
+                if (val >= 4) {
+                    val -= 4;
+                    binNum.push(1);
+                } else {
+                    binNum.push(0);
+                }
+                if (val >= 2) {
+                    val -= 2;
+                    binNum.push(1);
+                } else {
+                    binNum.push(0);
+                }
+                if (val >= 1) {
+                    val -= 1;
+                    binNum.push(1);
+                } else {
+                    binNum.push(0);
+                }
+                // binNum.reverse();
+                return binNum.join('');
+            }
+            function reset() {
+                state = 0;
+                timeCount = 0;
+                content.innerHTML = '<button onclick="genNumber()">Start</button>';
+            }
+            window.addEventListener('keydown', (event) => {
+                if (event.key == " ") {
+                    if (state == 1) {
+                        state = 2;
+                        clearInterval(timeInt);
+                        content.innerHTML =
+                            "<h1>Time!</h1>" +
+                            "It took you "+(timeCount/100)+" seconds!<br><br>"+
+                            num+" in binary is "+toBinary(num)+".<br><br>"+
+                            "<button onclick='reset()'>Run again!</button>"
+                    } else if (state == 2) {
+                        state = 0;
+                        timeCount = 0;
+                        reset();
+                    } else if (state == 0) {
+                        state = 1;
+                        genNumber();
+                    }
+                }
+            }, false);
+        </script>
+    </head>
+    <body>
+        <br>
+        <h2>Binary Game</h2>
+        <div id="content">
+            <button onclick="genNumber()">Start</button>
+        </div>
+    </body>
+</html>
