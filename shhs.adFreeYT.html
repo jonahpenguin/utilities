@@ -356,8 +356,60 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                 }
                 popup(
                     '<h1>Saved Videos</h1>' +
-                    output
+                    output +
+                    '<span style="position:fixed;bottom:5%;right:5%;text-align:right;">'+
+                        '<button onclick="exportSaved()">Export</button> ~ <button onclick="importPrompt()">Import</button>'+
+                    '</span>'
                 )
+            }
+            function exportSaved() {
+                let saveStr = '';
+                let i = 0;
+                while(i<saved.length) {
+                    saveStr += saved[i][0] + '&' + saved[i][1] + ';'
+                    i++;
+                }
+                const link = document.createElement('a');
+                const file = new Blob([saveStr], {type: 'text/plain'})
+                link.href = URL.createObjectURL(file);
+                link.download = "adFreeYT_videos.txt";
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }
+            function importPrompt() {
+                closepop();
+                popup(
+                    "<h1>Import</h1>" +
+                    "Attach a file below:<br>"+
+                    '<input type="file" id="importIn">'
+                )
+                document.getElementById("importIn").addEventListener('change', () => {
+                    const fileInput = document.getElementById('importIn');
+                    if (fileInput.files && fileInput.files[0]) {
+                        let fr = new FileReader();
+                        fr.onload = () => {
+                            try {
+                                const loadedStr = fr.result;
+                                let saveStr = (loadedStr || '').split(';');
+                                let i = 0;
+                                while(i<saveStr.length-1) {
+                                    let vidInfo = saveStr[i].split('&');
+                                    if (vidInfo != '-') {
+                                        saved.push([vidInfo[0],vidInfo[1]]);
+                                    }
+                                    i++;
+                                }
+                                alert('Imported successfully!');
+                                closepop();
+                            } catch (e) {
+                                alert('Import failed: ' + e);
+                            }
+                        }
+                        fr.readAsText(fileInput.files[0]);
+                    } else {
+                        alert('No file selected');
+                    }
+                })
             }
             function renameVid(index) {
                 try{
