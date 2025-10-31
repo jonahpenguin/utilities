@@ -502,7 +502,7 @@ button:focus {
         <div id="content">
             Paste the YouTube URL:
             <br>
-            <input type="text" id="userin" onkeypress="if(event.key=='Enter'){openurl()}" placeholder="Paste the YouTube URL...">
+            <input onload="this.focus()" type="text" id="userin" onkeypress="if(event.key=='Enter'){openurl()}" placeholder="Paste the YouTube URL...">
             <button onclick="openurl()">Go 🡆</button>
         </div>
         <span onclick="this.outerHTML='';" style="position:fixed;bottom:0;right:0;z-index:90;opacity:0.5;font-size:15px;">Created by Jonah DeRenzo</span>
