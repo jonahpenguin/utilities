@@ -1,3 +1,4 @@
+
 <html>
     <head>
         <title id="title">Ad Free YouTube</title>
@@ -85,22 +86,12 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
             function openurl() {
                 let vidid = document.getElementById('userin').value;
                 if (vidid.includes('https:')) {
-                if (false && location.href.includes('dev20651')) {
-                    if (vidid.includes('v=')) {
-                        vidid = vidid.split('v=');
-                        vidid = vidid[1];
-                        if (vidid.includes('&')) {
-                            vidid = vidid.split('&');
-                            vidid = vidid[0];
-                        }
-                    } else if (vidid.includes('si=')) {
-                        vidid = vidid.split('si=');
-                        vidid = vidid[1];
-                        if (vidid.includes('&')) {
-                            vidid = vidid.split('&');
-                            vidid = vidid[0];
-                        }
-                    }
+                if (vidid.includes("?si=")) {
+                        vidid = vidid.split('/');
+                        vidid = vidid[3];
+                        vidid = vidid.split("?si=");
+                        vidid = vidid[0];
+
                 } else {
                     vidid = vidid.split('?');
                     vidid = vidid[1].split('&');
@@ -173,13 +164,18 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
             window.addEventListener('load', () => {
                 let loca = location.href;
                 if (loca.includes('?')) {
+                    /*if (loca.includes("si")) {
+                        loca = loca.split("/");
+                        loca=loca[2];
+                    } else {*/
                     loca = loca.split('?');
+                    //}
                     let vf = document.createElement('iframe');
                     vf.setAttribute('id', 'videoframe');
                     vf.src = 'https://www.youtube.com/embed/' + loca[1];
                         let hrs = new Date();
                         hrs = hrs.getHours();
-                        if (hrs > 20 || hrs < 4) {
+                        if ((hrs > 20 || hrs < 4)&& false) {
                             let nd = document.createElement('div');
                             nd.innerHTML = '<br><br><i>Ad Free Youtube is closed for the night. See you tomorrow!</i>';
                             nd.style = 'border-top:3px dashed gold;background-color:#980b1a;position:fixed;bottom:0;left:0;width:100%;height:80%;z-index:98.9;';
@@ -225,8 +221,8 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                         fb.innerText = 'Fullscreen';
                         document.body.appendChild(fb);
                     }
+                    loca = loca[1];
                     vidLoaded = true;
-                    vidId = loca[1];
                     /*document.getElementById('content').innerHTML =
                         '<button onclick="makenew()" style="position: fixed; bottom: 80%; left: 42%; width: 16%;">Make a new ad-free YT video</button>' +
                         '<button onclick="share()" id="sharebutton">Share...</button>' +
