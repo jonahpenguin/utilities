@@ -1,6 +1,3 @@
-
-
-
 <html>
     <head>
         <title id="title">Ad Free YouTube</title>
@@ -236,7 +233,7 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                     loca = loca[1];
                     if (loca.includes("&")) {
                         loca = loca.split("&");
-                        document.getElementById('title').innerText = loca[1]+" ~ Ad Free YouTube";
+                        document.getElementById('title').innerText = loca[1].decodeURIComponent()+" ~ Ad Free YouTube";
                         loca = loca[0];
                     } else {
                         document.getElementById('title').innerText = "Ad Free YouTube";
