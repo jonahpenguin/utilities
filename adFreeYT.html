@@ -51,24 +51,43 @@
                 }
             }, false);
             function openurl() {
-                vidId = document.getElementById('userIn').value.split('?');
-                vidId = vidId[1].split('&');
-                //if (vidId.includes('v=')) {
-                    vidId = vidId[0].split('v=');
-                    vidId = vidId[1];
-                //} else {
-                    //vidId = vidId[0].split('si=');
-                    //vidId = vidId[0];
-                //}
-                if (vidId == undefined || vidId == 'undefined' || vidId == '') {
-                    alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidId[1] + '\nJoined ID: ' + document.getElementById('userIn').value);
+                let vidid = document.getElementById('userin').value;
+                if (vidid.includes('https:')) {
+                if (vidid.includes("?si=")) {
+                        vidid = vidid.split('/');
+                        vidid = vidid[3];
+                        vidid = vidid.split("?si=");
+                        vidid = vidid[0];
+
+                } else {
+                    vidid = vidid.split('?');
+                    vidid = vidid[1].split('&');
+                    //if (vidid.includes('v=')) {
+                        vidid = vidid[0].split('v=');
+                        if (vidid.length >= 2) {
+                            vidid = vidid[1];
+                        } else {
+                            alert('Invalid URL; try opening the video in YouTube again and copying the new link after it finishes loading.')
+                            return
+                        }
+                    //} else {
+                        //vidid = vidid[0].split('si=');
+                        //vidid = vidid[0];
+                    //}
+                }
+                if (vidid == undefined || vidid == 'undefined' || vidid == '') {
+                    alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidid[1] + '\nJoined ID: ' + document.getElementById('userin').value);
                 } else {
                     if (vidLoaded) {
-                        document.getElementById('userIn').value = '';
-                        window.open('?' + vidId);
+                        document.getElementById('userin').value = '';
+                        window.open('?' + vidid);
                     } else {
-                        location.replace('?' + vidId);
+                        location.replace('?' + vidid);
                     }
+                }
+                } else {
+                    // when there is not a url and a normal str instead
+                    window.open('https://www.youtube.com/results?search_query='+vidid);
                 }
             }
             //https://youtu.be/lY-H1x7I-1s?si=7DGL1Yrj6Xvq5XpZ
