@@ -1,4 +1,6 @@
 
+
+
 <html>
     <head>
         <title id="title">Ad Free YouTube</title>
@@ -85,45 +87,51 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
             */
             function openurl() {
                 let vidid = document.getElementById('userin').value;
-                if (vidid.includes('https:')) {
-                if (vidid.includes("?si=")) {
+                if (vidid.includes('https:') || vidid.includes("http:")) {
+                    if (vidid.includes("?si=")) {
                         vidid = vidid.split('/');
                         vidid = vidid[3];
                         vidid = vidid.split("?si=");
                         vidid = vidid[0];
-
-                } else {
-                    vidid = vidid.split('?');
-                    vidid = vidid[1].split('&');
-                    //if (vidid.includes('v=')) {
-                        vidid = vidid[0].split('v=');
-                        if (vidid.length >= 2) {
-                            vidid = vidid[1];
-                        } else {
-                            alert('Invalid URL; try opening the video in YouTube again and copying the new link after it finishes loading.')
-                            return
-                        }
-                    //} else {
-                        //vidid = vidid[0].split('si=');
-                        //vidid = vidid[0];
-                    //}
-                }
-                if (vidid == undefined || vidid == 'undefined' || vidid == '') {
-                    alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidid[1] + '\nJoined ID: ' + document.getElementById('userin').value);
-                } else {
-                    if (vidLoaded) {
-                        document.getElementById('userin').value = '';
-                        window.open('?' + vidid);
+                    } else if (vidid.includes("v=")) {
+                        //if (vidid.includes('v=')) {
+                            vidid = vidid.split('v=')[1];
+                            if (vidid.includes("&")) {
+                                vidid = vidid.split("&")[0];
+                            }
+                            /*if (vidid.length >= 2) {
+                                vidid = vidid[1];
+                            } else {
+                                alert('Invalid URL; try opening the video in YouTube again and copying the new link after it finishes loading.')
+                                return
+                            }*/
+                        //} else {
+                            //vidid = vidid[0].split('si=');
+                            //vidid = vidid[0];
+                        //}
                     } else {
-                        location.replace('?' + vidid);
+                        alert("Invalid URL");
+                        return;
                     }
-                }
+                    if (vidid == undefined || vidid == 'undefined' || vidid == '') {
+                        alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidid[1] + '\nJoined ID: ' + document.getElementById('userin').value);
+                    } else {
+                        let cLoca = location.href;
+                        if (cLoca.includes('?')) {
+                            cLoca = cLoca[0];
+                        }
+                        if (vidLoaded) {
+                            document.getElementById('userin').value = '';
+                            window.open(cLoca+'?' + vidid);
+                        } else {
+                            location.replace(cLoca+'?' + vidid);
+                        }
+                    }
                 } else {
                     // when there is not a url and a normal str instead
                     window.open('https://www.youtube.com/results?search_query='+vidid);
                 }
             }
-            //https://youtu.be/lY-H1x7I-1s?si=7DGL1Yrj6Xvq5XpZ
             function makenew() {
                 window.open('adfreeyt.html');
             }
@@ -137,15 +145,15 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                 document.getElementById('videoframe').style.height = '100%';
                 document.getElementById('videoframe').style.top = '0%';
                 document.getElementById('videoframe').style.borderTop = 'none';
-            const elem = document.body;
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.webkitRequestFullscreen) { /* Safari */
-    elem.webkitRequestFullscreen();
-  } else if (elem.msRequestFullscreen) { /* IE11 */
-    elem.msRequestFullscreen();
-  }
-  setTimeout(() => {isenteringfs = false;}, 500);
+                const elem = document.body;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    elem.msRequestFullscreen();
+                }
+                setTimeout(() => {isenteringfs = false;}, 500);
             }
             function exitHandler() {
                 if (!isenteringfs) {
@@ -154,12 +162,12 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                     document.getElementById('videoframe').style.borderTop = '3px dashed gold';
                 }
             }
-        if (document.addEventListener) {
- document.addEventListener('fullscreenchange', exitHandler, false);
- document.addEventListener('mozfullscreenchange', exitHandler, false);
- document.addEventListener('MSFullscreenChange', exitHandler, false);
- document.addEventListener('webkitfullscreenchange', exitHandler, false);
-}
+            if (document.addEventListener) {
+                document.addEventListener('fullscreenchange', exitHandler, false);
+                document.addEventListener('mozfullscreenchange', exitHandler, false);
+                document.addEventListener('MSFullscreenChange', exitHandler, false);
+                document.addEventListener('webkitfullscreenchange', exitHandler, false);
+            }
             let triedEmbed = false;
             window.addEventListener('load', () => {
                 let loca = location.href;
@@ -169,35 +177,39 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                         loca=loca[2];
                     } else {*/
                     loca = loca.split('?');
+                    let vidid = loca[1];
+                    if (vidid.includes("&")) {
+                        vidid = vidid.split("&")[0];
+                    }
                     //}
                     let vf = document.createElement('iframe');
                     vf.setAttribute('id', 'videoframe');
-                    vf.src = 'https://www.youtube.com/embed/' + loca[1];
-                        let hrs = new Date();
-                        hrs = hrs.getHours();
-                        if ((hrs > 20 || hrs < 4)&& false) {
-                            let nd = document.createElement('div');
-                            nd.innerHTML = '<br><br><i>Ad Free Youtube is closed for the night. See you tomorrow!</i>';
-                            nd.style = 'border-top:3px dashed gold;background-color:#980b1a;position:fixed;bottom:0;left:0;width:100%;height:80%;z-index:98.9;';
-                            document.body.appendChild(nd);
-                            document.getElementById('nw').outerHTML = '';
+                    vf.src = 'https://www.youtube.com/embed/' + vidid;
+                    let hrs = new Date();
+                    hrs = hrs.getHours();
+                    if ((hrs > 20 || hrs < 4)&& false) {
+                        let nd = document.createElement('div');
+                        nd.innerHTML = '<br><br><i>Ad Free Youtube is closed for the night. See you tomorrow!</i>';
+                        nd.style = 'border-top:3px dashed gold;background-color:#980b1a;position:fixed;bottom:0;left:0;width:100%;height:80%;z-index:98.9;';
+                        document.body.appendChild(nd);
+                        document.getElementById('nw').outerHTML = '';
+                    } else {
+                        document.body.appendChild(vf);
+                    }
+                    let nw = document.createElement('button');
+                    nw.setAttribute('id','nw');
+                    nw.addEventListener('click', () => {
+                        if (!triedEmbed) {
+                            window.open('https://youtube.com/embed/'+loca[1])
+                            document.getElementById('nw').innerText = 'Still not working?';
+                            triedEmbed = true;
                         } else {
-                            document.body.appendChild(vf);
+                            window.open('https://docs.google.com/forms/d/e/1FAIpQLSdMSf78fP6Fo_dLzFnLs_9BQ_qwIgXl0CQcKeJhA8E3ObgM0Q/viewform')
                         }
-                        let nw = document.createElement('button');
-                        nw.setAttribute('id','nw');
-                        nw.addEventListener('click', () => {
-                            if (!triedEmbed) {
-                                window.open('https://youtube.com/embed/'+loca[1])
-                                document.getElementById('nw').innerText = 'Still not working?';
-                                triedEmbed = true;
-                            } else {
-                                window.open('https://docs.google.com/forms/d/e/1FAIpQLSdMSf78fP6Fo_dLzFnLs_9BQ_qwIgXl0CQcKeJhA8E3ObgM0Q/viewform')
-                            }
-                        }, false);
-                        nw.style = 'position:fixed;left:0;bottom:80%;z-index:6;'
-                        nw.innerText = 'Not working?';
-                        document.body.appendChild(nw)
+                    }, false);
+                    nw.style = 'position:fixed;left:0;bottom:80%;z-index:6;'
+                    nw.innerText = 'Not working?';
+                    document.body.appendChild(nw)
                     let sp = document.createElement('span');
                     sp.style = 'position:fixed;top:0;right:0;';
                     sp.setAttribute('id','sharespan');
@@ -222,6 +234,13 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                         document.body.appendChild(fb);
                     }
                     loca = loca[1];
+                    if (loca.includes("&")) {
+                        loca = loca.split("&");
+                        document.getElementById('title').innerText = loca[1]+" ~ Ad Free YouTube";
+                        loca = loca[0];
+                    } else {
+                        document.getElementById('title').innerText = "Ad Free YouTube";
+                    }
                     vidLoaded = true;
                     /*document.getElementById('content').innerHTML =
                         '<button onclick="makenew()" style="position: fixed; bottom: 80%; left: 42%; width: 16%;">Make a new ad-free YT video</button>' +
@@ -229,8 +248,9 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                         '<button onclick="openFullscreen()" id="fsbutton">Fullscreen</button>' +
                         '<iframe id="videoframe" src="https://www.youtube.com/embed/' + loca[1] + '"></iframe>';*/
                 } else {
+                    document.getElementById('title').innerText = "Ad Free YouTube";
+                    document.getElementById('content').innerHTML += '<br><br><br><br><button onclick="nerdyStuff()">How this works</button>';
                     document.getElementById('userin').focus()
-            document.getElementById('content').innerHTML += '<br><br><br><br><button onclick="nerdyStuff()">How this works</button>';
                 }
             }, false);
             let isdev = false;
@@ -324,6 +344,18 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                     alert('No videos to save');
                 }
             }
+            function loadSaved(i) {
+                let loca = location.href;
+                if (loca.includes("?")) {
+                    loca = loca.split("?")[0];
+                }
+                if (vidLoaded) {
+                    window.open(loca+'?'+saved[i][1]+'&'+saved[i][0]);
+                    closepop();
+                } else {
+                    location.replace(loca+'?'+saved[i][1]+"&"+saved[i][0]);
+                }
+            }
             function savedVids() {
                 let output = '<i>No videos saved yet. Use the button in the top right of the page to save one!</i>';
                 if (saved.length > 0) {
@@ -332,7 +364,7 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                     while(i<saved.length) {
                         if (saved[i].includes('-') == false) {
                             output +=
-                                '<button onclick="if(vidLoaded){window.open(\'shhs.adFreeYT.html?'+saved[i][1]+'\');closepop();}else{location.replace(\'shhs.adFreeYT.html?'+saved[i][1]+'\')}">'+
+                                '<button onclick="loadSaved('+i+')">'+
                                 'Load "' + saved[i][0]+'"</button> ~ <button onclick="renameVid('+i+')">Rename</button> ~ ' +
                                 '<button onclick="delVid('+i+')" style="background-color:red;">Delete</button><br>';
                         }
@@ -441,7 +473,12 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                 if (vidLoaded) {
                     let vidName = prompt('Enter a name for this video:')
                     if (vidName != '' && vidName != null && vidName != undefined) {
-                        saved.push([vidName,vidId]);
+                        let vidid = location.href;
+                        vidid = vidid.split("?")[1];
+                        if (vidid.includes("&")) {
+                            vidid = vidid.split("&")[0];
+                        }
+                        saved.push([vidName,vidid]);
                         saveSaved();
                         alert('Video saved!');
                     }
