@@ -1,6 +1,7 @@
+
 <html>
     <head>
-        <title>Binary Checker</title>
+        <title id="title">Binary Checker</title>
         <style>
             body {
                 background-color: black;
@@ -26,14 +27,63 @@
             }
         </style>
         <script>
+            let gameName = "Binary";
             let num = 0;
             let binNum = [];
             let timeCount = 0;
             let timeInt;
             let state = 0;
-            // 0 for start page, 1 for running, 2 for results
+            // Above: 0 for start page, 1 for running, 2 for results
+            let next67 = false;
+            let history = [];
+            // Below variable is ONLY for showHistory() and resetHistory() to return to the previous page
+            let prevHTML;
+            window.addEventListener('load', () => {
+                if (localStorage.getItem("BGmode")) {
+                    gameName = "Hexadecimal";
+                    reset();
+                }
+                if (localStorage.getItem('BGhistory')) {
+                    history = localStorage.getItem('BGhistory').split('&');
+                    for (i in history) {
+                        history[i] = history[i].split(",");
+                    }
+                    reset();
+                }
+            }, false);
+            function resetHistory() {
+                let isSure = confirm('Clear history?');
+                if (isSure) {
+                    history = [];
+                    localStorage.removeItem('BGhistory');
+                    reset();
+                }
+            }
+            function showHistory() {
+                prevHTML = document.body.innerHTML;
+                let html = "";
+                let i = 0;
+                while(i<history.length) {
+                    html += history[i][0]+" ("+history[i][1]+")<br>";
+                    i++;
+                }
+                document.getElementById('header').innerText = "History";
+                document.getElementById('content').innerHTML = "<button style='position:fixed;top:0;right:0;' onclick='resetHistory()'>Clear history</button><button onclick='document.body.innerHTML=prevHTML' style='position:fixed;top:0;left:0;'>Back</button>"+html;
+            }
             function genNumber() {
                 num = Math.floor(Math.random()*256);
+                let finalNum;
+                if (next67) {
+                    num = 67;
+                    next67 = false;
+                }
+                if (gameName == "Binary") {
+                    finalNum = toBinary(num);
+                } else {
+                    finalNum = toHexa(num)
+                }
+                history.push([num,finalNum]);
+                localStorage.setItem('BGhistory',history.join("&"));
                 let i = 3;
                 state = 0.5;
                 content.innerHTML = "<h1>3</h1>"
@@ -55,6 +105,37 @@
                     timeCount++;
                     document.getElementById('timeDisp').innerText = (timeCount/100)+" seconds";
                 }, 10);
+            }
+            function toHexa(val) {
+                let digit1 = Math.floor(val/16);
+                let digit2 = Math.floor(val%16);
+                if (digit1 == 10) {
+                    digit1 = "A"
+                } else if (digit1 == 11) {
+                    digit1 = "B"
+                } else if (digit1 == 12) {
+                    digit1 = "C"
+                } else if (digit1 == 13) {
+                    digit1 = "D"
+                } else if (digit1 == 14) {
+                    digit1 = "E"
+                } else if (digit1 == 15) {
+                    digit1 = "F"
+                }
+                if (digit2 == 10) {
+                    digit2 = "A"
+                } else if (digit2 == 11) {
+                    digit2 = "B"
+                } else if (digit2 == 12) {
+                    digit2 = "C"
+                } else if (digit2 == 13) {
+                    digit2 = "D"
+                } else if (digit2 == 14) {
+                    digit2 = "E"
+                } else if (digit2 == 15) {
+                    digit2 = "F"
+                }
+                return digit1+""+digit2;
             }
             function toBinary(val) {
                 binNum = [];
@@ -109,20 +190,62 @@
                 // binNum.reverse();
                 return binNum.join('');
             }
+            function toggleMode() {
+                if (gameName == "Binary") {
+                    gameName = "Hexadecimal"
+                    localStorage.setItem('BGmode',true);
+                } else {
+                    gameName = "Binary";
+                    if (localStorage.getItem('BGmode')) {
+                        localStorage.removeItem('BGmode');
+                    }
+                }
+                document.getElementById('title').innerText = gameName+" Checker";
+                document.getElementById('header').innerText = gameName+" Game";
+                reset();
+            }
             function reset() {
                 state = 0;
                 timeCount = 0;
-                content.innerHTML = '<button onclick="genNumber()">Start</button>';
+                let historyB = "<button onclick='showHistory()' style='position:fixed;top:0;left:0;'>Show history</button>"
+                if (history.length == 0) {
+                    historyB = "";
+                }
+                document.getElementById('title').innerText = gameName+" Checker";
+                document.getElementById('header').innerText = gameName+' Game';
+                content.innerHTML = historyB+"<button onclick='toggleMode()' style='position:fixed;top:0;right:0;'>Switch modes</button><button onclick='genNumber()'>Start</button>";
+            }
+            function popup(html) {
+                if (!document.getElementById('popup')) {
+                    document.body.innerHTML += '<div id="semi" style="position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;z-index:99;display:none;"></div><div id="popup" style="position:fixed;top:5%;left:5%;width:90%;height:90%;background-color:black;border:3px dashed lime;z-index:100;display:none;"></div>'
+                }
+                document.getElementById('popup').innerHTML = '<button id="closeb" onclick="closepop()" style="float:left;">X Close</button><br>' + html;
+                document.getElementById('semi').style.display = '';
+                document.getElementById('popup').style.display = '';
+            }
+            function closepop() {
+                document.getElementById('semi').style.display = 'none';
+                document.getElementById('popup').style.display = 'none';
             }
             window.addEventListener('keydown', (event) => {
+                if (event.key == "v") {
+                    next67 = true;
+                }
                 if (event.key == " ") {
                     if (state == 1) {
+                        let finalNum;
+                        if (gameName == "Binary") {
+                            finalNum = toBinary(num);
+                        } else {
+                            finalNum = toHexa(num);
+                        }
                         state = 2;
                         clearInterval(timeInt);
                         content.innerHTML =
+                            "<button onclick='showHistory()' style='position:fixed;top:0;left:0;'>Show history</button>" +
                             "<h1>Time!</h1>" +
                             "It took you "+(timeCount/100)+" seconds!<br><br>"+
-                            num+" in binary is "+toBinary(num)+".<br><br>"+
+                            num+" in "+gameName.toLowerCase()+" is "+finalNum+".<br><br>"+
                             "<button onclick='reset()'>Run again!</button>"
                     } else if (state == 2) {
                         state = 0;
@@ -131,6 +254,8 @@
                     } else if (state == 0) {
                         state = 1;
                         genNumber();
+                    } else if (state == 0.5) {
+                        next67 = true;
                     }
                 }
             }, false);
@@ -138,8 +263,9 @@
     </head>
     <body>
         <br>
-        <h2>Binary Game</h2>
+        <h2 id="header">Binary Game</h2>
         <div id="content">
+            <button onclick='toggleMode()' style='position:fixed;top:0;right:0;'>Switch modes</button>
             <button onclick="genNumber()">Start</button>
         </div>
     </body>
