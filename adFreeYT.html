@@ -54,7 +54,7 @@ const vValue = urlParams.get('v');
 console.log(vValue); // Will log the value of 'v' or null if it's not present
             */
             function openurl() {
-                let vidid = document.getElementById('userin').value;
+                let vidid = document.getElementById('userIn').value;
                 if (vidid.includes('https:') || vidid.includes("http:")) {
                     if (vidid.includes("?si=")) {
                         vidid = vidid.split('/');
@@ -82,14 +82,14 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                         return;
                     }
                     if (vidid == undefined || vidid == 'undefined' || vidid == '') {
-                        alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidid[1] + '\nJoined ID: ' + document.getElementById('userin').value);
+                        alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidid[1] + '\nJoined ID: ' + document.getElementById('userIn').value);
                     } else {
                         let cLoca = location.href;
                         if (cLoca.includes('?')) {
                             cLoca = cLoca[0];
                         }
                         if (vidLoaded) {
-                            document.getElementById('userin').value = '';
+                            document.getElementById('userIn').value = '';
                             window.open(cLoca+'?' + vidid);
                         } else {
                             location.replace(cLoca+'?' + vidid);
@@ -218,7 +218,7 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                 } else {
                     document.getElementById('title').innerText = "Ad Free YouTube";
                     document.getElementById('content').innerHTML += '<br><br><br><br><button onclick="nerdyStuff()">How this works</button>';
-                    document.getElementById('userin').focus()
+                    document.getElementById('userIn').focus()
                 }
             }, false);
             let isdev = false;
