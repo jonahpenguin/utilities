@@ -115,7 +115,7 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                     } else {
                         let cLoca = location.href;
                         if (cLoca.includes('?')) {
-                            cLoca = cLoca[0];
+                            cLoca = cLoca.split("?")[0];
                         }
                         if (vidLoaded) {
                             document.getElementById('userin').value = '';
