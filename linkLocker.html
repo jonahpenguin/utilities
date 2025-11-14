@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <title>Link Locker</title>
+        <style>
+            body {
+                background-color: darkblue;
+                color: white;
+                text-align: center;
+                font-family: 'Comic Sans MS', helvetica, arial;
+            }
+            a {
+                color:white;
+            }
+            a:hover {
+                background-color: white;
+                color:darkblue;
+            }
+            a:focus {
+                background-color: white;
+                color:darkblue;
+            }
+            button {
+                background-color: white;
+                color:black;
+            }
+            button:hover {
+                background-color: black;
+                color:white;
+            }
+            button:focus {
+                background-color: black;
+                color:white;
+            }
+        </style>
+        <script>
+            function copyLocked() {
+                navigator.clipboard.writeText(document.getElementById('url').innerText);
+                alert('Copied to clipboard')
+            }
+            function makeLink() {
+                if (document.getElementById('pass1').value==document.getElementById('pass2').value) {
+                    document.getElementById('output').innerHTML = '<span id="url">'+location.href+'?'+btoa(document.getElementById('URLin').value)+'&'+btoa(document.getElementById('pass1').value)+'</span><br><br><button onclick="copyLocked()">Copy to Clipboard</button>'
+                } else {
+                    alert('Passwords do not match');
+                }
+            }
+            let attCount = 0;
+            function unlockURL(elem,ePass,eURL) {
+                try{
+                if (elem.value == atob(ePass)) {
+                    document.getElementById('content').innerHTML = 'Success! Loading...';
+                    setTimeout(() => {
+                        location.replace(atob(eURL));
+                    }, 1000);
+                } else {
+                    attCount++;
+                    alert('Invalid password; ' + attCount + '/3')
+                    if(attCount>=3) {
+                        alert('Max attempts reached');
+                        let cont = true;
+                        setTimeout(() => {cont=false;}, 30000);
+                        while(cont){
+                            window.open('https://extra-other-stuff-10439159.codehs.me/linkLocker.html');
+                        }
+                    }
+                }
+                }catch(e){
+                    alert(e.stack)
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <br>
+        <h1>Link Locker</h1>
+        <i>Secure a link with this tool by locking it behind a password</i>
+        <br><br>
+        Paste link:
+        <input type="text" id="URLin" placeholder="Link...">
+        <br><br>
+        Password:
+        <input type="password" id="pass1" placeholder="Password...">
+        <br><br>
+        Confirm password:
+        <input type="password" id="pass2" placeholder="Confirm password...">
+        <br><br>
+        <button onclick="makeLink()">Get Locked Link</button>
+        <br><br>
+        <span id="output"></span>
+    </body>
+    <script>
+        if (location.href.includes('?')) {
+            let loca = location.href.split('?');
+            loca = loca[1];
+            if (loca.includes('&')) {
+                loca = loca.split('&');
+                if (atob(loca[0]).includes('http')&&atob(loca[0]).includes('/')) {
+                    let edestURL = loca[0];
+                    let epassKey = loca[1];
+                    document.body.style.backgroundColor = "black";
+                    document.body.style.color = "lime";
+                    document.body.style.fontFamily = "monospace";
+                    document.body.innerHTML =
+                        '<br><h1>Link Locker ~ Open Link</h1>' +
+                        '<span id="content">Password: <input type="password" id="pass" onkeypress="if(event.key==\'Enter\'){unlockURL(this,\''+epassKey+'\',\''+edestURL+'\')}" placeholder="Password...">' +
+                        '<br><br>' +
+                        '<button onclick="unlockURL(this,\''+epassKey+'\',\''+edestURL+'\')">Unlock</button></span>';
+                } else {
+                    alert('Link error - destination link is invalid')
+                }
+            } else {
+                alert('Link error - no password found')
+            }
+        }
+    </script>
+</html>
