@@ -1,0 +1,314 @@
+<html>
+    <head>
+        <title>infinite.plat editor</title>
+        <style>
+            body {
+                background-color: rgb(226, 226, 226);
+                color: blue;
+                font-family: helvetica, arial;
+                text-align: center;
+                z-index: 1;
+            }
+            button {
+                background-color: lightblue;
+                color: darkblue;
+            }
+            button:hover {
+                background-color: darkblue;
+                color: lightblue;
+            }
+            button:hover {
+                background-color: darkblue;
+                color: lightblue;
+            }
+            #player {
+                position:fixed;
+                background-color: black;
+                width:50px;
+                height:50px;
+            }
+            .wall {
+                background-color: green;
+                position: fixed;
+                z-index:2;
+            }
+            #ghostBlock {
+                background-color: greenyellow;
+                width: 50px;
+                height: 50px;
+                position: fixed;
+            }
+            #contextMenu {
+                position: fixed;
+                width:100px;
+                height:100px;
+                z-index: 5;
+            }
+        </style>
+        <script>
+            // Playtesting stuff
+            
+            let player = {
+                x: 20,
+                y: 0,
+                isActive: false,
+                onGround: true,
+                xSpeed: 0,
+                ySpeed: 0
+            }
+            function loadPlayer() {
+                document.body.innerHTML += '<div id="player" style="position:fixed;bottom:'+player.x+'px;left:'+player.y+'px;"></div>'
+                player.isActive = true;
+            }
+            function disablePlayer() {
+                document.getElementById('player').outerHTML = '';
+                player.isActive = false;
+            }
+            let keysHeld = {
+                up: false,
+                down: false,
+                left: false,
+                right: false
+            }
+            window.addEventListener('keydown', (event) => {
+                switch(event.key) {
+                    case "ArrowUp":
+                        keysHeld.up = true;
+                        break;
+                    case "ArrowDown":
+                        keysHeld.down = true;
+                        break;
+                    case "ArrowLeft":
+                        keysHeld.left = true;
+                        break;
+                    case "ArrowRight":
+                        keysHeld.right = true;
+                        break;
+                }
+            }, false);
+            window.addEventListener('keyup', (event) => {
+                switch(event.key) {
+                    case "ArrowUp":
+                        keysHeld.up = false;
+                        break;
+                    case "ArrowDown":
+                        keysHeld.down = false;
+                        break;
+                    case "ArrowLeft":
+                        keysHeld.left = false;
+                        break;
+                    case "ArrowRight":
+                        keysHeld.right = false;
+                        break;
+                }
+            }, false);
+            // Below function was coded with AI because I don't want to do the math for collision...
+            function senseWalls() {
+                const pW = 50, pH = 50;
+                let collidedAny = false;
+
+                for (let i = 0; i < hitPoints.length; i++) {
+                    if (!hitPoints[i]) {
+                        continue;
+                    }
+                    const w = hitPoints[i];
+                    const pLeft = player.x, pRight = player.x + pW, pBottom = player.y, pTop = player.y + pH;
+                    const wLeft = w.x, wRight = w.x + w.width, wBottom = w.y, wTop = w.y + w.height;
+                
+                    // AABB overlap test
+                    if (pRight > wLeft && pLeft < wRight && pTop > wBottom && pBottom < wTop) {
+                        // how much they overlap on each axis
+                        const overlapX = Math.min(pRight, wRight) - Math.max(pLeft, wLeft);
+                        const overlapY = Math.min(pTop, wTop) - Math.max(pBottom, wBottom);
+                    
+                        if (overlapX < overlapY) {
+                            // horizontal collision -> push left or right
+                            if (pRight - wLeft < wRight - pLeft) {
+                                // hit from left
+                                player.x = wLeft - pW;
+                            } else {
+                                // hit from right
+                                player.x = wRight;
+                            }
+                            player.xSpeed = 0;
+                        } else {
+                            // vertical collision -> push up or down
+                            if (pTop - wBottom < wTop - pBottom) {
+                                // hit the underside of the wall
+                                player.y = wBottom - pH;
+                                // stop upward movement
+                                if (player.ySpeed > 0) player.ySpeed = 0;
+                            } else {
+                                // landed on top of the wall
+                                player.y = wTop;
+                                player.ySpeed = 0;
+                                player.onGround = true;
+                            }
+                        }
+                        collidedAny = true;
+                    }
+                }
+            
+                // if not colliding with any wall and not on the world ground, mark airborne
+                if (!collidedAny && player.y > 0) {
+                    player.onGround = false;
+                }
+            }
+            setInterval(() => {
+                if (player.isActive) {
+                    player.ySpeed--;
+                    if (player.ySpeed <= -20) {
+                        player.ySpeed = -20;
+                    }
+                    if (keysHeld.left) {
+                        player.x-=7;
+                    }
+                    if (keysHeld.right) {
+                        player.x+=7;
+                    }
+                    if (keysHeld.up && player.onGround) {
+                        player.ySpeed = 20;
+                    }
+                    if (player.x > window.innerWidth-25) {
+                        player.x = -25;
+                    }
+                    if (player.x < -25) {
+                        player.x = window.innerWidth-25;
+                    }
+                    player.x += player.xSpeed;
+                    player.y += player.ySpeed;
+                    if (player.y <= 0) {
+                            player.onGround = true;
+                            player.y = 0;
+                            player.ySpeed = 0;
+                    } else {
+                        player.onGround = false;
+                    }
+                    senseWalls();
+                    document.getElementById('player').style.left = player.x+"px";
+                    document.getElementById('player').style.bottom = player.y+"px";
+                }
+            }, 10);
+        </script>
+        <script>
+            // Editor stuff
+
+            let hitPoints = [];
+            let showGhost = true;
+            function addWall(x,y,width,height) {
+                let index = hitPoints.push(
+                    {x:x,y:(window.innerHeight-y-height),width:width,height:height}
+                );
+                // For some reason index is initially 1 higher, counting with a starting index of 1 instead of 0
+                // Hence the below line
+                index-=1;
+                document.body.innerHTML += '<div id="wall'+index+'" class="wall" onclick="event.stopPropagation();editWall('+index+',this)" style="left:'+x+'px;bottom:'+(hitPoints[index].y)+'px;width:'+width+'px;height:'+height+'px;"></div>'
+            }
+            function updateWidth(elem) {
+                document.getElementById('wall'+currentWall).style.width = parseInt(elem.value)+"px";
+                hitPoints[currentWall].width = parseInt(elem.value);
+            }
+            function updateHeight(elem) {
+                document.getElementById('wall'+currentWall).style.height = parseInt(elem.value)+"px";
+                hitPoints[currentWall].height = parseInt(elem.value);
+            }
+            let currentWall = -1;
+            function editWall(id, elem) {
+                currentWall = id;
+                let cm = document.getElementById('contextMenu');
+                if (hitPoints[id].x+hitPoints[id].width > window.innerWidth-20) {
+                    cm.style.left = (hitPoints[id].x-15)+"px";
+                } else {
+                    cm.style.left = (hitPoints[id].x+hitPoints[id].width+15)+"px";
+                }
+                cm.style.bottom = (hitPoints[id].y)+"px";
+                cm.style.display = '';
+                document.getElementById('widthBox').value = hitPoints[id].width;
+                document.getElementById('heightBox').value = hitPoints[id].height;
+            }
+            // addingWalls is for edit/build mode, wallsDisabled is for when hovering over a button
+            let addingWalls = true;
+            let wallsDisabled = false;
+            let mousePos = [];
+            window.addEventListener('mousemove', (event) => {
+                mousePos = [event.clientX,event.clientY];
+                if (showGhost) {
+                    document.getElementById('ghostBlock').style.display = '';
+                    document.getElementById('ghostBlock').style.left = mousePos[0]+"px";
+                    document.getElementById('ghostBlock').style.top = mousePos[1]+"px";
+                } else {
+                    document.getElementById('ghostBlock').style.display = 'none';
+                }
+            }, false);
+            function toggleMode(elem) {
+                if (addingWalls) {
+                    addingWalls = false;
+                    elem.innerText = "Build Mode";
+                } else {
+                    addingWalls = true;
+                    elem.innerText = "Edit Mode";
+                }
+            }
+            window.addEventListener('click', () => {
+                if (addingWalls) {
+                    showGhost = true;
+                    if (!wallsDisabled) {
+                        if (document.getElementById('contextMenu').style.display == "none") {
+                            addWall(mousePos[0],mousePos[1],50,50);
+                        } else {
+                            document.getElementById('contextMenu').style.display = 'none';
+                        }
+                    }
+                } else {
+                    showGhost = false;
+                }
+            }, false);
+            function togglePlay() {
+                let elem = document.getElementById('playtestButton');
+                if (player.isActive) {
+                    disablePlayer();
+                    showGhost = true;
+                    elem.innerText = "Show Player";
+                } else {
+                    player.x = 20;
+                    player.y = 0;
+                    loadPlayer();
+                    showGhost = false;
+                    document.getElementById('playtestButton').innerText = "Hide Player";
+                }
+            }
+            function delBlock() {
+                hitPoints[currentWall] = null;
+                document.getElementById('wall'+currentWall).outerHTML = '';
+                currentWall = -1;
+                document.getElementById('contextMenu').style.display = 'none';
+            }
+            // Data format: x&y&width&height;
+            function exportWalls() {
+                if (hitPoints.length <= 0) {
+                    alert("No data to export");
+                    return;
+                }
+                let i = 0;
+                let output = '';
+                while(i<hitPoints.length) {
+                    output += hitPoints[i].x+"&"+hitPoints[i].y+"&"+hitPoints[i].width+"&"+hitPoints[i].height+";";
+                    i++;
+                }
+                navigator.clipboard.writeText(output);
+                alert('Copied to clipboard');
+            }
+        </script>
+    </head>
+    <body>
+        <div id="contextMenu" onclick="event.stopPropagation();" style="display:none;">
+            Width: <input type="number" id="widthBox" onchange="updateWidth(this)"></input><br>
+            Height: <input type="number" id="heightBox" onchange="updateHeight(this)"></input><br>
+            <button onclick="delBlock()" style="background-color: red;">Delete</button>
+        </div>
+        <div id="ghostBlock" style="top:0px;left:0px;"></div>
+        <button style="position:fixed;top:0;right:0;z-index:10;" onclick="event.stopPropagation();exportWalls();">Export</button>
+        <button id="playtestButton" onclick="togglePlay(this)" onmouseover="wallsDisabled=true;" onmouseout="wallsDisabled=false;" style="z-index: 10;position:fixed;bottom:0;left:0;">Show Player</button>
+        <button hidden onclick="toggleMode(this)" onmouseover="wallsDisabled=true;" onmouseout="wallsDisabled=false;" style="z-index:10;position:fixed;bottom:0;right:0;">Edit Mode</button>
+    </body>
+</html>
