@@ -1,3 +1,4 @@
+
 <html>
     <head>
         <title>infinite.plat editor</title>
@@ -216,7 +217,9 @@
             function editWall(id, elem) {
                 let i = 0;
                 while(i<hitPoints.length) {
-                    document.getElementById('wall'+i).style.border = '';
+                    if (document.getElementById('wall'+i)) {
+                        document.getElementById('wall'+i).style.border = '';
+                    }
                     i++;
                 }
                 elem.style.border = "3px dashed lime";
