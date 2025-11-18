@@ -305,6 +305,7 @@
             }
             // Data format: x&y&width&height;
             function exportWalls() {
+                try {
                 if (hitPoints.length <= 0) {
                     alert("No data to export");
                     return;
@@ -317,6 +318,9 @@
                 }
                 navigator.clipboard.writeText(output);
                 alert('Copied to clipboard');
+                }catch(e) {
+                    alert('An error occured. Take a screenshot:\n'+e.message+"\n"+e.stack);
+                }
             }
         </script>
     </head>
