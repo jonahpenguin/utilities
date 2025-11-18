@@ -277,7 +277,9 @@
                             document.getElementById('contextMenu').style.display = 'none';
                             let i = 0;
                             while(i<hitPoints.length) {
-                                document.getElementById('wall'+i).style.border = '';
+                                if (document.getElementById('wall'+i)) {
+                                    document.getElementById('wall'+i).style.border = '';
+                                }
                                 i++;
                             }
                         }
