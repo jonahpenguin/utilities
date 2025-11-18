@@ -214,14 +214,29 @@
             }
             let currentWall = -1;
             function editWall(id, elem) {
+                let i = 0;
+                while(i<hitPoints.length) {
+                    document.getElementById('wall'+i).style.border = '';
+                    i++;
+                }
+                elem.style.border = "3px dashed lime";
                 currentWall = id;
                 let cm = document.getElementById('contextMenu');
-                if (hitPoints[id].x+hitPoints[id].width > window.innerWidth-20) {
-                    cm.style.left = (hitPoints[id].x-15)+"px";
+                if (hitPoints[id].x+hitPoints[id].width > window.innerWidth-100) {
+                    cm.style.left = (hitPoints[id].x-140-hitPoints[id].width)+"px";
                 } else {
                     cm.style.left = (hitPoints[id].x+hitPoints[id].width+15)+"px";
                 }
-                cm.style.bottom = (hitPoints[id].y)+"px";
+                if (hitPoints[id].y > 100 && hitPoints[id].y < window.innerHeight-100) {
+                    cm.style.bottom = (hitPoints[id].y)+"px";
+                } else if (hitPoints[id].y <= 100) {
+                    cm.style.bottom = "0px";
+                } else if (hitPoints[id].y > window.innerHeight-100) {
+                    cm.style.bottom = (window.innerHeight-100)+"px";
+                } else {
+                    cm.style.bottom = (window.innerHeight/2)+"px";
+                    console.log('context menu could not be centered near object')
+                }
                 cm.style.display = '';
                 document.getElementById('widthBox').value = hitPoints[id].width;
                 document.getElementById('heightBox').value = hitPoints[id].height;
@@ -257,6 +272,11 @@
                             addWall(mousePos[0],mousePos[1],50,50);
                         } else {
                             document.getElementById('contextMenu').style.display = 'none';
+                            let i = 0;
+                            while(i<hitPoints.length) {
+                                document.getElementById('wall'+i).style.border = '';
+                                i++;
+                            }
                         }
                     }
                 } else {
