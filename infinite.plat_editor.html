@@ -175,8 +175,18 @@
                     player.onGround = false;
                 }
             }
+            let isSlowMo = false;
+            let slowMoState = 0;
             setInterval(() => {
-                if (player.isActive) {
+                if (isSlowMo) {
+                    slowMoState++;
+                    if (slowMoState>3) {
+                        slowMoState = 0;
+                    }
+                } else {
+                    slowMoState = 0;
+                }
+                if (player.isActive && slowMoState == 0) {
                     player.ySpeed--;
                     if (player.ySpeed <= -20) {
                         player.ySpeed = -20;
@@ -398,6 +408,37 @@
                 }
                 hideOptions();
             }
+            window.addEventListener('keydown', (event) => {
+                if (event.key == " ") {
+                    if (player.isActive) {
+                        player.isActive = false;
+                    } else {
+                        player.isActive = true;
+                    }
+                }
+                if (event.key == "s") {
+                    if (isSlowMo) {
+                        isSlowMo = false;
+                    } else {
+                        isSlowMo = true;
+                    }
+                }
+                if (event.key == "b") {
+                    toggleButtons();
+                }
+                if (event.key == "o") {
+                    if (
+                        parseInt(document.getElementById('options').style.top)>100
+                    ) {
+                        showOptions();
+                    } else {
+                        hideOptions();
+                    }
+                }
+                if (event.key == "Backspace") {
+                    delBlock();
+                }
+            }, false);
         </script>
     </head>
     <body>
@@ -411,8 +452,8 @@
             <button onclick="toggleButtons()">Switch Button Layout</button>
             <br><br>
             <button id="playtestButton" onclick="togglePlay(this)">Show Player</button>
-            <h1>Keybindings (coming soon!)</h1>
-            <span style="opacity:0;">
+            <h1>Keybindings</h1>
+            <span>
             Space: pause player movement<br>
             s: toggle slow motion<br>
             b: switch button layout<br>
