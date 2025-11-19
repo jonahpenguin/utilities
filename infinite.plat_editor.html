@@ -363,13 +363,13 @@
                 ) {
                     document.getElementById('optButton').style.left = '';
                     document.getElementById('optButton').style.right = 0;
-                    document.getElementById('playtestButton').style.left = '';
-                    document.getElementById('playtestButton').style.right = 0;
+                    document.getElementById('randoButton').style.left = '';
+                    document.getElementById('randoButton').style.right = 0;
                 } else {
                     document.getElementById('optButton').style.left = 0;
                     document.getElementById('optButton').style.right = '';
-                    document.getElementById('playtestButton').style.left = 0;
-                    document.getElementById('playtestButton').style.right = '';
+                    document.getElementById('randoButton').style.left = 0;
+                    document.getElementById('randoButton').style.right = '';
                 }
             }
             function clearWalls() {
@@ -410,7 +410,7 @@
             <br><br>
             <button onclick="toggleButtons()">Switch Button Layout</button>
             <br><br>
-            <button onclick="genRandom()">Generate Random Map (will clear current map)</button>
+            <button id="playtestButton" onclick="togglePlay(this)">Show Player</button>
             <h1>Keybindings (coming soon!)</h1>
             <span style="opacity:0;">
             Space: pause player movement<br>
@@ -427,10 +427,11 @@
         </div>
         <div id="ghostBlock" style="top:0px;left:0px;"></div>
         <button id="optButton" style="position:fixed;top:0;left:0;z-index:10;" onclick="event.stopPropagation();showOptions()">Options</button>
-        <button id="playtestButton" onclick="togglePlay(this)" onmouseover="wallsDisabled=true;" onmouseout="wallsDisabled=false;" style="z-index: 10;position:fixed;bottom:0;left:0;">Show Player</button>
+        <button onclick="genRandom()" id="randoButton" onmouseover="wallsDisabled=true;" onmouseout="wallsDisabled=false;" style="z-index: 10;position:fixed;bottom:0;left:0;">Generate Random Map</button>
         <button hidden onclick="toggleMode(this)" onmouseover="wallsDisabled=true;" onmouseout="wallsDisabled=false;" style="z-index:10;position:fixed;bottom:0;right:0;">Edit Mode</button>
     </body>
     <script>
         document.getElementById('options').style.top = "105%";
+        togglePlay(document.getElementById('playtestButton'))
     </script>
 </html>
