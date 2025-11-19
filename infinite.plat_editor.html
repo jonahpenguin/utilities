@@ -1,4 +1,3 @@
-
 <html>
     <head>
         <title>infinite.plat editor</title>
@@ -44,6 +43,27 @@
                 width:100px;
                 height:100px;
                 z-index: 5;
+            }
+            #options {
+                position:fixed;
+                width:90%;
+                height:90%;
+                left:5%;
+                background-color: blue;
+                border: 3px dashed lightblue;
+                color:white;
+                text-align: center;
+                z-index:100;
+            }
+            #semi {
+                z-index:99;
+                position:fixed;
+                top:0;
+                left:0;
+                width:100%;
+                height:100%;
+                background-color: black;
+                opacity: 0.5;
             }
         </style>
         <script>
@@ -327,17 +347,62 @@
                     alert('An error occured. Take a screenshot:\n'+e.message+"\n"+e.stack);
                 }
             }
+            function showOptions() {
+                document.getElementById('options').style.top = '5%';
+                document.getElementById('semi').style.display = '';
+                showGhost = false;
+            }
+            function hideOptions() {
+                document.getElementById('options').style.top = "105%";
+                document.getElementById('semi').style.display = 'none';
+                showGhost=true;
+            }
+            function toggleButtons() {
+                if (
+                    parseInt(document.getElementById('optButton').style.left) == 0
+                ) {
+                    document.getElementById('optButton').style.left = '';
+                    document.getElementById('optButton').style.right = 0;
+                    document.getElementById('playtestButton').style.left = '';
+                    document.getElementById('playtestButton').style.right = 0;
+                } else {
+                    document.getElementById('optButton').style.left = 0;
+                    document.getElementById('optButton').style.right = '';
+                    document.getElementById('playtestButton').style.left = 0;
+                    document.getElementById('playtestButton').style.right = '';
+                }
+            }
         </script>
     </head>
     <body>
+        <div id="semi" style="display:none;"></div>
+        <div id="options" onclick="event.stopPropagation();">
+            <button onclick="hideOptions()" style="float:left;">X Close</button>
+            <br>
+            <h1>Options</h1>
+            <button onclick="exportWalls()">Export</button>
+            <br><br>
+            <button onclick="toggleButtons()">Switch Button Layout</button>
+            <h1>Keybindings (coming soon!)</h1>
+            <span style="opacity:0;">
+            Space: pause player movement<br>
+            s: toggle slow motion<br>
+            b: switch button layout<br>
+            o: open options<br>
+            backspace: delete selected object
+            </span>
+        </div>
         <div id="contextMenu" onclick="event.stopPropagation();" style="display:none;">
             Width: <input type="number" id="widthBox" onchange="updateWidth(this)"></input><br>
             Height: <input type="number" id="heightBox" onchange="updateHeight(this)"></input><br>
             <button onclick="delBlock()" style="background-color: red;">Delete</button>
         </div>
         <div id="ghostBlock" style="top:0px;left:0px;"></div>
-        <button style="position:fixed;top:0;right:0;z-index:10;" onclick="event.stopPropagation();exportWalls();">Export</button>
+        <button id="optButton" style="position:fixed;top:0;left:0;z-index:10;" onclick="event.stopPropagation();showOptions()">Options</button>
         <button id="playtestButton" onclick="togglePlay(this)" onmouseover="wallsDisabled=true;" onmouseout="wallsDisabled=false;" style="z-index: 10;position:fixed;bottom:0;left:0;">Show Player</button>
         <button hidden onclick="toggleMode(this)" onmouseover="wallsDisabled=true;" onmouseout="wallsDisabled=false;" style="z-index:10;position:fixed;bottom:0;right:0;">Edit Mode</button>
     </body>
+    <script>
+        document.getElementById('options').style.top = "105%";
+    </script>
 </html>
