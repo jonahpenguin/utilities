@@ -372,6 +372,32 @@
                     document.getElementById('playtestButton').style.right = '';
                 }
             }
+            function clearWalls() {
+                let i = 0;
+                while(i<hitPoints.length) {
+                    if (document.getElementById('wall'+i)) {
+                        document.getElementById('wall'+i).outerHTML = '';
+                    }
+                    i++;
+                }
+                hitPoints = [];
+            }
+            function genRandom() {
+                clearWalls();
+                let numWalls = Math.floor(Math.random()*80+10);
+                let i = 0;
+                while(i<numWalls) {
+                    let wall = {
+                        x:Math.floor(Math.random()*window.innerWidth),
+                        y:Math.floor(Math.random()*window.innerHeight),
+                        width:Math.floor(Math.random()*15)+30,
+                        height:Math.floor(Math.random()*15)+30
+                    }
+                    addWall(wall.x,wall.y,wall.width,wall.height);
+                    i++;
+                }
+                hideOptions();
+            }
         </script>
     </head>
     <body>
@@ -383,6 +409,8 @@
             <button onclick="exportWalls()">Export</button>
             <br><br>
             <button onclick="toggleButtons()">Switch Button Layout</button>
+            <br><br>
+            <button onclick="genRandom()">Generate Random Map (will clear current map)</button>
             <h1>Keybindings (coming soon!)</h1>
             <span style="opacity:0;">
             Space: pause player movement<br>
