@@ -322,13 +322,11 @@
                 let elem = document.getElementById('playtestButton');
                 if (player.isActive) {
                     disablePlayer();
-                    showGhost = true;
                     elem.innerText = "Show Player";
                 } else {
                     player.x = 20;
                     player.y = 0;
                     loadPlayer();
-                    showGhost = false;
                     document.getElementById('playtestButton').innerText = "Hide Player";
                 }
             }
@@ -435,8 +433,18 @@
                         hideOptions();
                     }
                 }
-                if (event.key == "Backspace") {
+                if (event.key == "Backspace" || event.key == "Delete") {
                     delBlock();
+                }
+                if (event.key == "m" && currentWall != -1) {
+                    hitPoints[currentWall].x = mousePos[0];
+                    hitPoints[currentWall].y = window.innerHeight-hitPoints[currentWall].height-mousePos[1];
+                    document.getElementById('wall'+currentWall).style.bottom = hitPoints[currentWall].y+"px";
+                    document.getElementById('wall'+currentWall).style.left = hitPoints[currentWall].x+"px";
+                    editWall(currentWall, document.getElementById('wall'+currentWall))
+                }
+                if (event.key == "Escape") {
+                    hideOptions();
                 }
             }, false);
         </script>
@@ -452,13 +460,18 @@
             <button onclick="toggleButtons()">Switch Button Layout</button>
             <br><br>
             <button id="playtestButton" onclick="togglePlay(this)">Show Player</button>
+            <br><br>
+            <button onclick="let isSure=confirm('Clear the map?\nThis cannot be undone');if(isSure){clearWalls();hideOptions();}">Clear Map</button>
+            <br><br>
+            <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSfJpZxaMKlxgrxPHvSEU__IirxGDDS2k1xxpEkzxJoPPxy6kA/viewform?usp=publish-editor')">Submit Level (export first)</button>
             <h1>Keybindings</h1>
             <span>
             Space: pause player movement<br>
             s: toggle slow motion<br>
             b: switch button layout<br>
             o: open options<br>
-            backspace: delete selected object
+            backspace: delete selected object<br>
+            m: move selected object to mouse
             </span>
         </div>
         <div id="contextMenu" onclick="event.stopPropagation();" style="display:none;">
