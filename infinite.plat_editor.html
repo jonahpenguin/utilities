@@ -434,7 +434,9 @@
                     }
                 }
                 if (event.key == "Backspace" || event.key == "Delete") {
-                    delBlock();
+                    if (document.activeElement.nodeName != "INPUT") {
+                        delBlock();
+                    }
                 }
                 if (event.key == "m" && currentWall != -1) {
                     hitPoints[currentWall].x = mousePos[0];
