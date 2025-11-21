@@ -69,6 +69,7 @@
         <script>
             // Playtesting stuff
             
+            let useArrows = true;
             let player = {
                 x: 20,
                 y: 0,
@@ -92,35 +93,69 @@
                 right: false
             }
             window.addEventListener('keydown', (event) => {
-                switch(event.key) {
-                    case "ArrowUp":
-                        keysHeld.up = true;
-                        break;
-                    case "ArrowDown":
-                        keysHeld.down = true;
-                        break;
-                    case "ArrowLeft":
-                        keysHeld.left = true;
-                        break;
-                    case "ArrowRight":
-                        keysHeld.right = true;
-                        break;
+                if (useArrows) {
+                    switch(event.key) {
+                        case "ArrowUp":
+                            keysHeld.up = true;
+                            break;
+                        case "ArrowDown":
+                            keysHeld.down = true;
+                            break;
+                        case "ArrowLeft":
+                            keysHeld.left = true;
+                            break;
+                        case "ArrowRight":
+                            keysHeld.right = true;
+                            break;
+                    }
+                } else {
+                    switch(event.key) {
+                        case "w":
+                            keysHeld.up = true;
+                            break;
+                        case "s":
+                            keysHeld.down = true;
+                            break;
+                        case "a":
+                            keysHeld.left = true;
+                            break;
+                        case "d":
+                            keysHeld.right = true;
+                            break;
+                    }
                 }
             }, false);
             window.addEventListener('keyup', (event) => {
-                switch(event.key) {
-                    case "ArrowUp":
-                        keysHeld.up = false;
-                        break;
-                    case "ArrowDown":
-                        keysHeld.down = false;
-                        break;
-                    case "ArrowLeft":
-                        keysHeld.left = false;
-                        break;
-                    case "ArrowRight":
-                        keysHeld.right = false;
-                        break;
+                if (useArrows) {
+                    switch(event.key) {
+                        case "ArrowUp":
+                            keysHeld.up = false;
+                            break;
+                        case "ArrowDown":
+                            keysHeld.down = false;
+                            break;
+                        case "ArrowLeft":
+                            keysHeld.left = false;
+                            break;
+                        case "ArrowRight":
+                            keysHeld.right = false;
+                            break;
+                    }
+                } else {
+                    switch(event.key) {
+                        case "w":
+                            keysHeld.up = false;
+                            break;
+                        case "s":
+                            keysHeld.down = false;
+                            break;
+                        case "a":
+                            keysHeld.left = false;
+                            break;
+                        case "d":
+                            keysHeld.right = false;
+                            break;
+                    }
                 }
             }, false);
             // Below function was coded with AI because I don't want to do the math for collision...
@@ -226,6 +261,7 @@
 
             let hitPoints = [];
             let showGhost = true;
+            let hoveredWall = -1;
             function addWall(x,y,width,height) {
                 let index = hitPoints.push(
                     {x:x,y:(window.innerHeight-y-height),width:width,height:height}
@@ -233,7 +269,7 @@
                 // For some reason index is initially 1 higher, counting with a starting index of 1 instead of 0
                 // Hence the below line
                 index-=1;
-                document.body.innerHTML += '<div id="wall'+index+'" class="wall" onclick="event.stopPropagation();editWall('+index+',this)" style="left:'+x+'px;bottom:'+(hitPoints[index].y)+'px;width:'+width+'px;height:'+height+'px;"></div>'
+                document.body.innerHTML += '<div onmouseover="hoveredWall='+index+';" onmouseout="hoveredWall=-1;" id="wall'+index+'" class="wall" onclick="event.stopPropagation();editWall('+index+',this)" style="left:'+x+'px;bottom:'+(hitPoints[index].y)+'px;width:'+width+'px;height:'+height+'px;"></div>'
             }
             function updateWidth(elem) {
                 document.getElementById('wall'+currentWall).style.width = parseInt(elem.value)+"px";
@@ -446,13 +482,70 @@
                     editWall(currentWall, document.getElementById('wall'+currentWall))
                 }
                 if (event.key == "Escape") {
-                    hideOptions();
+                    if (
+                        parseInt(document.getElementById('options').style.top)>100
+                    ) {
+                        currentWall = -1;
+                        flushContextMenu();
+                    } else {
+                        hideOptions();
+                    }
+                }
+                if (currentWall >= 0 && event.key == "i") {
+                    hitPoints[currentWall].y++;
+                    document.getElementById('wall'+currentWall).style.bottom = hitPoints[currentWall].y+"px";
+                    flushContextMenu();
+                }
+                if (currentWall >= 0 && event.key == "k") {
+                    hitPoints[currentWall].y--;
+                    document.getElementById('wall'+currentWall).style.bottom = hitPoints[currentWall].y+"px";
+                    flushContextMenu();
+                }
+                if (currentWall >= 0 && event.key == "j") {
+                    hitPoints[currentWall].x--;
+                    document.getElementById('wall'+currentWall).style.left = hitPoints[currentWall].x+"px";
+                    flushContextMenu();
+                }
+                if (currentWall >= 0 && event.key == "l") {
+                    hitPoints[currentWall].x++;
+                    document.getElementById('wall'+currentWall).style.left = hitPoints[currentWall].x+"px";
+                    flushContextMenu();
+                }
+                if (event.key == "q" && currentWall >= 0 && hoveredWall >= 0) {
+                    hitPoints[currentWall].x = hitPoints[hoveredWall].x;
+                    document.getElementById('wall'+currentWall).style.left = hitPoints[currentWall].x+"px";
+                    flushContextMenu();
+                }
+                if (event.key == "e" && currentWall >= 0 && hoveredWall >= 0) {
+                    hitPoints[currentWall].y = hitPoints[hoveredWall].y;
+                    document.getElementById('wall'+currentWall).style.bottom = hitPoints[currentWall].y+"px";
+                    flushContextMenu();
                 }
             }, false);
+            function flushContextMenu() {
+                document.getElementById('contextMenu').style.display = 'none';
+                let i = 0;
+                while(i<hitPoints.length) {
+                    if (document.getElementById('wall'+i)) {
+                        document.getElementById('wall'+i).style.border = '';
+                    }
+                    i++;
+                }
+                editWall(currentWall, document.getElementById('wall'+currentWall));
+            }
+            function toggleArrows(elem) {
+                if (useArrows) {
+                    useArrows = false;
+                    elem.innerText = "Switch to Arrow Keys";
+                } else {
+                    useArrows = true;
+                    elem.innerText = "Switch to WASD";
+                }
+            }
         </script>
     </head>
     <body>
-        <div id="semi" style="display:none;"></div>
+        <div id="semi" onclick="event.stopPropagation();hideOptions();" style="display:none;"></div>
         <div id="options" onclick="event.stopPropagation();">
             <button onclick="hideOptions()" style="float:left;">X Close</button>
             <br>
@@ -465,20 +558,25 @@
             <br><br>
             <button onclick="let isSure=confirm('Clear the map?\nThis cannot be undone');if(isSure){clearWalls();hideOptions();}">Clear Map</button>
             <br><br>
+            <button onclick="toggleArrows(this)">Switch to WASD</button>
+            <br><br>
             <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSfJpZxaMKlxgrxPHvSEU__IirxGDDS2k1xxpEkzxJoPPxy6kA/viewform?usp=publish-editor')">Submit Level (export first)</button>
             <h1>Keybindings</h1>
             <span>
-            Space: pause player movement<br>
-            s: toggle slow motion<br>
-            b: switch button layout<br>
-            o: open options<br>
-            backspace: delete selected object<br>
-            m: move selected object to mouse
+                Space: pause player movement<br>
+                s: toggle slow motion<br>
+                b: switch button layout<br>
+                o: open options<br>
+                backspace: delete selected object<br>
+                m: move selected object to mouse<br>
+                i j k l: move the selected object by 1px<br>
+                q: snap selected object to the x of the object being hovered over<br>
+                e: snap selected object to the y of the object being hovered over
             </span>
         </div>
         <div id="contextMenu" onclick="event.stopPropagation();" style="display:none;">
-            Width: <input type="number" id="widthBox" onchange="updateWidth(this)"></input><br>
-            Height: <input type="number" id="heightBox" onchange="updateHeight(this)"></input><br>
+            Width: <input isInput="true" type="number" id="widthBox" onchange="updateWidth(this)"></input><br>
+            Height: <input isInput="true" type="number" id="heightBox" onchange="updateHeight(this)"></input><br>
             <button onclick="delBlock()" style="background-color: red;">Delete</button>
         </div>
         <div id="ghostBlock" style="top:0px;left:0px;"></div>
