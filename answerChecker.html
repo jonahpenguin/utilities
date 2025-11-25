@@ -1,0 +1,147 @@
+<html>
+    <head>
+        <title id="title">Answer Checker</title>
+        <link rel="stylesheet" href="Style1.css">
+        <style>
+            body {
+                background-color: darkblue;
+                color: yellow;
+                font-family: comic sans ms, helvetica;
+                text-align: center;
+                z-index: 1;
+            }
+            a {
+                color: yellow;
+            }
+            a:hover {
+                color: darkblue;
+                background-color: yellow;
+            }
+            a:focus {
+                color: darkblue;
+                background-color: yellow;
+            }
+            button {
+                background-color: white;
+                color: black;
+            }
+            button:hover {
+                background-color: black;
+                color: white;
+            }
+            button:focus {
+                background-color: black;
+                color: white;
+            }
+            #userin {
+                position: fixed;
+                top: 10%;
+                left: 0;
+                width: 100%;
+                height: 78%;
+                background-color: black;
+                color: white;
+                font-size: 48px;
+                z-index: 1;
+                text-align: center;
+                vertical-align: top;
+            }
+            #subb {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 10%;
+                background-color: green;
+                color: black;
+                font-size: 24px;
+                z-index: 1;
+            }
+            #header {
+                z-index: 2;
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+            }
+            #hintB {
+                position:fixed;
+                left:0;
+                top:0;
+                font-size: 24px;
+                z-index: 99;
+            }
+        </style>
+        <script>
+            function openpop(info) {
+                document.getElementById('subb').innerText = info;
+                setTimeout(() => {
+                    if (document.getElementById('subb').innerText != 'Check') {
+                        document.getElementById('subb').innerText = 'Check';
+                    }
+                }, 5000);
+            }
+            function check(answer) {
+                if (answer == document.getElementById('userin').value) {
+                    openpop('Correct!');
+                } else {
+                    openpop('Oops, your answer is not correct. Please try again.');
+                }
+            }
+            function loadChecker(answer) {
+                document.body.innerHTML = '<button id="hintB" style="display:none;" onclick="showHint()">Hint</button><h1 id="header">Answer Checker</h1><input placeholder="Type here..." type="number" id="userin" onkeypress="if (event.key == \'Enter\') {check(' + answer + ')}"><br><button id="subb" onmouseup="check(' + answer + ')">Check</button>';
+            }
+            function makeLink() {
+                try{
+                    let output = location.href;
+                    output += "?"+btoa(document.getElementById('ansIn').value);
+                    if (document.getElementById('hintIn').value != "" && document.getElementById("hintTIn").value != "") {
+                        output += "&"+btoa(document.getElementById("hintIn").value)+"&"+document.getElementById("hintTIn").value;
+                    }
+                    navigator.clipboard.writeText(output);
+                    alert('Copied to clipboard');
+                }catch(e){
+                    console.log(e)
+                }
+            }
+            let hintInfo = "";
+            function showHintB() {
+                document.getElementById('hintB').style.display = '';
+            }
+            function showHint() {
+                openpop("Hint: "+hintInfo);
+            }
+            window.addEventListener('load', () => {
+                try {
+                    if (location.href.includes("?")) {
+                        let loca = location.href.split('?');
+                        loca = loca[1];
+                        loca = loca.split("&");
+                        let ans = atob(loca[0]);
+                        loadChecker(ans);
+                        if (loca[1] && loca[2]) {
+                            hintInfo = atob(loca[1]);
+                            setTimeout(showHintB, parseInt(loca[2])*1000);
+                        }
+                    } else {
+                        document.body.innerHTML =
+                            "<h1>Answer Checker ~ Make a Link</h1>"+
+                            "Enter the answer: <input type='text' placeholder='Answer...' id='ansIn'>"+
+                            "<br><br>"+
+                            "Enter a hint (optional): <input type='text' placeholder='Hint...' id='hintIn'>"+
+                            "<br><br>"+
+                            "Enter time until hint (optional): <input type='number' placeholder='Time in seconds...' id='hintTIn'>"+
+                            "<br><br>"+
+                            "<button onclick='makeLink()'>Generate Link</button>"
+                    }
+                } catch(e) {
+                    document.body.innerHTML="<h1>Something went wrong :/</h1>"
+                    console.log(e);
+                }
+            }, false);
+        </script>
+    </head>
+    <body>
+        <h1>Loading...</h1>
+    </body>
+</html>
