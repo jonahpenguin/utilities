@@ -2,23 +2,16 @@
     <head>
         <title>New WS Test</title>
         <script>
-            const ws = new WebSocket("wss://utilities-8tvg.onrender.com/server.js");
-            ws.addEventListener('open', () => {
-                logDiv.innerHTML += "<br>Connected";
-            }, false);
-            ws.addEventListener('error', (event) => {
-                logDiv.innerHTML += "<br>Error; see console";
-                console.error(event);
-            }, false);
-            function sendMsg(content) {
-                ws.send(content);
-            }
-            ws.addEventListener('message', (e) => {
-                logDiv.innerHTML += "<br>Received:"+e.data;
-            }, false);
-            ws.addEventListener('close', () => {
-                logDiv.innerHTML += "<br>Disconnected";
-            }, false);
+        const WebSocket = require('ws')
+const ws = new WebSocket('wss://utilities-8tvg.onrender.com/server.js') 
+
+ws.onopen = () => {
+  ws.send('Hello from the client!')
+}
+
+ws.onmessage = (event) => {
+  console.log('Received:', event.data)
+}
         </script>
     </head>
     <body>
