@@ -1,25 +1,53 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>New WS Test</title>
-        <script>
-const ws = new WebSocket('wss://utilities-8tvg.onrender.com/server.js') 
+<head>
+  <title>New WS Test</title>
+</head>
+<body>
+  <h1>Connection Log</h1>
+  <div id="logDiv"></div>
 
-ws.onopen = () => {
-  ws.send('Hello from the client!')
-}
+  <input 
+    type="text" 
+    placeholder="Type a message and press Enter"
+    onkeypress="if (event.key === 'Enter') sendMsg(this.value)"
+  />
 
-ws.onmessage = (event) => {
-  console.log('Received:', event.data)
-}
-        </script>
-    </head>
-    <body>
-        <h1>Connection Log</h1>
-        <div id="logDiv"></div>
-        <hr>
-        Send: <input type="text" onkeypress="if(event.key=='Enter'){sendMsg(this.value)}">
-    </body>
-    <script>
-        logDiv = document.getElementById('logDiv');
-    </script>
+  <script>
+    const logDiv = document.getElementById("logDiv");
+
+    function log(msg) {
+      const p = document.createElement("p");
+      p.textContent = msg;
+      logDiv.appendChild(p);
+    }
+
+    // --- CONNECT TO YOUR WEBSOCKET SERVER ---
+    const ws = new WebSocket('wss://utilities-8tvg.onrender.com/wss');
+
+    ws.onopen = () => {
+      log("Connected!");
+      ws.send("Hello from the client!");
+    };
+
+    ws.onmessage = (event) => {
+      log("Received: " + event.data);
+    };
+
+    ws.onerror = (err) => {
+      console.error("WS Error:", err);
+      log("WebSocket error (check console)");
+    };
+
+    ws.onclose = () => {
+      log("Connection closed.");
+    };
+
+    function sendMsg(msg) {
+      ws.send(msg);
+      log("Sent: " + msg);
+    }
+  </script>
+
+</body>
 </html>
