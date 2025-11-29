@@ -1,12 +1,12 @@
 const express = require('express')
 const { createServer } = require('http')
-const WebSocket = require('ws')
+const WebSocket = require('wss')
 
 const app = express()
 const server = createServer(app)
 const port = process.env.PORT || 10000
 
-const wss = new WebSocket.Server({ server, path: '/ws' })
+const wss = new WebSocket.Server({ server, path: '/wss' })
 
 // Called for a connection whenever client responds with a pong
 function heartbeat() {
