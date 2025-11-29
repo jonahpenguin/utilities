@@ -6,22 +6,38 @@ const app = express()
 const server = createServer(app)
 const port = process.env.PORT || 10000
 
-// Serves WebSocket connections at /ws (any path is fine)
 const wss = new WebSocket.Server({ server, path: '/ws' })
 
-// HTTP routes
-app.get('/', (req, res) => {
-  res.send('Hello over HTTP!')
-})
+// Called for a connection whenever client responds with a pong
+function heartbeat() {
+  this.isAlive = true
+}
 
-// WebSocket connections
-wss.on('connection', (ws) => {
-  console.log('WebSocket client connected')
+wss.on('connection', function connection(ws) {
+  ws.isAlive = true
+  ws.on('error', console.error)
+  ws.on('pong', heartbeat)
 
   ws.on('message', (message) => {
     console.log('Received:', message.toString())
-    ws.send(`Hello over WebSocket!`)
+    ws.send('Hello over WebSocket!')
   })
+})
+
+// Ping all connected clients every 30 seconds
+const interval = setInterval(function ping() {
+  wss.clients.forEach(function each(ws) {
+    // Close connections that failed to "pong" the previous ping
+    if (ws.isAlive === false) return ws.terminate()
+
+    ws.isAlive = false
+    ws.ping()
+  })
+}, 30000)
+
+// Standard shutdown logic
+wss.on('close', function close() {
+  clearInterval(interval)
 })
 
 server.listen(port, () => {
