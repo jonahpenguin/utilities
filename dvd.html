@@ -234,6 +234,9 @@
                 }
             }, false);
             window.addEventListener('keypress', (event) => {
+                if (event.key == "C") {
+                    showCountdown();
+                }
                 if (event.key == 'd') {
                     keylog = ['d'];
                 }
@@ -1897,7 +1900,7 @@ class Wall {
             <button onclick="toggleTimer()">Toggle Watch Time</button>-->
         </div>
         <div id="clock" onclick="toggleCCol()" style="text-align:left;z-index:1;display:none;font-family:monospace;font-size:45px;position:fixed;top:0;left:0;width:22%;height:10%;border:none;border-bottom:1px solid grey;border-right:1px solid grey;"></div>
-        <div id="countdownDiv" style="z-index:2;font-family:monospace;font-size:45px;position:fixed;top:0;left:0;width:22%;height:10%;border:none;"></div>
+        <div id="countdownDiv" style="text-align:left;z-index:2;font-family:monospace;font-size:45px;position:fixed;top:0;left:0;width:22%;height:10%;border:none;"></div>
         <span id="bgDVD" style="display:none;"><iframe src="dvd.html" style="position:fixed;top:5%;left:5%;width:90%;height:90%;outline:1px solid grey;outline-offset:-1px;z-index:0;"></iframe></span>
         <iframe src="dvd.html" id="tinydvd" style="display:none;" class="dvd"></iframe>
         <span id="posbox" style="position:fixed;bottom:0;right:0;display:none;color:white;"></span>
