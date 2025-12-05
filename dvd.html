@@ -1776,13 +1776,13 @@ class Wall {
                 if (unTime > (60*60)) {
                     hrs = Math.floor(unTime / (60*60));
                     unTime = unTime - (hrs*60*60);
-                    if (unTime > 60) {
+                    if (unTime >= 60) {
                         min = Math.floor(unTime / 60);
                         sec = unTime % 60;
                     } else {
                         sec = unTime;
                     }
-                } else if (unTime > 60) {
+                } else if (unTime >= 60) {
                     min = Math.floor(unTime / 60);
                     sec = unTime % 60;
                 } else {
