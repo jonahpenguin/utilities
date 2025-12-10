@@ -249,33 +249,49 @@
                     isDev = true;
                 }
             }, false);
-            window.addEventListener('keypress', (event) => {
+            window.addEventListener('keydown', (event) => {
                 if (event.key == "C") {
                     showCountdown();
                 }
                 if (event.key == 'd') {
-                    keylog = ['d'];
+                    keylog = [];
                 }
                 if (canmove && event.key == ' ') {
                     canmove = false;
                 } else if (!canmove && event.key == ' ') {
                     canmove = true;
                 }
-                if (event.key == 'Backspace') {
-                    keylog = ['Backspace'];
+                if (event.key == "6") {
+                    keylog = [];
                 }
                 keylog.push(event.key);
-                if (keylog.join('') == 'dev123') {
-                    isDev = true;
-                    localStorage.setItem('DVDdev', true);
-                    alert('Dev mode enabled');
+                if (keylog.join("") == "67") {
+                    let isShown = false;
+                    let int = setInterval(() => {
+                        if (!isShown) {
+                            sbgt("67",67);
+                            isShown = true;
+                        } else {
+                            sbgt("");
+                            isShown = false;
+                        }
+                    }, 100);
+                    setTimeout(() => {
+                        clearInterval(int);
+                    }, 5000);
                 }
-                if (keylog.join('') == 'BackspaceBackspace') {
-                    isDev = false;
-                    if (localStorage.getItem('DVDdev')) {
-                        localStorage.removeItem('DVDdev');
+                if (keylog.join('') == 'dev123') {
+                    if (!isDev) {
+                        isDev = true;
+                        localStorage.setItem('DVDdev', true);
+                        alert('Dev mode enabled');
+                    } else {
+                        isDev = false;
+                        if (localStorage.getItem('DVDdev')) {
+                            localStorage.removeItem('DVDdev');
+                        }
+                        alert('Dev mode disabled');
                     }
-                    alert('Dev mode disabled');
                 }
             }, false);
             window.addEventListener('keyup', (event) => {
