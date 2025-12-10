@@ -34,6 +34,7 @@
                 top: 0%;
                 left: 0%;
                 position: fixed;
+                z-index: 10;
             }
         </style>
         <link rel="stylesheet" href="Style1.css">
@@ -1914,7 +1915,7 @@ class Wall {
         <span id="posbox" style="position:fixed;bottom:0;right:0;display:none;color:white;"></span>
         <div id="optionsbox">
             <button id="rtrayb" onclick="toggleRTray()" title="Options" style="cursor:hand;position:fixed;top:0;right:0;">⬅️</button>
-            <div id="rtray" style="color:yellow;position:absolute;display:none;top:0;right:0;width:10%;height:100%;background-color:darkblue;border-left:3px dashed blue;">
+            <div id="rtray" style="z-index:99999;color:yellow;position:absolute;display:none;top:0;right:0;width:10%;height:100%;background-color:darkblue;border-left:3px dashed blue;">
                 <u><b>Options</b></u>
                 <br>
                 <details>
