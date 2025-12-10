@@ -4,6 +4,11 @@
         <link rel="icon" href="dvd.png">
         <style>
             body {
+                z-index: 1;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: cover;
+                background-attachment: fixed;
                 background-color: black;
                 color: transparent;
                 font-family: comic sans ms;
@@ -646,9 +651,11 @@
                 updateTime();
                 localStorage.setItem('DVDcorners', cornerCount);
                 if (allowConfetti && userConfetti) {
-                    document.getElementById('confettiimg').style.display = '';
+                    document.body.style.backgroundImage = "url('confetti.webp')";
+                    // document.getElementById('confettiimg').style.display = '';
                     setTimeout(() => {
-                        document.getElementById('confettiimg').style.display = 'none';
+                        document.body.style.backgroundImage = "none";
+                        // document.getElementById('confettiimg').style.display = 'none';
                     }, 1000);
                 }
             }
@@ -795,9 +802,6 @@
                 top: 0;
                 position: fixed;
                 z-index: 2;
-            }
-            body {
-                z-index: 1;
             }
             #speedopt {
                 background-color: blue;
