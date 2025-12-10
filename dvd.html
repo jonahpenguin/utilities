@@ -653,7 +653,8 @@
                 cornerCount++;
                 updateTime();
                 localStorage.setItem('DVDcorners', cornerCount);
-                if (allowConfetti && userConfetti) {
+                if (userConfetti) {
+                // if (allowConfetti && userConfetti) {
                     document.body.style.backgroundImage = "url('confetti.webp')";
                     // document.getElementById('confettiimg').style.display = '';
                     setTimeout(() => {
@@ -1847,7 +1848,7 @@ class Wall {
         <!--<video id="brainVid2" src="" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1.1;display:none;" autoplay muted loop></video>-->
         <img id="confettiimg" style="position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:9999999999999999999999999;" src="confetti.webp">
         <div hidden style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999999999999999;cursor:none;"></div>
-        <div id="semi" style="display: none;" onclick="closepop()"></div>
+        <div id="semi" style="display: none;" onclick="closepop();closeso();"></div>
         <div id="popup" style="display:none;color:yellow;">
             <button onclick="closepop()" style="float:left;">X Close</button>
             <br>
@@ -1871,7 +1872,7 @@ class Wall {
             </span>
             <script>const cornerPopCont = document.getElementById('popContent').innerHTML;</script>
         </div>
-        <div id="speedopt" style="display: none;color:yellow;">
+        <div id="speedopt" style="display: none;color:yellow;text-align:center;">
             <button onclick="closeso()" style="float: left;">X Close</button>
             <br>
             <h1>Slope/Speed Options</h1>
@@ -1895,8 +1896,8 @@ class Wall {
                 <br><br>
                 <i>
                     Disclaimer: Altering this to an extreme will probably mess up collision.
-                    Also, for usability purposes, confetti for when the logo hits a corner is disabled with altered
-                    slope.<a href="javascript:alert('If this was not implemented, there could be infinite confetti. Fun, but then you literally can\'t do anything without reloading the page, or using Tab and Enter to click buttons.')">*</a>
+                    <!--Also, for usability purposes, confetti for when the logo hits a corner is disabled with altered
+                    slope.<a href="javascript:alert('If this was not implemented, there could be infinite confetti. Fun, but then you literally can\'t do anything without reloading the page, or using Tab and Enter to click buttons.')">*</a>-->
                 </i>
                 <br><br>
                 <button onclick="updateSlope()" style="font-size:24px;">Apply</button>
@@ -1922,7 +1923,7 @@ class Wall {
         <span id="posbox" style="position:fixed;bottom:0;right:0;display:none;color:white;"></span>
         <div id="optionsbox">
             <button id="rtrayb" onclick="toggleRTray()" title="Options" style="cursor:hand;position:fixed;top:0;right:0;">⬅️</button>
-            <div id="rtray" style="z-index:99999;color:yellow;position:absolute;display:none;top:0;right:0;width:10%;height:100%;background-color:darkblue;border-left:3px dashed blue;">
+            <div id="rtray" style="z-index:30;color:yellow;position:absolute;display:none;top:0;right:0;width:10%;height:100%;background-color:darkblue;border-left:3px dashed blue;">
                 <u><b>Options</b></u>
                 <br>
                 <details>
