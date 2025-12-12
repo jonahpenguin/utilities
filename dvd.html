@@ -1864,8 +1864,8 @@ class Wall {
         <!--<video id="brainVid2" src="" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1.1;display:none;" autoplay muted loop></video>-->
         <img id="confettiimg" style="position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:9999999999999999999999999;" src="confetti.webp">
         <div hidden style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999999999999999;cursor:none;"></div>
-        <div id="semi" style="display: none;" onclick="closepop();closeso();"></div>
-        <div id="popup" style="display:none;color:yellow;">
+        <div id="semi" style="display: none;z-index:34;" onclick="closepop();closeso();"></div>
+        <div id="popup" style="display:none;color:yellow;z-index:35;">
             <button onclick="closepop()" style="float:left;">X Close</button>
             <br>
             <span id="popContent">
@@ -1888,7 +1888,7 @@ class Wall {
             </span>
             <script>const cornerPopCont = document.getElementById('popContent').innerHTML;</script>
         </div>
-        <div id="speedopt" style="display: none;color:yellow;text-align:center;">
+        <div id="speedopt" style="display: none;color:yellow;text-align:center;z-index:35;">
             <button onclick="closeso()" style="float: left;">X Close</button>
             <br>
             <h1>Slope/Speed Options</h1>
