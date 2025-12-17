@@ -58,6 +58,11 @@
                 x: Math.floor(Math.random()*92),
                 y: Math.floor(Math.random()*86)
             }
+            let pathLog = [
+                [position.x,position.y]
+            ]
+            let initialPos = pathLog[0];
+            pathLog = [];
             let slope = {
                 rise: 0.1,
                 run: 0.1
@@ -426,13 +431,17 @@
                         break;
                 }
             }
+            let hasLooped = false;
             function movedvd() {
                 if (!canmove) {return;}
+                position.x = position.x + slope.run;
+                position.y = position.y + slope.rise;
                 pathLog.push(
                     [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
                 )
-                position.x = position.x + slope.run;
-                position.y = position.y + slope.rise;
+                if (pathLog.includes(initialPos)) {
+                    hasLooped = true;
+                }
                 if (weev2) {
                    if (slope.run == 0.1) {
                        slope.run = -0.1
@@ -1881,9 +1890,11 @@ class Wall {
                     }
                 }, 500);
             }
-            let pathLog = [];
             function displayPath() {
                 let output = '<h1>Path Log (CSV style)</h1><h2>X, Y</h2>';
+                if (hasLooped) {
+                    output = "<h1>Loop has occured!!!</h1>"+output;
+                }
                 for (let i = 0;i<pathLog.length;i++) {
                     output += pathLog[i].join(",")+"<br>";
                 }
