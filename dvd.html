@@ -427,10 +427,10 @@
                 }
             }
             function movedvd() {
+                if (!canmove) {return;}
                 pathLog.push(
                     [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
                 )
-                if (!canmove) {return;}
                 position.x = position.x + slope.run;
                 position.y = position.y + slope.rise;
                 if (weev2) {
