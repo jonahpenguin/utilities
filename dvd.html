@@ -221,6 +221,30 @@
                 }
                 isSyncing = false;
             }
+            let isUniversal = false;
+            function universalMode() {
+                try{
+                sbgt("Syncing...",96);
+                if (rTrayOpen) {
+                    toggleRTray();
+                }
+                canmove = false;
+                position.x = 0;
+                position.y = 0;
+                slope.rise = 0.1;
+                slope.run = 0.1;
+                let d = new Date();
+                let totalSec = d.getSeconds();
+                canmove = true;
+                for (let i = 0;i<totalSec;i++) {
+                    movedvd();
+                }
+                sbgt("");
+                isUniversal = true;
+                }catch(e) {
+                    alert(e.message);
+                }
+            }
             function checkPositive(elem) {
                 if (parseFloat(elem.value) < 0) {
                     elem.value = 0;
@@ -256,7 +280,7 @@
                 if (event.key == 'd') {
                     keylog = [];
                 }
-                if (canmove && event.key == ' ') {
+                if (canmove && event.key == ' ' && !isUniversal) {
                     canmove = false;
                 } else if (!canmove && event.key == ' ') {
                     canmove = true;
@@ -403,6 +427,9 @@
                 }
             }
             function movedvd() {
+                pathLog.push(
+                    [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
+                )
                 if (!canmove) {return;}
                 position.x = position.x + slope.run;
                 position.y = position.y + slope.rise;
@@ -1201,6 +1228,7 @@
                         document.getElementById('rtray').style.display = 'none';
                         document.getElementById('rtrayb').style.right = '0%';
                     } else {
+                        if (isUniversal) {return;}
                         document.getElementById('optionsbox').style = 'opacity:1';
                         if (hidingint) {
                             clearInterval(hidingint);
@@ -1853,6 +1881,15 @@ class Wall {
                     }
                 }, 500);
             }
+            let pathLog = [];
+            function displayPath() {
+                let output = '<h1>Path Log (CSV style)</h1><h2>X, Y</h2>';
+                for (let i = 0;i<pathLog.length;i++) {
+                    output += pathLog[i].join(",")+"<br>";
+                }
+                let win2 = open('about:blank', 'win2');
+                win2.document.write(output);
+            }
         </script>
         <! logo scale:100x68 50/34 25/17
     </head>
@@ -1965,7 +2002,7 @@ class Wall {
                     <button onclick="toggleLDMTrail(this)" title="Trail for Chromebooks" id="etb2">Enable <u>L</u>DM Trail</button><br>
                     <button onclick="toggleBR()" title="Subway surfers in the background :)">Toggle Brainrot mode</button><br>
                     <button id="tinyB" onclick="toggleTiny()" title="Changes the logo to a tiny window with another logo in it">Toggle Mini Logo</button><br>
-                    <button onclick="wakeUp()" title="A brief little cutscene for when you have been watching this logo for too long 🫠">Insanity</button><br>
+                    <button hidden onclick="wakeUp()" title="A brief little cutscene for when you have been watching this logo for too long 🫠">Insanity</button>
                     <button onclick="toggleClock()" title="Show/hide the clock in the top-right corner. Has collision">Toggle Clock</button><br>
                     <button onclick="toggleTimer()" title="Show/hide timer in the bottom left">Toggle Watch Time</button><br>
                     <button onclick="togglepos()" title="Show/hide the x/y coordinate info in the bottom right">Toggle positional info</button><br>
@@ -1980,7 +2017,8 @@ class Wall {
                     <summary id="opt3" style="cursor:hand;"><u>Dev</u><br></summary>
                     <button onclick="try{let retVal = eval(prompt('Enter command')); if (retVal != undefined){alert(retVal)}}catch(e){alert(e.stack)}" title="Run JavaScript commands">Run cmd</button><br>
                     <button onclick="toggleTesting()" title="Run through a day's worth of logo watching in seconds; I recommend 10,000 iterations">Run iterations of movement</button><br>
-                    <button onclick="previewPos()" title="Set the logo's position and direction of movement">Preview position</button>
+                    <button onclick="previewPos()" title="Set the logo's position and direction of movement">Preview position</button><br>
+                    <button onclick="displayPath()" title="Provides a list in CSV format of the entire path the logo has taken since opened; may lag if it has been open for a while">Show Path</button>
                     <br><br>
                 </details>
                 <small>
