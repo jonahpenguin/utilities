@@ -1918,11 +1918,10 @@ class Wall {
             let fadeInt;
             let fadeProgress = 0;
             function progressFade() {
-                let i = parseInt(fadeProgress);
-                document.getElementById('dvd').style.filter = "hue-rotate("+i+"deg)";
-                i++;
-                if (i>=360) {
-                    i = 0;
+                document.getElementById('dvd').style.filter = "hue-rotate("+fadeProgress+"deg)";
+                fadeProgress++;
+                if (fadeProgress>=360) {
+                    fadeProgress = 0;
                 }
             }
             function toggleFade() {
