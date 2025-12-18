@@ -701,6 +701,13 @@
             if (localStorage.getItem('DVDcorners')) {
                 cornerCount = parseInt(localStorage.getItem('DVDcorners'));
             }
+            function resetCorners() {
+                let isSure = confirm("Reset corner counter?\nThis cannot be undone")
+                if (isSure) {
+                    cornerCount = 0;
+                    localStorage.removeItem('DVDcorners');
+                }
+            }
             function confetti() {
                 cornerCount++;
                 updateTime();
@@ -1997,6 +2004,7 @@ class Wall {
                     <button onclick="position={x:50,y:50}" title="Reset logo to the center of the screen">Reset Position</button><br>
                     <button onclick="openso()" title="More info within">Open Slope/Speed options</button><br>
                     <button onclick="resetTimer()" title="Sets the timer back to zero">Reset Watch Time</button><br>
+                    <button onclick="resetCorners()" title="Clears corner counter back to zero">Reset Corner Count</button><br>
                     <button onclick="popup()" title="Set how easy it is for the logo to hit a corner"><u>C</u>orner probability settings</button><br>
                     <button onclick="showKeys()" title="A list of keys that perform certain functions">Show keybindings</button><br>
                     <button onclick="toggleKeys()" title="Enable/disable hotkeys (persistant)">Toggle keybindings</button><br>
