@@ -1908,6 +1908,11 @@ class Wall {
                 let win2 = open('about:blank', 'win2');
                 win2.document.write(output);
             }
+            function randomSlope() {
+                document.getElementById('slopeInX').value = Math.floor(Math.random()*10)/10;
+                document.getElementById('slopeInY').value = Math.floor(Math.random()*10)/10;
+                updateSlope();
+            }
         </script>
         <! logo scale:100x68 50/34 25/17
     </head>
@@ -1972,6 +1977,8 @@ class Wall {
                 </i>
                 <br><br>
                 <button onclick="updateSlope()" style="font-size:24px;">Apply</button>
+                <br><br>
+                <button onclick="randomSlope()">Randomize slope settings :)</button>
                 <br><br>
                 <button onclick="resetSlope()">Reset Slope</button>
             <!--</details>
