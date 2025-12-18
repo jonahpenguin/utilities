@@ -1914,6 +1914,27 @@ class Wall {
                 document.getElementById('slopeInY').value = Math.floor(Math.random()*50)/10;
                 updateSlope();
             }
+            let isFading = false;
+            let fadeInt;
+            let fadeProgress = 0;
+            function progressFade() {
+                let i = parseInt(fadeProgress);
+                document.getElementById('dvd').style.filter = "hue-rotate("+i+"deg)";
+                i++;
+                if (i>=360) {
+                    i = 0;
+                }
+            }
+            function toggleFade() {
+                if (isFading) {
+                    clearInterval(fadeInt);
+                    document.getElementById('dvd').style.filter = 'none';
+                    isFading = false;
+                } else {
+                    fadeInt = setInterval(progressFade,10);
+                    isFading = true;
+                }
+            }
         </script>
         <! logo scale:100x68 50/34 25/17
     </head>
@@ -2034,7 +2055,8 @@ class Wall {
                     <button onclick="toggleTimer()" title="Show/hide timer in the bottom left">Toggle Watch Time</button><br>
                     <button onclick="togglepos()" title="Show/hide the x/y coordinate info in the bottom right">Toggle positional info</button><br>
                     <button onclick="spinOpt()" title="Allows you to make the logo spin in many different ways :)">Spin options :)</button><br>
-                    <button onclick="showCountdown()" title="Pick a time to count down to">Toggle Countdown</button>
+                    <button onclick="showCountdown()" title="Pick a time to count down to">Toggle Countdown</button><br>
+                    <button onclick="toggleFade()" title="Makes the logo fade from color to color">Toggle Fading Colors</button>
                     
                     
                     <button hidden onclick="toggleNewBg()" title="Infinite DVD logos...">Tunnel Mode</button>
