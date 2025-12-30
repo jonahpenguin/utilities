@@ -1572,6 +1572,8 @@ class Wall {
                 if (hrs > 12) {
                     hrs -= 12;
                     ampm = 'pm'
+                } else if (hrs == 12) {
+                    ampm = 'pm'
                 }
                 let min = date.getMinutes();
                 if (min<10) {
