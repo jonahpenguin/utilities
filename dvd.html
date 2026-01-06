@@ -294,7 +294,7 @@
                     keylog = [];
                 }
                 keylog.push(event.key);
-                if (keylog.join("") == "67") {
+                if (keylog.join("") == "67" && document.getElementById("bgtext").innerText != "67") {
                     let isShown = false;
                     let int = setInterval(() => {
                         if (!isShown) {
@@ -307,6 +307,7 @@
                     }, 100);
                     setTimeout(() => {
                         clearInterval(int);
+                        sbgt("");
                     }, 5000);
                 }
                 if (keylog.join('') == 'dev123') {
@@ -1852,7 +1853,7 @@ class Wall {
                 let hrs = 0;
                 let min = 0;
                 let sec = 0;
-                if (unTime > (60*60)) {
+                if (unTime >= (60*60)) {
                     hrs = Math.floor(unTime / (60*60));
                     unTime = unTime - (hrs*60*60);
                     if (unTime >= 60) {
