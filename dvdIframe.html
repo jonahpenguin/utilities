@@ -1,0 +1,2121 @@
+<html>
+    <head>
+        <title>DVD logo</title>
+        <link rel="icon" href="dvd.png">
+        <style>
+            a {
+                color: yellow;
+            }
+            body {
+                z-index: 1;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: cover;
+                background-attachment: fixed;
+                background-color: black;
+                color: transparent;
+                font-family: comic sans ms;
+            }
+            button {
+                background-color: black;
+                color: white;
+            }
+            button:hover {
+                background-color: white;
+                color: black;
+            }
+            button:focus {
+                background-color: white;
+                color: black;
+            }
+            img#dvd {
+                width: 8%;
+                height: 14%;
+                top: 0%;
+                left: 0%;
+                position: fixed;
+                filter:hue-rotate(0deg);
+            }
+            .dvd {
+                width: 8%;
+                height: 14%;
+                top: 0%;
+                left: 0%;
+                position: fixed;
+                z-index: 10;
+            }
+        </style>
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            let runTime = 0;
+            setInterval(() => {
+                runTime++;
+            }, 1000);
+            function showRunTime() {
+                alert(formatTime(runTime));
+            }
+            let position = {
+                x: Math.floor(Math.random()*92),
+                y: Math.floor(Math.random()*86)
+            }
+            let pathLog = [
+                [position.x,position.y]
+            ]
+            let initialPos = pathLog[0];
+            pathLog = [];
+            let slope = {
+                rise: 0.1,
+                run: 0.1
+            }
+            let cornerCount = 0;
+            let storedSlope = {
+                posRise: 0.1,
+                negRise: -0.1,
+                posRun: 0.1,
+                negRun: -0.1
+            }
+            let timeActive = 0;
+            let clockShown = false;
+            let rTrayOpen = false;
+            let canFade = true;
+            let showTimer = true;
+            let isTesting = false;
+            let recentbounce = false;
+            let bounceLog = [];
+            let canmove = true;
+            let trailMode = false;
+            let LDMtrail = false;
+            let trailCount = 0;
+            let trailToggle = true;
+            let currentCol = 0;
+            let lastCol = 0;
+            let allowCol = false;
+            let ishiding = false;
+            let hidingint = null;
+            let ishidden = false;
+            let hidetimer = setTimeout(() => {hideopt()}, 5000);
+            let intval = 5;
+            let moveint = setInterval(() => {movedvd()}, 5);
+            let weev2 = false;
+            let wint;
+            let bgInt;
+            let flashingBg = false;
+            let allowConfetti = true;
+            let slopeOptOpen = false;
+            let snapSpan = 1;
+            let bugfix = 0;
+            let evilMode = false;
+            let allowKeys = true;
+            let isDev = false;
+            let userConfetti = true;
+            let clockCol = true;
+            
+            // Snap boundaries
+            let sb = {
+                br: {
+                    base: 43.1,
+                    cap: 45.1,
+                    mid: 44.1
+                },
+                tl: {
+                    base: 49,
+                    cap: 51,
+                    mid: 50
+                },
+                tr: {
+                    base: 41,
+                    cap: 43,
+                    mid: 42
+                },
+                bl: {
+                    base: 35.1,
+                    cap: 37.1,
+                    mid: 36.1
+                }
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('DVDsnap')) {
+                    popup();
+                    document.getElementById('snapIn').value = parseFloat(localStorage.getItem('DVDsnap'));
+                    applySnap();
+                }
+            }, false);
+            // stackoverflow solution for caching images
+            // Considering how often the logo is loaded this is makes loading significantly faster
+            function preloadImages(array) {
+                if (!preloadImages.list) {
+                    preloadImages.list = [];
+                }
+                var list = preloadImages.list;
+                for (var i = 0; i < array.length; i++) {
+                    var img = new Image();
+                    img.onload = function() {
+                        var index = list.indexOf(this);
+                        if (index !== -1) {
+                            // remove image from the array once it's loaded
+                            // for memory consumption reasons
+                            list.splice(index, 1);
+                        }
+                    }
+                    list.push(img);
+                    img.src = array[i];
+                }
+            }
+            preloadImages(['dvd.png'])
+            function applySnap() {
+                let newSnap = parseFloat(document.getElementById('snapIn').value);
+                sb.br.base = sb.br.mid-(newSnap/2);
+                sb.br.cap = sb.br.mid+(newSnap/2);
+                sb.bl.base = sb.bl.mid-(newSnap/2);
+                sb.bl.cap = sb.bl.mid+(newSnap/2);
+                sb.tr.base = sb.tr.mid-(newSnap/2);
+                sb.tr.cap = sb.tr.mid+(newSnap/2);
+                sb.tl.base = sb.tl.mid-(newSnap/2);
+                sb.tl.cap = sb.tl.mid+(newSnap/2);
+                snapSpan = parseFloat(newSnap);
+                closepop();
+                localStorage.setItem('DVDsnap', newSnap);
+            }
+            function syncDVD() {
+                let syncInt = setInterval(() => {
+                    let date = new Date()
+                    let sec = date.getSeconds();
+                    if (sec == 30) {
+                        position.x = 50
+                        position.y = 50
+                        slope.rise = 0.1
+                        slope.run = 0.1
+                        clearInterval(syncInt);
+                    }
+                }, 10)
+            }
+            let isSyncing = false;
+            setInterval(() => {
+                let date = new Date();
+                let sec = date.getSeconds();
+                if (localStorage.getItem('dvdSyncX') && (sec%2==0) && !isSyncing) {
+                    canmove=false
+                    position.x = parseFloat(localStorage.getItem('dvdSyncX'));
+                    position.y = parseFloat(localStorage.getItem('dvdSyncY'));
+                    slope.rise = parseFloat(localStorage.getItem('dvdSyncRise'));
+                    slope.run = parseFloat(localStorage.getItem('dvdSyncRun'));
+                    canmove=true;
+                    localStorage.removeItem('dvdSyncX');
+                    localStorage.removeItem('dvdSyncY');
+                    localStorage.removeItem('dvdSyncRise');
+                    localStorage.removeItem('dvdSyncRun');
+                }
+            }, 10);
+            let syncInt;
+            function enableSync() {
+                syncInt = setInterval(() => {
+                    let date = new Date();
+                    let sec = date.getSeconds();
+                    if ((sec+1)%2==0) {
+                        localStorage.setItem('dvdSyncX',position.x+(slope.run*20));
+                        localStorage.setItem('dvdSyncY',position.y+(slope.rise*20));
+                        localStorage.setItem('dvdSyncRise',slope.rise);
+                        localStorage.setItem('dvdSyncRun',slope.run);
+                    }
+                },10);
+                isSyncing = true;
+            }
+            function disableSync() {
+                if (syncInt) {
+                    clearInterval(syncInt);
+                }
+                isSyncing = false;
+            }
+            let isUniversal = false;
+            function universalMode() {
+                try{
+                sbgt("Syncing...",96);
+                if (rTrayOpen) {
+                    toggleRTray();
+                }
+                canmove = false;
+                position.x = 0;
+                position.y = 0;
+                slope.rise = 0.1;
+                slope.run = 0.1;
+                let d = new Date();
+                let totalSec = d.getSeconds();
+                canmove = true;
+                for (let i = 0;i<totalSec;i++) {
+                    movedvd();
+                }
+                sbgt("");
+                isUniversal = true;
+                }catch(e) {
+                    alert(e.message);
+                }
+            }
+            function checkPositive(elem) {
+                if (parseFloat(elem.value) < 0) {
+                    elem.value = 0;
+                }
+            }
+            function checkconfetti() {
+                if (recentbounce && intval > 1.5 && !evilMode) {
+                    confetti();
+                } else {
+                    recentbounce = true;
+                    setTimeout(() => {recentbounce = false;}, 10);
+                }
+                if ((position.x < 0.5 && position.y < 0.5) || (position.x > 91.5 && position.y < 0.5) || (position.x < 0.5 && position.y > 84.5) || (position.x > 91.5 && position.y > 84.5)) {
+                    if (bounceLog.length < 500) {
+                        bounceLog.push('<b>'  + Math.round(position.x * 100) / 100 + ',' + Math.round(position.y * 100) / 100 + ',' + slope.rise + ',' + slope.run + '</b><span style="cursor:default;color:transparent;">----------</span>');
+                    }
+                } else {
+                    if (bounceLog.length < 500) {
+                        bounceLog.push(Math.round(position.x * 100) / 100 + ',' + Math.round(position.y * 100) / 100 + ',' + slope.rise + ',' + slope.run +  '<span style="cursor:default;color:transparent;">----------</span>');
+                    }
+                }
+            }
+            let keylog = [];
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('DVDdev')) {
+                    isDev = true;
+                }
+            }, false);
+            window.addEventListener('keydown', (event) => {
+                if (event.key == "C") {
+                    showCountdown();
+                }
+                if (event.key == 'd') {
+                    keylog = [];
+                }
+                if (canmove && event.key == ' ' && !isUniversal) {
+                    canmove = false;
+                } else if (!canmove && event.key == ' ') {
+                    canmove = true;
+                }
+                if (event.key == "6") {
+                    keylog = [];
+                }
+                keylog.push(event.key);
+                if (keylog.join("") == "67" && document.getElementById("bgtext").innerText != "67") {
+                    let isShown = false;
+                    let int = setInterval(() => {
+                        if (!isShown) {
+                            sbgt("67",67);
+                            isShown = true;
+                        } else {
+                            sbgt("");
+                            isShown = false;
+                        }
+                    }, 100);
+                    setTimeout(() => {
+                        clearInterval(int);
+                        sbgt("");
+                    }, 5000);
+                }
+                if (keylog.join('') == 'dev123') {
+                    if (!isDev) {
+                        isDev = true;
+                        localStorage.setItem('DVDdev', true);
+                        alert('Dev mode enabled');
+                    } else {
+                        isDev = false;
+                        if (localStorage.getItem('DVDdev')) {
+                            localStorage.removeItem('DVDdev');
+                        }
+                        alert('Dev mode disabled');
+                    }
+                }
+            }, false);
+            window.addEventListener('keyup', (event) => {
+                // Majority of keybindings
+                if (!allowKeys) {return;}
+                if (event.key == 'o') {
+                    toggleRTray();
+                }
+                if (event.key == 'Escape') {
+                    closeso();
+                    closepop();
+                }
+                if (event.key == 'i') {
+                    invert();
+                }
+                if (event.key == 't') {
+                    toggleTrail();
+                }
+                if (event.key == 'c') {
+                    popup();
+                }
+                if (event.key == 'z') {
+                    toggleCol();
+                }
+                if (event.key == 'l') {
+                    toggleLDMTrail();
+                }
+                if (event.key == 'f') {
+                    openFullscreen();
+                }
+            }, false);
+            window.addEventListener('keypress', (event) => {
+                if (event.key == '~') {
+                    let output = '<h1>Bounce log ('+bounceLog.length.toLocaleString()+' bounces)</h1>' + bounceLog.join('');
+                    /*for (let i = 0; i < bounceLog.length; i++) {
+                        output += bounceLog[i].toFixed(2);
+                    }*/
+                    let win2 = open('about:blank', 'win2');
+                    win2.document.write(output);
+                }
+            }, false);
+            function setCol(col,update=true) {
+                if (!allowCol) {return;}
+                lastCol = parseInt(currentCol);
+                currentCol = parseInt(col);
+                if (update) {
+                    document.getElementById('dvd').style.filter = 'hue-rotate('+currentCol+'deg)';
+                }
+            }
+            function toHue(colId) {
+                switch(colId) {
+                    case 1:return 50;
+                    case 2:return 100;
+                    case 3:return 150;
+                    case 4:return 200;
+                    case 5:return 250;
+                    case 6:return 300;
+                    case 7:return 350;
+                    case 8:return 400;
+                    case 9:return 450;
+                    default:return 0;
+                }
+            }
+            function changeCol() {
+                if (trailMode||!allowCol) {return}
+                let randoCol = Math.floor(Math.random()*9)+1;
+                if (toHue(randoCol) == lastCol) {
+                    if (randoCol <=9) {
+                        randoCol++;
+                    } else {
+                        randoCol--;
+                    }
+                }
+                switch(randoCol) {
+                    case 1:
+                        setCol(50);
+                        break;
+                    case 2:
+                        setCol(100);
+                        break;
+                    case 3:
+                        setCol(150);
+                        break;
+                    case 4:
+                        setCol(200);
+                        break;
+                    case 5:
+                        setCol(250);
+                        break;
+                    case 6:
+                        setCol(300,false);
+                        document.getElementById('dvd').style.filter = 'invert()';
+                        break;
+                    case 7:
+                        setCol(350,false);
+                        document.getElementById('dvd').style.filter = 'brightness(999)';
+                        break;
+                    case 8:
+                        setCol(400,false);
+                        document.getElementById('dvd').style.filter = 'brightness(60%)';
+                        break;
+                    case 9:
+                        setCol(450,false);
+                        document.getElementById('dvd').style.filter = 'sepia(100%)';
+                        break;
+                    default:
+                        setCol(0);
+                        break;
+                }
+            }
+            let hasLooped = false;
+            function movedvd() {
+                if (!canmove) {return;}
+                position.x = position.x + slope.run;
+                position.y = position.y + slope.rise;
+                pathLog.push(
+                    [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
+                )
+                if (pathLog.includes(initialPos)) {
+                    hasLooped = true;
+                }
+                if (weev2) {
+                   if (slope.run == 0.1) {
+                       slope.run = -0.1
+                   } else {
+                       slope.run = 0.1;
+                   }
+                   if (slope.rise == 0.1) {
+                       slope.rise = -0.1;
+                   } else {
+                       slope.rise = 0.1;
+                   }
+               } else {
+                   if (position.x > 91.8 && position.x < 92 && position.y > 85.9 && position.y < 86.1) {
+                       bounceLog.push('<b style="color:red;">(BR)*' + Math.round(position.x * 100) / 100 + ',' + Math.round(position.y * 100) / 100 + ',' + slope.rise + ',' + slope.run + '*</b><span style="cursor:default;color:transparent;">----------</span>')
+                   }
+                   if (position.x > 0 && position.x < 0.2 && position.y > 0 && position.y < 0.2) {
+                       bounceLog.push('<b style="color:red;">(TL)*' + Math.round(position.x * 100) / 100 + ',' + Math.round(position.y * 100) / 100 + ',' + slope.rise + ',' + slope.run + '*</b><span style="cursor:default;color:transparent;">----------</span>')
+                   }
+                   if (position.x > 91.8 && position.x < 92 && position.y > 0 && position.y < 0.2) {
+                       bounceLog.push('<b style="color:red;">(TR)*' + Math.round(position.x * 100) / 100 + ',' + Math.round(position.y * 100) / 100 + ',' + slope.rise + ',' + slope.run + '*</b><span style="cursor:default;color:transparent;">----------</span>')
+                   }
+                   if (position.x > 0 && position.x < 0.2 && position.y > 85.9 && position.y < 86.1) {
+                       bounceLog.push('<b style="color:red;">(BL)*' + Math.round(position.x * 100) / 100 + ',' + Math.round(position.y * 100) / 100 + ',' + slope.rise + ',' + slope.run + '*</b><span style="cursor:default;color:transparent;">----------</span>')
+                   }
+                   if (position.x < 50.1 && position.x > 49.9 && !rTrayOpen) {
+                        // Position snapping for easier corners
+                        /*
+                        Corner list (x,y,rise,run):
+                            Bottom right:
+                                Corner: 91.9,86,0.1,0.1
+                                X=50:   50,44.1,0.1,0.1
+                            Top left:
+                                Corner: 0.1,0.1,-0.1,-0.1
+                                X=50:   50,50,-0.1,-0.1
+                            Top right:
+                                Corner: 91.9,0.1,-0.1,0.1
+                                X=50:   50,42,-0.1,0.1
+                            Bottom left:
+                                Corner: 0.1,86,0.1,-0.1
+                                X=50:   50,36.1,0.1,-0.1
+                        */
+                        if (slope.rise == 0.1 && slope.run == 0.1) {
+                            // bottom right
+                            if (position.y > sb.br.base && position.y < sb.br.cap) {
+                                position.y = 44.1;
+                                if (evilMode) {
+                                    position.y = 43.3;
+                                }
+                            }
+                        }
+                        if (slope.rise == -0.1 && slope.run == -0.1) {
+                            // top left
+                            if (position.y > sb.tl.base && position.y < sb.tl.cap) {
+                                position.y = 50;
+                                if (evilMode) {
+                                    position.y = 49.2;
+                                }
+                            }
+                        }
+                        if (slope.rise == -0.1 && slope.run == 0.1) {
+                            // top right
+                            if (position.y > sb.tr.base && position.y < sb.tr.cap) {
+                                position.y = 42;
+                                if (evilMode) {
+                                    position.y = 41.2;
+                                }
+                            }
+                        }
+                        if (slope.rise == 0.1 && slope.run == -0.1) {
+                            // bottom left
+                            if (position.y > sb.bl.base && position.y < sb.bl.cap) {
+                                position.y = 36.1;
+                                if (evilMode) {
+                                    position.y = 35.3;
+                                }
+                            }
+                        }
+                   }
+                   let i = 0;
+                   /*
+                   try {
+                   while(i<walls.length) {
+                       if (walls[i] == null || walls[i] == undefined) {continue;}
+                       if (position.x >= walls[i].x && position.x <= walls[i].x+8) {
+                            changeCol();
+                            checkconfetti();
+                            if (slope.run == storedSlope.posRun) {
+                                slope.run = storedSlope.negRun;
+                            } else {
+                                slope.run = storedSlope.posRun;
+                            }
+                       }
+                       if (position.y >= walls[i].y && position.y <= walls[i].y+14) {
+                           changeCol();
+                            checkconfetti();
+                            if (slope.run == storedSlope.posRun) {
+                                slope.run = storedSlope.negRun;
+                            } else {
+                                slope.run = storedSlope.posRun;
+                            }
+                       }
+                       i++;
+                   }
+                   } catch(e) {
+                       //alert(e.stack)
+                   }*/
+                   if (position.x < 22 && position.y < 10 && clockShown && clockCol) {
+                       if ((22-position.x)<(10-position.y)) {
+                           if (slope.run == storedSlope.posRun) {
+                               slope.run = storedSlope.negRun;
+                           } else {
+                               slope.run = storedSlope.posRun;
+                           }
+                       } else {
+                            if (slope.rise == storedSlope.posRise) {
+                                slope.rise = storedSlope.negRise;
+                            } else {
+                                slope.rise = storedSlope.posRise;
+                            }
+                       }
+                        if (allowSpinSwap) {
+                        if (spinDir > 0) {
+                            spinDir = spinDir-(spinDir*2);
+                        } else {
+                            spinDir = spinDir+(spinDir*-2);
+                        }
+                        }
+                   }
+                   if ((position.x > 91.9&&!rTrayOpen) || (position.x > 81.9&&rTrayOpen) || position.x < 0.1) {
+                       changeCol();
+                       checkconfetti();
+                       if (slope.run == storedSlope.posRun) {
+                           slope.run = storedSlope.negRun;
+                       } else {
+                            slope.run = storedSlope.posRun;
+                        }
+                        if (allowSpinSwap) {
+                        if (spinDir > 0) {
+                            spinDir = spinDir-(spinDir*2);
+                        } else {
+                            spinDir = spinDir+(spinDir*-2);
+                        }
+                        }
+                    }
+                    if (position.y > 85.9 || position.y < 0.1) {
+                        changeCol();
+                        checkconfetti();
+                        if (slope.rise == storedSlope.posRise) {
+                            slope.rise = storedSlope.negRise;
+                        } else {
+                            slope.rise = storedSlope.posRise;
+                        }
+                        if (allowSpinSwap) {
+                        if (spinDir > 0) {
+                            spinDir = spinDir-(spinDir*2);
+                        } else {
+                            spinDir = spinDir+(spinDir*-2);
+                        }
+                        }
+                    }
+                }
+                if (!trailMode) {
+                    if (document.getElementById('dvd1')) {
+                        let i = 1;
+                        while(true) {
+                            if (document.getElementById('dvd'+i)) {
+                                document.getElementById('dvd'+i).outerHTML = '';
+                            } else {
+                                break;
+                            }
+                            i++;
+                        }
+                    }
+                    if (document.getElementById('dvd')) {
+                        document.getElementById('dvd').style.top =  position.y + '%';
+                        document.getElementById('dvd').style.left = position.x + '%';
+                    }
+                    if (document.getElementById('tinydvd')) {
+                        document.getElementById('tinydvd').style.top = position.y + '%';
+                        document.getElementById('tinydvd').style.left = position.x + '%';
+                    }
+                } else {
+                    if (trailToggle) {
+                        trailToggle = false;
+                        trailCount++;
+                        if (document.getElementById('dvd')) {
+                            document.getElementById('dvd').outerHTML = '';
+                        }
+                        let newdvd = document.createElement('img');
+                        // <img src="dvd.png" style="background-color:transparent;" id="dvd">
+                        newdvd.src = 'dvd.png';
+                        newdvd.style = 'background-color:transparent;left:'+position.x+'%;top:'+position.y+'%;';
+                        newdvd.setAttribute('id', 'dvd'+trailCount);
+                        newdvd.setAttribute('class', 'dvd');
+                        document.body.appendChild(newdvd);
+                        let iterID = parseInt(trailCount);
+                        if (iterID % 2 == 0) {
+                            document.getElementById('dvd'+iterID).outerHTML = '';
+                        }
+                        let timeOutVal = 25000;
+                        if (LDMtrail) {
+                            timeOutVal = 5000;
+                        }
+                        setTimeout(() => {
+                            try{
+                            if (iterID % 2 == 0 && !LDMtrail) {
+                                //let fadeInt = setInterval(() => {
+                                    //let i = 1;
+                                    //i -= 0.1;
+                                    //document.getElementById('dvd'+iterID).style.opacity = i;
+                                    //if (i<=0) {
+                                        document.getElementById('dvd'+iterID).outerHTML = '';
+                                        //clearInterval(fadeInt);
+                                    //}
+                                //}, 10);
+                            } else {
+                                setTimeout(() => {
+                                    //let fadeInt = setInterval(() => {
+                                        //let i = 1;
+                                        //i -= 0.1;
+                                        //document.getElementById('dvd'+iterID).style.opacity = i;
+                                        //if (i<=0) {
+                                            document.getElementById('dvd'+iterID).outerHTML = '';
+                                            //clearInterval(fadeInt);
+                                        //}
+                                    //}, 10);
+                                }, 10000);
+                            }
+                            }catch(e){
+                                // alert(e.stack)
+                            }
+                        }, timeOutVal);
+                    } else {
+                        trailToggle = true;
+                    }
+                }
+                if (position.x < 30 && position.y > 80 && showTimer) {
+                    if (document.getElementById('timeDisp')) {
+                        document.getElementById('timeDisp').style.opacity = 0.5;
+                    }
+                } else {
+                    if (document.getElementById('timeDisp')) {
+                        document.getElementById('timeDisp').style.opacity = 1;
+                    }
+                }
+                if (document.getElementById('posbox')) {
+                    if (document.getElementById('posbox').style.display != 'none') {
+                        document.getElementById('posbox').innerText = 'X: ' + Math.round(position.x*100)/100 + ' Y: ' + Math.round(position.y*100)/100;
+                        if (!rTrayOpen) {
+                            document.getElementById('posbox').style.right = 0;
+                        } else {
+                            document.getElementById('posbox').style.right = '10%';
+                        }
+                    }
+                }
+            }
+            if (localStorage.getItem('DVDcorners')) {
+                cornerCount = parseInt(localStorage.getItem('DVDcorners'));
+            }
+            function resetCorners() {
+                let isSure = confirm("Reset corner counter?\nThis cannot be undone")
+                if (isSure) {
+                    cornerCount = 0;
+                    localStorage.removeItem('DVDcorners');
+                }
+            }
+            function confetti() {
+                cornerCount++;
+                updateTime();
+                localStorage.setItem('DVDcorners', cornerCount);
+                if (userConfetti) {
+                // if (allowConfetti && userConfetti) {
+                    document.body.style.backgroundImage = "url('confetti.webp')";
+                    // document.getElementById('confettiimg').style.display = '';
+                    setTimeout(() => {
+                        document.body.style.backgroundImage = "none";
+                        // document.getElementById('confettiimg').style.display = 'none';
+                    }, 1000);
+                }
+            }
+            function openso() {
+                document.getElementById('speedopt').style.display = '';
+                document.getElementById('semi').style.display = '';
+            }
+            function closeso() {
+                document.getElementById('speedopt').style.display = 'none';
+                document.getElementById('semi').style.display = 'none';
+            }
+            function updatespeed() {
+                clearInterval(moveint);
+                intval = parseInt(document.getElementById('speedint').value);
+                moveint = setInterval(movedvd, parseFloat(document.getElementById('speedint').value));
+            }
+            function hideopt() {
+                if (ishiding == false && canFade) {
+                    ishiding = true;
+                    document.body.style.cursor = 'none';
+                    let opacityval = 1;
+                    hidingint = setInterval(() => {
+                        if (!canFade) {
+                            document.getElementById('optionsbox').style = 'opacity:1';
+                            clearInterval(hidingint);
+                            return;
+                        }
+                        document.getElementById('optionsbox').style = 'opacity: ' + opacityval;
+                        opacityval = opacityval - 0.01;
+                        if (opacityval <= 0.0) {
+                            document.getElementById('optionsbox').style.display = 'none';
+                            clearTimeout(hidingint);
+                            ishiding = false;
+                        }
+                    }, 10);
+                }
+            }
+            function actionHandler() {
+                clearInterval(hidingint);
+                document.body.style.cursor = 'auto';
+                document.getElementById('optionsbox').style.display = 'none';
+                document.getElementById('optionsbox').style = 'opacity: 1';
+                ishiding = false;
+                clearTimeout(hidetimer);
+                hidetimer = setTimeout(() => {hideopt();}, 500);
+            }
+            document.addEventListener('mousemove', actionHandler, false);
+            function toggleTesting(showEndAlert=true) {
+                if (!isTesting) {
+                    isTesting = true;
+                    let iCount = parseInt(prompt('Enter iterations:'));
+                    try {
+                        if (iCount != undefined || iCount != '' || iCount != null && !isNaN(iCount)) {
+                            if (iCount > 10000 && false) {
+                                let issure = confirm('This many iterations may take a while. Continue?')
+                                if (!issure) { return; }
+                            }
+                            if (moveint) {
+                                clearInterval(moveint);
+                            }
+                            let i = 0;
+                            while(i<iCount && isTesting) {
+                                movedvd();
+                                i++;
+                            }
+                            alert('Testing complete\nUse the backtick (`) to see wall collisions. Near-corner collisions are bold, corners are red.');
+                            toggleTesting(false);
+                        }
+                    } catch (e) {
+                        // alert(e.stack + '\n' + e.message)
+                    }
+                } else {
+                    isTesting = false;
+                    moveint = setInterval(movedvd, intval);
+                    if (showEndAlert) {
+                        alert('Testing disabled');
+                    }
+                }
+            }
+            function previewPos(posStr=0) {
+                if (!canmove) {return;}
+                closeso();
+                if (posStr == 0) {
+                    posStr = prompt('Enter position (x,y,slope.rise,slope.run)');
+                }
+                posStr = posStr.split(',');
+                let x = posStr[0];
+                let y = posStr[1];
+                let sri = posStr[2];
+                let sru = posStr[3];
+                canmove = false;
+                position.x = parseFloat(x);
+                position.y = parseFloat(y);
+                slope.rise = parseFloat(sri);
+                slope.run = parseFloat(sru);
+                document.getElementById('dvd').backgroundColor = 'blue';
+                document.getElementById('dvd').style.top =  position.y + '%';
+                document.getElementById('dvd').style.left = position.x + '%';
+                document.getElementById('posbox').innerText = 'X: ' + position.x + ' Y: ' + position.y;
+                setTimeout(() => {
+                    canmove=true;
+                    document.getElementById('dvd').backgroundColor = '';
+                }, 5000);
+            }
+            function toggleTrail(elem) {
+                if (!trailMode) {
+                    let issure = confirm('After enabling trail, it cannot be disabled without reloading. Continue?');
+                    if (!issure) {return}
+                    document.getElementById('tcb').outerHTML = '';
+                    document.getElementById('etb').outerHTML = '';
+                    document.getElementById('etb2').outerHTML = '';
+                    document.getElementById('tinyB').outerHTML = '';
+                    trailMode = true;
+                    //elem.innerText = 'Disable Trail';
+                } else {
+                    trailMode = false;
+                    //elem.innerText = 'Enable Trail';
+                }
+            }
+            function toggleLDMTrail(elem) {
+                if (!trailMode) {
+                    let issure = confirm('After enabling LDM trail, it cannot be disabled without reloading. Continue?');
+                    if (!issure) {return}
+                    document.getElementById('tcb').outerHTML = '';
+                    document.getElementById('etb').outerHTML = '';
+                    document.getElementById('etb2').outerHTML = '';
+                    document.getElementById('tinyB').outerHTML = '';
+                    LDMtrail = true;
+                    trailMode = true;
+                } else {
+                    trailMode = false;
+                    LDMtrail = false;
+                    elem.innerText = 'Enable Trail';
+                }
+            }
+        </script>
+        <style>
+            #semi {
+                background-color: black;
+                opacity: 0.5;
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+                position: fixed;
+                z-index: 2;
+            }
+            #speedopt {
+                background-color: blue;
+                border: 3px dashed cyan;
+                position: fixed;
+                top: 10%;
+                left: 10%;
+                width: 80%;
+                height: 80%;
+                z-index: 3;
+            }
+            #popup {
+                background-color: blue;
+                border: 3px dashed cyan;
+                position: fixed;
+                top: 10%;
+                left: 10%;
+                width: 80%;
+                height: 80%;
+                z-index: 3;
+            }
+            #optionsbox {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 10%;
+            }
+            .block {
+                position: fixed;
+                width: 5%;
+                height: 10%;
+                background-color: black;
+                vertical-align: center;
+            }
+            .block:hover {
+                background-color:black;
+            }
+            .block:focus {
+                background-color:black;
+            }
+        </style>
+        <script>
+                function toggleTunes() {
+                    let elem = document.getElementById('tunes');
+                    if (elem.paused) {
+                        elem.play();
+                    } else {
+                        elem.pause();
+                    }
+                }
+                function openFullscreen() {
+                    // Why this line exists I have no idea...
+                    //position.y=50;
+                    const elem = document.documentElement;
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) { /* Safari */
+                        elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) { /* IE11 */
+                        elem.msRequestFullscreen();
+                    }
+                }
+                function togglepos() {
+                    if (document.getElementById('posbox').style.display == 'none') {
+                        document.getElementById('posbox').style.display = '';
+                    } else {
+                        document.getElementById('posbox').style.display = 'none';
+                    }
+                }
+                function runwee() {
+                    invert();
+                    wint = setTimeout(runwee, 300+Math.floor(Math.random()*99));
+                }
+                function wee(elem,ver) {
+                    if (elem.innerText == 'Start :)' || elem.innerText == 'Start v2 :))') {
+                        if (ver==2) {
+                            weev2 = true;
+                        }
+                        elem.innerText = 'Stop :(';
+                        if (!weev2) {
+                            let corner = Math.floor(Math.random()*4);
+                            let jumpVal = [];
+                            if (corner == 1) {
+                                jumpVal = [0,0];
+                            } else if (corner == 2) {
+                                jumpVal = [90,0]
+                            } else if (corner == 3) {
+                                jumpVal = [0,90]
+                            } else {
+                                jumpVal = [90,90]
+                            }
+                            setTimeout(() => {
+                                position.x=jumpVal[0];
+                                position.y=jumpVal[1];
+                            }, 300);
+                        }
+                        wint = setTimeout(runwee, 300);
+                    } else {
+                        if (elem.id == 'wee1') {
+                            elem.innerText = 'Start :)';
+                        }
+                        if (elem.id == 'wee2') {
+                            elem.innerText = 'Start v2 :))'
+                        }
+                        if (weev2) {
+                            weev2 = false;
+                        }
+                        clearTimeout(wint);
+                        position.x=50;
+                    }
+                }
+                function toggleCol() {
+                    if (allowCol) {
+                        allowCol = false;
+                        document.getElementById('dvd').style.filter = 'none';
+                        alert('Color changing disabled');
+                    } else {
+                        allowCol = true;
+                        alert('Color changing enabled');
+                    }
+                }
+                function setBg(col) {
+                    document.body.style.backgroundColor = col;
+                }
+                function flashBg() {
+                    if (!flashingBg) {return}
+                    switch(document.body.style.backgroundColor) {
+                        case "black":
+                            setBg("red");
+                            break;
+                        case "red":
+                            setBg("orange");
+                            break;
+                        case "orange":
+                            setBg("yellow");
+                            break;
+                        case "yellow":
+                            setBg("green");
+                            break;
+                        case "green":
+                            setBg("blue");
+                            break;
+                        case "blue":
+                            setBg("purple");
+                            break;
+                        case "purple":
+                            setBg("red");
+                            break;
+                        default:
+                            setBg("black");
+                    }
+                }
+                function toggleBg() {
+                    if (!flashingBg) {
+                        flashingBg = true;
+                        bgInt = setInterval(flashBg, 500);
+                    } else {
+                        flashingBg = false;
+                        if (bgInt) {
+                            clearInterval(bgInt);
+                        }
+                        document.body.style.backgroundColor = "black";
+                    }
+                }
+                function updateSlope() {
+                    if (parseFloat(document.getElementById('slopeInX')) != 0.1 || parseFloat(document.getElementById('slopeInY')) != 0.1) {
+                        allowConfetti = false;
+                    } else {
+                        allowConfetti = true;
+                    }
+                    let currentSlope = {
+                        rise: 'pos',
+                        run: 'pos'
+                    }
+                    if (slope.rise == storedSlope.negRise) {
+                        currentSlope.rise = 'neg';
+                    }
+                    if (slope.run == storedSlope.negRun) {
+                        currentSlope.run = 'neg';
+                    }
+                    storedSlope = {
+                        posRun: parseFloat(document.getElementById('slopeInX').value),
+                        negRun: parseFloat(parseFloat(document.getElementById('slopeInX').value) - parseFloat(document.getElementById('slopeInX').value)*2),
+                        posRise: parseFloat(document.getElementById('slopeInY').value),
+                        negRise: parseFloat(parseFloat(document.getElementById('slopeInY').value) - parseFloat(document.getElementById('slopeInY').value)*2)
+                    }
+                    if (currentSlope.rise == 'pos') {
+                        slope.rise = storedSlope.posRise;
+                    } else {
+                        slope.rise = storedSlope.negRise;
+                    }
+                    if (currentSlope.run == 'pos') {
+                        slope.run = storedSlope.posRun;
+                    } else {
+                        slope.run = storedSlope.negRun;
+                    }
+                    alert('Slope settings updated');
+                }
+                function toggleSpacing() {
+                    if (slopeOptOpen) {
+                        slopeOptOpen = false;
+                        document.getElementById('spacer1').innerHTML = '<br><br>';
+                        document.getElementById('spacer2').innerHTML = '<br><br>';
+                    } else {
+                        slopeOptOpen = true;
+                        document.getElementById('spacer1').innerHTML = '';
+                        document.getElementById('spacer2').innerHTML = '';
+                    }
+                }
+                function resetSlope() {
+                    let currentSlope = {
+                        rise: 'pos',
+                        run: 'pos'
+                    }
+                    if (slope.rise == storedSlope.negRise) {
+                        currentSlope.rise = 'neg';
+                    }
+                    if (slope.run == storedSlope.negRun) {
+                        currentSlope.run = 'neg';
+                    }
+                    storedSlope = {
+                        posRise: 0.1,
+                        negRise: -0.1,
+                        posRun: 0.1,
+                        negRun: -0.1
+                    }
+                    if (currentSlope.rise == 'pos') {
+                        slope.rise = storedSlope.posRise;
+                    } else {
+                        slope.rise = storedSlope.negRise;
+                    }
+                    if (currentSlope.run == 'pos') {
+                        slope.run = storedSlope.posRun;
+                    } else {
+                        slope.run = storedSlope.negRun;
+                    }
+                    allowConfetti = true;
+                    alert('Slope settings reset');
+                }
+                function aboutSlope() {
+                    alert(
+                        'Slope is how far across the screen the DVD logo moves each millisecond. ' +
+                        'By default it moves 0.1, and when it hits a wall, the rise/run (horizontal/vertical) ' +
+                        'of that part of the slope is inverted (0.1 becomes -0.1 and vice versa). ' +
+                        'This setting allows you to change how far it moves each millisecond, horizontally (X) ' +
+                        'and vertically (Y).'
+                    )
+                }
+                function invert() {
+                    if (slope.rise == storedSlope.posRise) {
+                        slope.rise = storedSlope.negRise;
+                    } else {
+                        slope.rise = storedSlope.posRise;
+                    }
+                    if (slope.run == storedSlope.posRun) {
+                        slope.run = storedSlope.negRun;
+                    } else {
+                        slope.run = storedSlope.posRun;
+                    }
+                }
+                function secondsToDhms(seconds) {
+                    seconds = Number(seconds);
+                    var d = Math.floor(seconds / (3600*24));
+                    var h = Math.floor(seconds % (3600*24) / 3600);
+                    var m = Math.floor(seconds % 3600 / 60);
+                    var s = Math.floor(seconds % 60);
+                    
+                    var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
+                    var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+                    var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
+                    var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+                    return dDisplay + hDisplay + mDisplay + sDisplay;
+                }
+                window.addEventListener('load', () => {
+                    if (localStorage.getItem('DVDtime')) {
+                        timeActive = parseInt(localStorage.getItem('DVDtime'));
+                        updateTime();
+                        if (localStorage.getItem('noDVDtime')) {
+                            showTimer = false;
+                            document.getElementById('timeDisp').style.display = 'none';
+                        }
+                    }
+                }, false);
+                function updateTime() {
+                    if (parseInt(localStorage.getItem('DVDtime')) > timeActive && parseInt(localStorage.getItem('DVDtime')) != 0) {
+                        timeActive = parseInt(localStorage.getItem('DVDtime'));
+                    }
+                    if (bugfix == 1) {
+                        timeActive = 52200;
+                    }
+                    if (parseInt(localStorage.getItem('DVDtime')) == 0) {
+                        timeActive = 1;
+                    }
+                    localStorage.setItem('DVDtime', timeActive);
+                    if (showTimer) {
+                        let extraStr = '';
+                        if (timeActive >= 18000) {
+                            // 5 hours
+                            extraStr = '<span style="font-size:10px;float:left;">Welcome; the grind begins now :)</span><br>';
+                        }
+                        if (timeActive >= 36000) {
+                            // 10 hours
+                            extraStr = '<span style="font-size:10px;float:left;">Moderate amount of time</span><br>';
+                        }
+                        if (timeActive >= 86400) {
+                            // 24 hours
+                            extraStr = '<span style="font-size:10px;float:left;">Wow that is a day\'s worth of this</span><br>';
+                        }
+                        if (timeActive >= 126000) {
+                            // 35 hours
+                            extraStr= '<span style="font-size:10px;float:left;">Man you have a lot of time</span><br>';
+                        }
+                        if (timeActive >= 180000) {
+                            // 50 hours
+                            extraStr = '<span style="font-size:10px;float:left;">Is this really worth this much time?</span><br>';
+                        }
+                        if (timeActive >= 360000) {
+                            // 100 hours
+                            extraStr = '<span style="font-size:10px;float:left;">Over 100 hours!!! 🥳</span><br>';
+                        }
+                        if (timeActive >= 604800) {
+                            // More than a week (168 hours)
+                            extraStr = '<span style="font-size:10px;float:left;">Wow...that\'s a week of just this</span><br>';
+                        }
+                        if (timeActive >= 720000) {
+                            // 200 hours
+                            extraStr = '<span style="font-size:10px;float:left;">*200* (hours)</span><br>';
+                        }
+                        if (timeActive >= 1080000) {
+                            // 300 hours
+                            extraStr = '<span style="font-size:10px;float:left;">Almost 2 weeks!</span><br>';
+                        }
+                        if (timeActive >= 1209600) {
+                            // More than 2 weeks (336 hours)
+                            extraStr = '<span style="font-size:10px;float:left;">Is this really that entertaining? That is two weeks of your life down the drain</span><br>';
+                        }
+                        if (timeActive >= 2628000) {
+                            // More than an average month
+                            extraStr = '<span style="font-size:10px;float:left;">Okay you need to get off...it\'s been a month</span><br>';
+                        }
+                        document.getElementById('timeDisp').innerHTML = extraStr + ' <span style="font-size:10px;float:left;">Corners: ' + cornerCount.toLocaleString() + '</span><br>' + 'Watch time: ' + secondsToDhms(timeActive);
+                    }
+                }
+                setInterval(() => {
+                    timeActive++;
+                    updateTime();
+                }, 1000);
+                function toggleTimer() {
+                    if (showTimer) {
+                        showTimer = false;
+                        document.getElementById('timeDisp').style.display = 'none';
+                        localStorage.setItem('noDVDtime', true)
+                    } else {
+                        showTimer = true;
+                        document.getElementById('timeDisp').style.display = '';
+                        if (localStorage.getItem('noDVDtime')) {
+                            localStorage.removeItem('noDVDtime');
+                        }
+                    }
+                }
+                function toggleBR() {
+                    if (document.getElementById('brainVid1').style.display == 'none') {
+                        document.getElementById('brainVid1').style.display = '';
+                    } else {
+                        document.getElementById('brainVid1').style.display = 'none';
+                    }
+                    closeso();
+                }
+                function toggleRTray() {
+                    if (rTrayOpen) {
+                        actionHandler();
+                        canFade = true;
+                        rTrayOpen = false;
+                        document.getElementById('rtrayb').innerText = '⬅️️';
+                        document.getElementById('rtrayb').title = 'Options';
+                        document.getElementById('rtray').style.display = 'none';
+                        document.getElementById('rtrayb').style.right = '0%';
+                    } else {
+                        if (isUniversal) {return;}
+                        document.getElementById('optionsbox').style = 'opacity:1';
+                        if (hidingint) {
+                            clearInterval(hidingint);
+                        }
+                        if (position.x > 81.9) {
+                            position.x = 81.9;
+                        }
+                        canFade = false;
+                        rTrayOpen = true;
+                        document.getElementById('rtrayb').innerText = '➡️';
+                        document.getElementById('rtrayb').title = 'Close Options';
+                        document.getElementById('rtray').style.display = '';
+                        document.getElementById('rtrayb').style.right = '10%';
+                    }
+                    
+                }
+                window.addEventListener('load', () => {
+                    let loca = location.href;
+                    if (loca.includes('?')) {
+                        loca = loca.split('?')
+                        if (loca[1] == 'bugfix1') {
+                            //bugfix = 1;
+                            alert('No bug fix available');
+                        }
+                    }
+                }, false);
+                function resetTimer() {
+                    let issure = confirm('Reset timer?\nThis cannot be undone');
+                    if (!issure) {return}
+                    localStorage.setItem('DVDtime',0);
+                    location.reload();
+                }
+                function popup(html=0) {
+                    if (canFade) {
+                        canFade = false;
+                    }
+                    document.getElementById('popup').style.display = '';
+                    document.getElementById('semi').style.display = '';
+                    if (html != 0) {
+                        document.getElementById('popContent').innerHTML = html;
+                    } else {
+                        document.getElementById('popContent').innerHTML = cornerPopCont;
+                        document.getElementById('snapIn').value = snapSpan;
+                    }
+                }
+                function closepop() {
+                    document.getElementById('popup').style.display = 'none';
+                    document.getElementById('semi').style.display = 'none';
+                    if (!rTrayOpen) {
+                        canFade = true;
+                        actionHandler();
+                    }
+                }
+                function toggleEvil() {
+                    if (!evilMode) {
+                        evilMode = true;
+                        alert('Corners are now impossible');
+                    } else {
+                        evilMode = false;
+                        alert('Corners can occur again');
+                    }
+                }
+                function showKeys() {
+                    alert(
+                        'Esc: Exit any popup\n'+
+                        'O (the letter): Toggle the options tray'+
+                        '\n`: Show every instance that the logo has hit a wall; close-to-corner instances are bold'+
+                        '\nI: invert the logo\'s direction'+
+                        '\nC: Open Corner probability settings'+
+                        '\nT: Start Trail' +
+                        '\nL: Start LDM Trail'+
+                        '\nF: Fullscreen' +
+                        '\nZ: Toggle colors' +
+                        '\nSpace: Pause/play'
+                    );
+                }
+                function toggleKeys() {
+                    if (allowKeys) {
+                        allowKeys = false;
+                        localStorage.setItem('DVDnokeys', true);
+                        alert('Keybindings disabled');
+                    } else {
+                        allowKeys = true;
+                        if (localStorage.getItem('DVDnokeys')) {
+                            localStorage.removeItem('DVDnokeys');
+                        }
+                        alert('Keybindings enabled');
+                    }
+                }
+                window.addEventListener('load', () => {
+                    if (localStorage.getItem('DVDnokeys')) {
+                        allowKeys = false;
+                    }
+                }, false);
+                function toggleTiny() {
+                    if (document.getElementById('tinydvd').style.display != 'none') {
+                        document.getElementById('tinydvd').style.display = 'none';
+                        document.getElementById('dvd').style.display = '';
+                    } else {
+                        document.getElementById('tinydvd').style.display = '';
+                        document.getElementById('dvd').style.display = 'none';
+                    }
+                }
+                function sbgt(text,fontSize=10) {
+                    document.getElementById('bgtext').innerHTML = text;
+                    document.getElementById('bgtext').style.fontSize = (parseInt(fontSize)+10) + 'px';
+                }
+                function fadeInLogo() {
+                    let i = 0;
+                    document.getElementById('dvd').style.display = '';
+                    document.getElementById('dvd').style.opacity = 0;
+                    let fadeInt = setInterval(() => {
+                        document.getElementById('dvd').style.opacity = i;
+                        i += 0.1;
+                        if (i >= 1) {
+                            document.getElementById('dvd').style.opacity = '';
+                            clearInterval(fadeInt);
+                        }
+                    }, 100);
+                }
+                function wakeUp() {
+                    let noTray = setInterval(() => {
+                        if (rTrayOpen) {
+                            toggleRTray();
+                        }
+                    }, 1);
+                    let pb;
+                    if (document.getElementById('posbox').style.display == 'none') {
+                        pb = false;
+                    } else {
+                        pb = true;
+                    }
+                    document.getElementById('posbox').style.display = 'none';
+                    let em;
+                    if (evilMode) {
+                        em = true;
+                    } else {
+                        em = false;
+                    }
+                    evilMode = true;
+                    let ak;
+                    if (allowKeys) {
+                        ak = true;
+                    } else {
+                        ak = false;
+                    }
+                    allowKeys = false;
+                    let st;
+                    if (showTimer) {
+                        st = true;
+                    } else {
+                        st = false;
+                    }
+                    showTimer = false;
+                    let br;
+                    if (document.getElementById('brainVid1').style.display == 'none') {
+                        br = false;
+                    } else {
+                        br = true;
+                    }
+                    document.getElementById('brainVid1').style.display = 'none';
+                    let fbg;
+                    if (flashingBg) {
+                        fbg = true;
+                    } else {
+                        fbg = false;
+                    }
+                    flashingBg = false;
+                    setTimeout(() => {
+                        sbgt('Wake up')
+                        setTimeout(() => {
+                            sbgt('This is a dream', 12);
+                            setTimeout(() => {
+                                sbgt('School is about to start', 14);
+                                setTimeout(() => {
+                                    sbgt('Wake up', 20);
+                                    setTimeout(() => {
+                                        document.getElementById('dvd').style.display = 'none';
+                                        sbgt('');
+                                        setTimeout(() => {
+                                            fadeInLogo();
+                                            sbgt('It\'s been twenty years...');
+                                            setTimeout(() => {
+                                                sbgt('Wake up...', 15);
+                                                setTimeout(() => {
+                                                    document.getElementById('dvd').style.display = 'none';
+                                                    sbgt('There is no logo', 25);
+                                                    setTimeout(() => {
+                                                        sbgt('There is no screen', 30);
+                                                        setTimeout(() => {
+                                                            sbgt('WAKE UP', 50);
+                                                            setTimeout(() => {
+                                                                sbgt('');
+                                                                let wbg = document.createElement('div');
+                                                                wbg.style = 'z-index:99;position:fixed;top:0;left:0;width:100%;height:100%;background-color:white;opacity:0;';
+                                                                wbg.setAttribute('id', 'whiteBg');
+                                                                document.body.appendChild(wbg);
+                                                                let i = 0;
+                                                                let wbgInt = setInterval(() => {
+                                                                    document.getElementById('whiteBg').style.opacity = i;
+                                                                    i += 0.1;
+                                                                    if (i>=1) {
+                                                                        setTimeout(() => {
+                                                                            alert('Finally');
+                                                                        }, 2500);
+                                                                        setTimeout(() => {
+                                                                            document.getElementById('whiteBg').outerHTML = '';
+                                                                            sbgt('');
+                                                                            document.getElementById('dvd').style.display = '';
+                                                                            if (pb) {
+                                                                                document.getElementById('posbox').style.display = '';
+                                                                            } else {
+                                                                                document.getElementById('posbox').style.display = 'none';
+                                                                            }
+                                                                            if (br) {
+                                                                                document.getElementById('brainVid1').style.display = '';
+                                                                            } else {
+                                                                                document.getElementById('brainVid1').style.display = 'none';
+                                                                            }
+                                                                            if (fbg) {
+                                                                                flashingBg = true;
+                                                                            } else {
+                                                                                flashingBg = false;
+                                                                            }
+                                                                            if (!em) {
+                                                                                evilMode = false;
+                                                                            } else {
+                                                                                evilMode = true;
+                                                                            }
+                                                                            if (!ak) {
+                                                                                allowKeys = false;
+                                                                            } else {
+                                                                                allowKeys = true;
+                                                                            }
+                                                                            if (!st) {
+                                                                                showTimer = false;
+                                                                            } else {
+                                                                                showTimer = true;
+                                                                            }
+                                                                        }, 5000);
+                                                                        clearInterval(wbgInt);
+                                                                    }
+                                                                }, 10);
+                                                            }, 3000);
+                                                        }, 3200);
+                                                    }, 3000);
+                                                }, 3500);
+                                            }, 4000);
+                                        }, 5000);
+                                    }, 3500);
+                                }, 4000);
+                            }, 4000);
+                        }, 3500);
+                    }, 2500);
+                }
+                function toggleConfetti() {
+                    if (userConfetti) {
+                        userConfetti = false;
+                        alert('Confetti disabled');
+                    } else {
+                        userConfetti = true;
+                        alert('Confetti enabled');
+                    }
+                }
+                function getX(id) {
+                    const numId = parseInt(id, 10);
+                    return (numId % 20) * 5;
+                }
+                function getY(id) {
+                    const numId = parseInt(id, 10);
+                    return Math.floor((numId - 1) / 20) * 10;
+                }
+class Wall {
+    constructor(x, y, id) {
+        this.x = x;
+        this.y = y;
+        this.id = id;
+    }
+}
+                let walls = [];
+                let wallIds = [];
+                /*for (let i = 0; i<=200; i++) {
+                    walls[i] = null;
+                }*/
+                function clickHandler(id,elem) {
+                    if (elem.style.backgroundColor == 'darkblue') {
+                        elem.style.backgroundColor = '';
+                        let wallId = walls.push(new Wall(parseFloat(elem.style.left),parseFloat(elem.style.top),id));
+                        wallIds.push(wallId);
+                    } else {
+                        elem.style.backgroundColor = 'darkblue';
+                        let IdIndex = wallIds.indexOf(id);
+                        wallIds[IdIndex] = null;
+                    }
+                }
+                function toggleBlocks() {
+                    try {
+                    if (document.getElementById('blockButtons').innerHTML == '') {
+                        let output = '';
+                        for (let i = 0; i <= 200; i++) {
+                            output += `<button id="blockB${i}" onclick="clickHandler(${i},this)" style="top:${getY(i)}%; left:${getX(i)}%;" class="block"></button>`;
+                        }
+                        document.getElementById('blockButtons').innerHTML = output;
+                    }
+                    if (document.getElementById('blockButtons').style.display == 'none') {
+                        document.getElementById('blockButtons').style.display = '';
+                    } else {
+                        document.getElementById('blockButtons').style.display = 'none';
+                    }
+                    } catch(e) {
+                        // alert(e.stack);
+                    }
+                }
+                function toggleNewBg() {
+                    if (document.getElementById('bgDVD').style.display == 'none') {
+                        document.getElementById('bgDVD').style.display = '';
+                    } else {
+                        document.getElementById('bgDVD').style.display = 'none';
+                    }
+                }
+            setInterval(() => {
+                let date = new Date();
+                let hrs = date.getHours();
+                let ampm = 'am';
+                if (hrs > 12) {
+                    hrs -= 12;
+                    ampm = 'pm'
+                } else if (hrs == 12) {
+                    ampm = 'pm'
+                }
+                let min = date.getMinutes();
+                if (min<10) {
+                    min = '0' + min;
+                }
+                let sec = date.getSeconds();
+                if (sec < 10) {
+                    sec = '0' + sec;
+                }
+                if (clockShown) {
+                    document.getElementById('clock').innerHTML = '<span onclick="toggleCClock();" style="font-size:10px;"><br></span><span onclick="toggleCClock();">' + hrs + ':' + min + ':' + sec + ' ' + ampm + '</span>';
+                    if (hrs > 24 || sec > 60 || min > 60) {
+                        document.getElementById('clock').innerText = 'Error';
+                    }
+                }
+            }, 500);
+            function toggleClock() {
+                toggleCCol();
+                if (clockShown) {
+                    clockShown = false;
+                    document.getElementById('clock').style.display = 'none';
+                } else {
+                    clockShown = true;
+                    document.getElementById('clock').style.display = '';
+                   if (position.x < 22 && position.y < 10 && clockShown) {
+                       if ((22-position.x)<(10-position.y)) {
+                           position.x=22
+                       } else {
+                            position.y=10
+                       }
+                   }
+                }
+            }
+            let allowArrows = false;
+            window.addEventListener('keydown', (event) => {
+                if (allowArrows) {
+                    switch(event.key) {
+                        case 'ArrowUp':
+                            position.y-=1.5;
+                            break;
+                        case 'ArrowDown':
+                            position.y+=1.5;
+                            break;
+                        case 'ArrowLeft':
+                            position.x-=1.5;
+                            break;
+                        case 'ArrowRight':
+                            position.x+=1.5;
+                            break;
+                    }
+                    if (position.x<0) {position.x=0}
+                    if (position.y<0) {position.y=0}
+                    if (position.x>92) {position.x=92}
+                    if (position.y>86) {position.y=86}
+                    if (clockShown&&position.x<22) {position.x=22}
+                    if (clockShown&&position.y<10) {position.y=10}
+                    if (rTrayOpen&&position.x>81.9) {position.x=81.9}
+                }
+            }, false);
+            function toggleArrows(elem=0) {
+                if (allowArrows) {
+                    allowArrows = false;
+                    if (elem!=0) {
+                        elem.innerText = 'Enable arrow keys';
+                    }
+                } else {
+                    allowArrows = true;
+                    if (elem!=0) {
+                        elem.innerText = 'Disable arrow keys';
+                    }
+                }
+            }
+            let isSpinning = false;
+            let spinInt;
+            let spinVal = 0;
+            let spinDir = -1;
+            let allowSpinSwap = false;
+            let spinSpeed = 10;
+            function toggleSpin() {
+                if (!isSpinning) {
+                    isSpinning = true;
+                    spinInt = setInterval(() => {
+                        spinVal += spinDir;
+                        if (document.getElementById('dvd')) {
+                            document.getElementById('dvd').style.rotate = spinVal+'deg';
+                        }
+                        if (document.getElementById('tinydvd')) {
+                            document.getElementById('tinydvd').style.rotate = spinVal+'deg';
+                        }
+                    }, spinSpeed);
+                    if (document.getElementById('spinSpan')) {
+                        document.getElementById('spinSpan').style.opacity = 1;
+                        document.getElementById('spinSpan').style.cursor = 'default';
+                        document.getElementById('tSpinB').innerText = 'Disable Spin';
+                    }
+                } else {
+                    isSpinning = false;
+                    if (spinInt) {
+                        clearInterval(spinInt);
+                    }
+                    document.getElementById('dvd').style.rotate = '0deg';
+                    if (document.getElementById('spinSpan')) {
+                        document.getElementById('spinSpan').style.opacity = 0.5;
+                        document.getElementById('spinSpan').style.cursor = 'auto';
+                        document.getElementById('tSpinB').innerText = 'Enable Spin';
+                    }
+                }
+            }
+            function updateVar(vari,value) {
+                eval(vari+'='+value);
+            }
+            function toggleSpinSwap() {
+                if (allowSpinSwap) {
+                    allowSpinSwap = false;
+                    alert('Spin reversing disabled');
+                    if (spinDir>0) {
+                        spinDir = spinDir-(spinDir*2)
+                    }
+                } else {
+                    allowSpinSwap = true;
+                    alert('Spin reversing enabled');
+                }
+            }
+            function spinOpt() {
+                let posSD = spinDir;
+                if (posSD < 0) {
+                    posSD = posSD+(posSD*-2);
+                }
+                let ssOpacity;
+                let enDis;
+                if (isSpinning) {
+                    ssOpacity = 1;
+                    enDis = 'Disable';
+                } else {
+                    ssOpacity = 0.5;
+                    enDis = 'Enable';
+                }
+                popup(
+                    '<h1>Spin Options</h1>' +
+                    '<button id="tSpinB" onclick="toggleSpin()">'+enDis+' Spin</button><br><br>' +
+                    '<span id="spinSpan" style="opacity:'+ssOpacity+'">' +
+                    'Spin speed (lower=faster): <input type="number" value="'+spinSpeed+'" onchange="updateVar(\'spinSpeed\',this.value);toggleSpin();toggleSpin();"><br><br>' +
+                    '<button onclick="toggleSpinSwap()" title="When the logo hits a wall while spinning, it by default changes the spin direction. Use this to disable/re-enable this feature.">Toggle Reverse Spin on collision</button><br><br>' +
+                    'Spin step (how much it rotates by): <input type="number" value="'+posSD+'" onchange="updateVar(\'spinDir\',this.value)"><br><br>' +
+                    'Set angle (hit enter to run): <input type="number" placeholder="Number between 0 and 360..." onkeypress="if(event.key==\'Enter\'){updateVar(\'spinVal\',this.value)}">' +
+                    '</span>'
+                )
+            }
+            function randomize() {
+                let chance = prompt('Enter a number (1-100) to determine the chance of a setting being changed. To use the default (25%), leave this blank.')
+                if (chance==null||chance==undefined) {return;}
+                if (chance=='') {chance=25;}
+                chance = parseInt(chance);
+                let val;
+                function calcNum() {
+                    let num = Math.floor(Math.random()*100);
+                    val = parseInt(num);
+                }
+                calcNum();
+                if (val<chance) {
+                    openFullscreen();
+                }
+                calcNum();
+                if (val<chance) {
+                    invert();
+                }
+                calcNum();
+                if (val<chance) {
+                    togglepos();
+                }
+                calcNum();
+                if (val<chance) {
+                    openso();
+                    calcNum();
+                    if (val<chance) {
+                        document.getElementById('slopeInX').value = Math.floor(Math.random()*10)/10
+                    }
+                    calcNum();
+                    if (val<chance) {
+                        document.getElementById('slopeInY').value = Math.floor(Math.random()*10)/10
+                    }
+                    updateSlope();
+                    closeso();
+                }
+                calcNum();
+                if (val<chance) {
+                    popup();
+                    document.getElementById('snapIn').value = Math.floor(Math.random()*10);
+                }
+                calcNum();
+                if (val<chance) {
+                    toggleTunes();
+                }
+                calcNum();
+                if (val<chance) {
+                    toggleCol();
+                }
+                calcNum();
+                if (val<(chance/2)) {
+                    toggleLDMTrail(document.getElementById('etb2'));
+                }
+                calcNum();
+                if (val<chance) {
+                    toggleBR();
+                }
+                calcNum();
+                if (val<chance) {
+                    toggleTiny();
+                }
+                calcNum();
+                if (val<chance) {
+                    toggleClock();
+                }
+                calcNum();
+                if (val<chance) {
+                    toggleTimer();
+                }
+                if (val<chance) {
+                    spinOpt();
+                    toggleSpin();
+                    calcNum();
+                    if (val<chance) {
+                        let newSpeed = Math.floor(Math.random()*20);
+                        spinSpeed = parseInt(newSpeed);
+                        closepop();
+                        spinOpt();
+                    }
+                    calcNum();
+                    if (val<chance) {
+                        toggleSpinSwap();
+                        closepop();
+                        spinOpt();
+                    }
+                    calcNum();
+                    if (val<chance) {
+                        spinDir = Math.floor(Math.random()*10);
+                        closepop();
+                        spinOpt();
+                    }
+                    closepop();
+                }
+                closepop();
+                closeso();
+            }
+            function toggleCCol() {
+                if (clockCol) {
+                    document.getElementById('clock').style.borderBottom = 'none';
+                    document.getElementById('clock').style.borderRight = 'none';
+                    clockCol = false;
+                } else {
+                    document.getElementById('clock').style.borderBottom = '';
+                    document.getElementById('clock').style.borderRight = '';
+                    clockCol = true;
+                }
+            }
+            function showCountdown() {
+                popup(
+                    "<h1>Choose a time</h1>" +
+                    "<input type='time' id='countIn'><br><br>" +
+                    "<button onclick='loadCountdown()'>Continue</button>"
+                )
+            }
+            function convertToSeconds(unTime) {
+                unTime = unTime.split(":");
+                return (parseInt(unTime[0]*60)+parseInt(unTime[1]))*60;
+            }
+            function loadCountdown() {
+                let endTime = document.getElementById('countIn').value;
+                if (document.getElementById('clock').style.display != 'none') {
+                    toggleClock();
+                }
+                updateCountdown(convertToSeconds(endTime));
+                closepop();
+            }
+            function formatTime(unTime) {
+                let hrs = 0;
+                let min = 0;
+                let sec = 0;
+                if (unTime >= (60*60)) {
+                    hrs = Math.floor(unTime / (60*60));
+                    unTime = unTime - (hrs*60*60);
+                    if (unTime >= 60) {
+                        min = Math.floor(unTime / 60);
+                        sec = unTime % 60;
+                    } else {
+                        sec = unTime;
+                    }
+                } else if (unTime >= 60) {
+                    min = Math.floor(unTime / 60);
+                    sec = unTime % 60;
+                } else {
+                    sec = unTime;
+                }
+                let finalString = "";
+                if (hrs != 0) {
+                    finalString += hrs+":";
+                }
+                if (min <= 9) {
+                    finalString += "0"+min+":";
+                } else {
+                    finalString += min+":";
+                }
+                if (sec <= 9) {
+                    finalString += "0"+sec;
+                } else {
+                    finalString += sec;
+                }
+                return finalString;
+            }
+            function updateCountdown(endTime) {
+                let date = new Date();
+                let currentTime = (date.getHours()*60*60)+(date.getMinutes()*60)+(date.getSeconds())
+                let timeLeft = endTime - currentTime;
+                if (timeLeft > 0) {
+                    document.getElementById('countdownDiv').innerText = formatTime(timeLeft);
+                } else {
+                    document.getElementById('countdownDiv').innerText = "00:00"
+                }
+                setTimeout(() => {
+                    if (timeLeft > 0) {
+                        updateCountdown(endTime);
+                    } else {
+                        document.getElementById('countdownDiv').innerText = "00:00"
+                    }
+                }, 500);
+            }
+            function displayPath() {
+                let output = '<h1>Path Log (CSV style)</h1><h2>X, Y</h2>';
+                if (hasLooped) {
+                    output = "<h1>Loop has occured!!!</h1>"+output;
+                }
+                for (let i = 0;i<pathLog.length;i++) {
+                    output += pathLog[i].join(",")+"<br>";
+                }
+                let win2 = open('about:blank', 'win2');
+                win2.document.write(output);
+            }
+            function randomSlope() {
+                document.getElementById('slopeInX').value = Math.floor(Math.random()*50)/10;
+                document.getElementById('slopeInY').value = Math.floor(Math.random()*50)/10;
+                updateSlope();
+            }
+            let isFading = false;
+            let fadeInt;
+            let fadeProgress = 0;
+            function progressFade() {
+                document.getElementById('dvd').style.filter = "hue-rotate("+fadeProgress+"deg)";
+                fadeProgress++;
+                if (fadeProgress>=360) {
+                    fadeProgress = 0;
+                }
+            }
+            function toggleFade() {
+                if (isFading) {
+                    clearInterval(fadeInt);
+                    document.getElementById('dvd').style.filter = 'none';
+                    isFading = false;
+                } else {
+                    fadeInt = setInterval(progressFade,10);
+                    isFading = true;
+                }
+            }
+        </script>
+        <! logo scale:100x68 50/34 25/17
+    </head>
+    <body id="body">
+        <!-- <audio loop src="https://codehs.com/uploads/736a4d3746224cd2836cb1c206681255" id="tunes"></audio> -->
+        <span id="blockButtons" style="display:none;"></span>
+        <span id="bgtext" style="font-size:10px;color:grey;text-align:center;z-index:100;"></span>
+        <video id="brainVid1" src="subwayVid.mp4" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;display:none;" autoplay muted loop></video>
+        <!--<video id="brainVid2" src="" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1.1;display:none;" autoplay muted loop></video>-->
+        <img id="confettiimg" style="position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:9999999999999999999999999;" src="confetti.webp">
+        <div hidden style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999999999999999;cursor:none;"></div>
+        <div id="semi" style="display: none;z-index:34;" onclick="closepop();closeso();"></div>
+        <div id="popup" style="display:none;color:yellow;z-index:35;">
+            <button onclick="closepop()" style="float:left;">X Close</button>
+            <br>
+            <span id="popContent">
+                <h1>Corner probability settings</h1>
+                Snapping range<a href="javascript:alert('The area around the corner path (where it will hit a corner) that the logo will be snapped to, making a corner occurence more likely.')">*</a>:
+                <input type="number" id="snapIn" value=1 placeholder="Any positive number..." onchange="checkPositive(this)">
+                <!--
+                Finish this:
+                <script>document.getElementById('snapIn').value=parseFloat(localStorage.getItem(''))</script>-->
+                <br><br>
+                <button onclick="applySnap()" style="font-size:24px;">Apply</button>
+                <br><br>
+                <button onclick="document.getElementById('snapIn').value=3;applySnap();if(localStorage.getItem('DVDsnap')){localStorage.removeItem('DVDsnap');}">Reset Snapping range</button>
+                <br><br>
+                <button onclick="toggleEvil()" title="Will never hit a corner. Use at your own risk">Toggle corners (torture mode)</button>
+                <br><br>
+                <button onclick="toggleConfetti()" title="Enables/disables confetti when the logo hits a corner">Toggle confetti</button>
+                <br><br>
+                <small><i>This setting is persistant and will not be reset when this page is closed</i></small>
+            </span>
+            <script>const cornerPopCont = document.getElementById('popContent').innerHTML;</script>
+        </div>
+        <div id="speedopt" style="display: none;color:yellow;text-align:center;z-index:35;">
+            <button onclick="closeso()" style="float: left;">X Close</button>
+            <br>
+            <h1>Slope/Speed Options</h1>
+            <!--
+            *Speed options removed until I can actually fix it :/*
+            
+            
+            Speed interval:
+            <input type="number" id="speedint" value=5 placeholder="Type here..." onchange="updatespeed()">
+            <br><br>
+            Lower = faster
+            <br><br>-->
+            <!--<details style="border:2px solid cyan;">
+                <summary style="cursor:hand;" onclick="toggleSpacing()"><b>Slope/Speed Controls</b></summary>
+                <br>-->
+                <button onclick="aboutSlope()"><small>About</small></button>
+                <br><br>
+                Slope X:<input type="number" id="slopeInX" placeholder="Enter a number..." title="Horizontal speed" value="0.1">
+                <br><br>
+                Slope Y:<input type="number" id="slopeInY" placeholder="Enter a number..." title="Vertical speed" value="0.1">
+                <br><br>
+                <i>
+                    Disclaimer: Altering this to an extreme will probably mess up collision.
+                    <!--Also, for usability purposes, confetti for when the logo hits a corner is disabled with altered
+                    slope.<a href="javascript:alert('If this was not implemented, there could be infinite confetti. Fun, but then you literally can\'t do anything without reloading the page, or using Tab and Enter to click buttons.')">*</a>-->
+                </i>
+                <br><br>
+                <button onclick="updateSlope()" style="font-size:24px;">Apply</button>
+                <br><br>
+                <button onclick="randomSlope()">Randomize slope settings :)</button>
+                <br><br>
+                <button onclick="resetSlope()">Reset Slope</button>
+            <!--</details>
+            <br>-->
+            <!--<button onclick="toggleTesting()">Toggle Testing</button>
+            <button onclick="eval(prompt('Enter command'))">Run cmd</button>
+            <span id="spacer1"><br><br></span>
+            <button onclick="previewPos()">Preview position</button>
+            <button onclick="toggleBR()">Toggle Brainrot mode</button>
+            <br><br>
+            <button onclick="togglepos()">Toggle positional info</button>
+            <span id="spacer2"><br><br></span>
+            <button onclick="position={x:50,y:50}">Reset Position</button>
+            <button onclick="toggleTimer()">Toggle Watch Time</button>-->
+        </div>
+        <div id="clock" onclick="toggleCCol()" style="text-align:left;z-index:1;display:none;font-family:monospace;font-size:45px;position:fixed;top:0;left:0;width:22%;height:10%;border:none;border-bottom:1px solid grey;border-right:1px solid grey;"></div>
+        <div id="countdownDiv" style="text-align:left;z-index:2;font-family:monospace;font-size:45px;position:fixed;top:0;left:0;width:22%;height:10%;border:none;"></div>
+        <span id="bgDVD" style="display:none;"><iframe src="dvd.html" style="position:fixed;top:5%;left:5%;width:90%;height:90%;outline:1px solid grey;outline-offset:-1px;z-index:0;"></iframe></span>
+        <iframe src="dvd.html" id="tinydvd" style="display:none;" class="dvd"></iframe>
+        <script>
+            //document.getElementById('tinydvd').document.getElementById("clockButton").click();
+            //document.getElementById('tinydvd').style.display = 'none';
+        </script>
+        <span id="posbox" style="position:fixed;bottom:0;right:0;display:none;color:white;"></span>
+        <div id="optionsbox">
+            <button hidden id="rtrayb" onclick="toggleRTray()" title="Options" style="cursor:hand;position:fixed;top:0;right:0;">⬅️</button>
+            <div id="rtray" style="z-index:30;color:yellow;position:absolute;display:none;top:0;right:0;width:10%;height:100%;background-color:darkblue;border-left:3px dashed blue;">
+                <u><b>Options</b></u>
+                <br>
+                <details>
+                    <summary id="opt1" style="cursor:hand;"><u>Utility Options</u><br></summary>
+                    <button onclick="openFullscreen()" title="Fullscreen"><u>F</u>ullscreen</button><br>
+                    <button onclick="invert()" title="Reverse logo direction"><u>I</u>nvert</button><br>
+                    <button onclick="position={x:50,y:50}" title="Reset logo to the center of the screen">Reset Position</button><br>
+                    <button onclick="openso()" title="More info within">Open Slope/Speed options</button><br>
+                    <button onclick="resetTimer()" title="Sets the timer back to zero">Reset Watch Time</button><br>
+                    <button onclick="resetCorners()" title="Clears corner counter back to zero">Reset Corner Count</button><br>
+                    <button onclick="popup()" title="Set how easy it is for the logo to hit a corner"><u>C</u>orner probability settings</button><br>
+                    <button onclick="showKeys()" title="A list of keys that perform certain functions">Show keybindings</button><br>
+                    <button onclick="toggleKeys()" title="Enable/disable hotkeys (persistant)">Toggle keybindings</button><br>
+                    <button onclick="toggleArrows(this)" title="Shift the logo using the arrow keys on your keyboard">Enable Arrow Keys</button><br>
+                    <button onclick="toggleTunes()" title="Made by Noah DeRenzo :)">Toggle Tunes</button><br>
+                    <button onclick="randomize()" title="Set chance of toggling almost every setting; reload the page to undo all changes except for slope/speed and corner probability">Randomize settings</button><br>
+                    <br>
+                </details>
+                <details>
+                    <summary id="opt2" style="cursor:hand;"><u>Visual Options</u><br></summary>
+                    <button onclick="toggleBg()" title="Not for sensitive eyes :)">Toggle Flashing BG</button><br>
+                    <button onclick="toggleCol()" id="tcb" title="Enable/Disable color changing when the logo hits a wall">Toggle Colors</button><br>
+                    <button onclick="toggleTrail(this)" title="Cool effect :)" id="etb">Enable <u>T</u>rail</button><br>
+                    <button onclick="toggleLDMTrail(this)" title="Trail for Chromebooks" id="etb2">Enable <u>L</u>DM Trail</button><br>
+                    <button onclick="toggleBR()" title="Subway surfers in the background :)">Toggle Brainrot mode</button><br>
+                    <button id="tinyB" onclick="toggleTiny()" title="Changes the logo to a tiny window with another logo in it">Toggle Mini Logo</button><br>
+                    <button hidden onclick="wakeUp()" title="A brief little cutscene for when you have been watching this logo for too long 🫠">Insanity</button>
+                    <button id="clockButton" onclick="toggleClock()" title="Show/hide the clock in the top-right corner. Has collision">Toggle Clock</button><br>
+                    <button onclick="toggleTimer()" title="Show/hide timer in the bottom left">Toggle Watch Time</button><br>
+                    <button onclick="togglepos()" title="Show/hide the x/y coordinate info in the bottom right">Toggle positional info</button><br>
+                    <button onclick="spinOpt()" title="Allows you to make the logo spin in many different ways :)">Spin options :)</button><br>
+                    <button onclick="showCountdown()" title="Pick a time to count down to">Toggle Countdown</button><br>
+                    <button onclick="toggleFade()" title="Makes the logo fade from color to color">Toggle Fading Colors</button>
+                    
+                    
+                    <button hidden onclick="toggleNewBg()" title="Infinite DVD logos...">Tunnel Mode</button>
+                    <br>
+                </details>
+                <details>
+                    <summary id="opt3" style="cursor:hand;"><u>Dev</u><br></summary>
+                    <button onclick="try{let retVal = eval(prompt('Enter command')); if (retVal != undefined){alert(retVal)}}catch(e){alert(e.stack)}" title="Run JavaScript commands">Run cmd</button><br>
+                    <button onclick="toggleTesting()" title="Run through a day's worth of logo watching in seconds; I recommend 10,000 iterations">Run iterations of movement</button><br>
+                    <button onclick="previewPos()" title="Set the logo's position and direction of movement">Preview position</button><br>
+                    <button onclick="displayPath()" title="Provides a list in CSV format of the entire path the logo has taken since opened; may lag if it has been open for a while">Show Path</button>
+                    <br><br>
+                </details>
+                <small>
+                    <i>Hover over an option to get more info</i>
+                </small>
+                <br><br>
+                <button title="Open Google Form" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdLWVcE4HfPHhbiOg7VrC70_DDnHsTd-_mInJy7FrnLvoKuvA/viewform?usp=preview')">Suggestions...</button>
+                <br><br>
+                <script>
+                    toggleRTray();
+                    document.getElementById('opt1').click();
+                    document.getElementById('opt2').click();
+                    document.getElementById('opt3').click();
+                    toggleRTray();
+                </script>
+            </div>
+            <script>
+            setInterval(() => {
+                if (parseInt(window.innerHeight) < 820) {
+                    document.getElementById('rtray').style.height='900px';
+                } else {
+                    document.getElementById('rtray').style.height=window.innerHeight;
+                }
+            }, 10);
+            </script>
+            <span hidden style="color:red;background-color:yellow;position:fixed;bottom:0;right:10%;">Heads up - this page is being edited currently.<br>Some stuff may change or not work</span>
+            <span id="timeDisp" style="position:fixed;bottom:0;left:0;color:white;">Loading...</span>
+            <!--<button onclick="openso()" title="Helpful stuff for debugging, HUD, and other stuff" style="left: 0; top: 0; position: absolute; z-index: 1;">Options</button>
+            <button onclick="openFullscreen()" title="Fullscreen" style="left: 0; top: 21px; position: absolute; z-index: 1;">Fullscreen</button>
+            <button onclick="invert()" title="Reverse logo direction" style="position:absolute;top:42px;left:0;z-index:1;">Invert</button>
+            <button onclick="toggleBg()" title="Not for sensitive eyes :)" style="position:absolute;top:63px;left:0px;z-index:1;">Toggle Flashing BG</button>
+            <button onclick="toggleCol()" id="tcb" title="Enable/Disable color changing when the logo hits a wall" style="position:absolute;top:84px;left:0;z-index:1;">Toggle Colors</button>
+            <button onclick="toggleTrail(this)" title="Cool effect :)" id="etb" style="position:absolute;top:105px;left:0;z-index:1;">Enable Trail</button>
+            <button onclick="toggleLDMTrail(this)" title="For Chromebooks" id="etb2" style="position:absolute;top:126px;left:0;z-index:1;">Enable LDM Trail</button>-->
+            <!--<button onclick="wee(this,1)" style="position:absolute;top:84px;right:0;z-index:1;" id="wee">Start :)</button>
+            <button onclick="wee(this,2)" style="position:absolute;top:105px;right:0;z-index:1;" id="wee2">Start v2 :))</button>-->
+        </div>
+        <img src="dvd.png" style="background-color:transparent;" id="dvd">
+        <script>
+            document.body.style.backgroundColor = 'transparent';
+            document.body.style.color = 'green';
+            // toggleClock();
+        </script>
+    </body>
+</html>
