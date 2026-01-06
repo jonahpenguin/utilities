@@ -280,10 +280,22 @@
             }, false);
             window.addEventListener('keydown', (event) => {
                 if (event.key == "|") {
-                    let elem = document.createElement("iframe");
-                    elem.style = "position:fixed;top:5%;left:5%;width:90%;height:90%;border:none;outline:none;";
-                    elem.src = "dvdIframe.html";
-                    document.body.appendChild(elem);
+                    let elem1 = document.createElement("iframe");
+                    elem1.style = "position:fixed;top:5%;left:5%;width:90%;height:90%;border:1px solid grey;outline:none;";
+                    elem1.src = "dvdIframe.html";
+                    document.body.appendChild(elem1);
+                    let elem2 = document.createElement("iframe");
+                    elem2.style = "position:fixed;top:15%;left:15%;width:70%;height:70%;border:1px solid grey;outline:none;";
+                    elem2.src = "dvdIframe.html";
+                    document.body.appendChild(elem2);
+                    let elem3 = document.createElement("iframe");
+                    elem3.style = "position:fixed;top:25%;left:25%;width:50%;height:50%;border:1px solid grey;outline:none;";
+                    elem3.src = "dvdIframe.html";
+                    document.body.appendChild(elem3);
+                    let elem4 = document.createElement("iframe");
+                    elem4.style = "position:fixed;top:35%;left:35%;width:30%;height:30%;border:1px solid grey;outline:none;";
+                    elem4.src = "dvdIframe.html";
+                    document.body.appendChild(elem4);
                 }
                 if (event.key == "C") {
                     showCountdown();
