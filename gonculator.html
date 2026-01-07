@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <title>Gonculator</title>
+        <style>
+            body {
+                background-color: black;
+                color: lime;
+                font-family: monospace;
+                text-align: center;
+                zoom: 200%;
+            }
+            input {
+                background-color: black;
+                color: lime;
+                font-family: monospace;
+                border: 2px solid darkgreen;
+                outline: none;
+            }
+            input:focus {
+                border: 2px solid lime;
+                outline: none;
+            }
+            button {
+                background-color: black;
+                color: lime;
+            }
+            button:hover {
+                background-color: lime;
+                color: black;
+            }
+            button:focus {
+                background-color: lime;
+                color: black;
+            }
+        </style>
+        <script>
+            let gonculating = false;
+            function gonculate(input) {
+                let output = input * 42;
+                output /= 24;
+                output = 6 % output;
+                output += (input*2);
+                output /= Math.pow(output, 4)*2;
+                output = Math.sqrt(output)-24;
+                output -= input*output;
+                output = Math.abs(output);
+                output = Math.round(output);
+                return output;
+            }
+            function coolStuff(input) {
+                input = parseFloat(input);
+                if (gonculating) {
+                    return;
+                }
+                gonculating = true;
+                let i = 0;
+                document.getElementById('progSpan').innerHTML = "<progress max=100 value=0 id='progBar'>"
+                let int = setInterval(() => {
+                    input = gonculate(input);
+                    i += Math.floor(Math.random()*10)+15;
+                    if (i > 100) {
+                        i = 100;
+                    }
+                    document.getElementById('progBar').value = i;
+                    document.getElementById('progDisp').innerText = i+"%";
+                    document.getElementById('finalOutput').innerText = input;
+                    if (i >= 100) {
+                        document.getElementById('progBar').outerHTML = '';
+                        gonculating = false;
+                        clearInterval(int);
+                    }
+                }, 1000);
+            }
+        </script>
+    </head>
+    <body>
+        <br>
+        <h1>Gonculator</h1>
+        Enter number:
+        <input type=“number” id="userIn" placeholder="Enter a number..." onkeypress='if(event.key == "Enter"){coolStuff(this.value)}'>
+        <button onclick="coolStuff(document.getElementById('useIn').value)">Gonculate</button>
+        <br><br>
+        <span id="progSpan"></span>
+        <br>
+        <span id='progDisp'>0%</span>
+        <br><br>
+        <span id="finalOutput"></span>
+    </body>
+</html>
