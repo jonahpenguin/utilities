@@ -49,6 +49,10 @@
             }
             function coolStuff(input) {
                 input = parseFloat(input);
+                if (isNaN(input)) {
+                    alert("Must be a number")
+                    return;
+                }
                 if (gonculating) {
                     return;
                 }
