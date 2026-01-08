@@ -1661,8 +1661,8 @@ class Wall {
                     if (position.y<0) {position.y=0}
                     if (position.x>92) {position.x=92}
                     if (position.y>86) {position.y=86}
-                    if (clockShown&&position.x<22) {position.x=22}
-                    if (clockShown&&position.y<10) {position.y=10}
+                    if (clockCol&&position.x<22&&(event.key=="ArrowRight"||event.key=="ArrowLeft")) {position.x=22}
+                    if (clockCol&&position.y<10&&(event.key=="ArrowUp"||event.key=="ArrowDown")) {position.y=10}
                     if (rTrayOpen&&position.x>81.9) {position.x=81.9}
                 }
             }, false);
