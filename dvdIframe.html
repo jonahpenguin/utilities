@@ -747,7 +747,7 @@
                             clearInterval(hidingint);
                             return;
                         }
-                        document.getElementById('optionsbox').style = 'opacity: ' + opacityval;
+                        //document.getElementById('optionsbox').style = 'opacity: ' + opacityval;
                         opacityval = opacityval - 0.01;
                         if (opacityval <= 0.0) {
                             document.getElementById('optionsbox').style.display = 'none';
@@ -1207,7 +1207,7 @@
                             // More than an average month
                             extraStr = '<span style="font-size:10px;float:left;">Okay you need to get off...it\'s been a month</span><br>';
                         }
-                        document.getElementById('timeDisp').innerHTML = extraStr + ' <span style="font-size:10px;float:left;">Corners: ' + cornerCount.toLocaleString() + '</span><br>' + 'Watch time: ' + secondsToDhms(timeActive);
+                        //document.getElementById('timeDisp').innerHTML = extraStr + ' <span style="font-size:10px;float:left;">Corners: ' + cornerCount.toLocaleString() + '</span><br>' + 'Watch time: ' + secondsToDhms(timeActive);
                     }
                 }
                 setInterval(() => {
