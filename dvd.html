@@ -464,14 +464,17 @@
                         break;
                 }
             }
+            let recordPath = false;
             let hasLooped = false;
             function movedvd() {
                 if (!canmove) {return;}
                 position.x = position.x + slope.run;
                 position.y = position.y + slope.rise;
-                pathLog.push(
-                    [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
-                )
+                if (recordPath) {
+                   pathLog.push(
+                        [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
+                    )
+                }
                 if (pathLog.includes(initialPos)) {
                     hasLooped = true;
                 }
@@ -1935,6 +1938,9 @@ class Wall {
             }
             function displayPath() {
                 let output = '<h1>Path Log (CSV style)</h1><h2>X, Y</h2>';
+                if (recordPath) {
+                    output += "Path logging disabled<br>To enable, input the following command: recordPath=true<br><br>"
+                }
                 if (hasLooped) {
                     output = "<h1>Loop has occured!!!</h1>"+output;
                 }
