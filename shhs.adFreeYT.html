@@ -84,7 +84,8 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
             */
             function openurl() {
                 let vidid = document.getElementById('userin').value;
-                if (vidid.includes('https:') || vidid.includes("http:")) {
+                // Link example: https://www.youtube.com/watch?v=
+                if (vidid.includes('https:') || vidid.includes("http:") || vidid.includes("www") || vidid.includes("youtube.com/watch")) {
                     if (vidid.includes("?si=")) {
                         vidid = vidid.split('/');
                         vidid = vidid[3];
