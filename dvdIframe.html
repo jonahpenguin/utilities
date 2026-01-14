@@ -437,9 +437,9 @@
                 if (!canmove) {return;}
                 position.x = position.x + slope.run;
                 position.y = position.y + slope.rise;
-                pathLog.push(
+                /*pathLog.push(
                     [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
-                )
+                )*/
                 if (pathLog.includes(initialPos)) {
                     hasLooped = true;
                 }
