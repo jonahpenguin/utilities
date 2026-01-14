@@ -311,17 +311,27 @@
                 }
             }
             window.addEventListener('keydown', (event) => {
-                if (event.key == "C") {
-                    showCountdown();
-                }
                 if (event.key == 'd') {
                     keylog = [];
                 }
-                if (canmove && event.key == ' ' && !isUniversal) {
-                    canmove = false;
-                } else if (!canmove && event.key == ' ') {
-                    canmove = true;
+                if (keylog.join('') == 'dev123') {
+                    if (!isDev) {
+                        isDev = true;
+                        localStorage.setItem('DVDdev', true);
+                        alert('Dev mode enabled');
+                    } else {
+                        isDev = false;
+                        if (localStorage.getItem('DVDdev')) {
+                            localStorage.removeItem('DVDdev');
+                        }
+                        alert('Dev mode disabled');
+                    }
                 }
+            }, false);
+            window.addEventListener('keyup', (event) => {
+                // Majority of keybindings
+                if (!allowKeys) {return;}
+
                 if (event.key == "6") {
                     keylog = [];
                 }
@@ -342,23 +352,15 @@
                         sbgt("");
                     }, 5000);
                 }
-                if (keylog.join('') == 'dev123') {
-                    if (!isDev) {
-                        isDev = true;
-                        localStorage.setItem('DVDdev', true);
-                        alert('Dev mode enabled');
-                    } else {
-                        isDev = false;
-                        if (localStorage.getItem('DVDdev')) {
-                            localStorage.removeItem('DVDdev');
-                        }
-                        alert('Dev mode disabled');
-                    }
+                
+                if (canmove && event.key == ' ' && !isUniversal) {
+                    canmove = false;
+                } else if (!canmove && event.key == ' ') {
+                    canmove = true;
                 }
-            }, false);
-            window.addEventListener('keyup', (event) => {
-                // Majority of keybindings
-                if (!allowKeys) {return;}
+                if (event.key == "C") {
+                    showCountdown();
+                }
                 if (event.key == 'o') {
                     toggleRTray();
                 }
