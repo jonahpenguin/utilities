@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <title>GP Youth Check-In</title>
+
+
+
+        <!-- **ADD DVD SCREENSAVER WITH GP LOGO** -->
+
+
+
+        <style>
+            body {
+                background-color: white;
+                color: #167cab;
+                font-family: cursive, "Comic Sans MS", helvetica;
+                text-align: center;
+                z-index: 1;
+                zoom: 125%;
+            }
+            div {
+                background-color: white;
+                color: #167cab;
+            }
+            a {
+                color: #167cab;
+            }
+            a:hover {
+                background-color: #167cab;
+                color: white;
+            }
+            a:focus {
+                background-color: #167cab;
+                color: white;
+            }
+            button {
+                background-color: whitesmoke;
+                color: #167cab;
+            }
+            button:hover {
+                color: whitesmoke;
+                background-color: #167cab;
+            }
+            button:focus {
+                color: whitesmoke;
+                background-color: #167cab;
+            }
+        </style>
+        <script>
+            class Person {
+                constructor(fName, lName, grade, addedDate=0) {
+                    this.fName = fName;
+                    this.lName = lName;
+                    this.grade = grade;
+                    if (addedDate == 0) {
+                        let date = new Date();
+                        this.addedDate = (date.getMonth()+1)+"/"+date.getDate()+"/"+date.getFullYear();
+                    } else {
+                        this.addedDate = addedDate;
+                    }
+                }
+            }
+            let peoples = [];
+            function popup(html) {
+                let pop = document.createElement('div');
+                pop.style = "z-index:10;position:fixed;top:10%;left:10%;width:80%;height:80%;border:3px dashed #167cab;";
+                pop.innerHTML = html;
+                pop.setAttribute("id", "popup");
+                let semi = document.createElement('div');
+                semi.style = "z-index:9;position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;";
+                semi.setAttribute("id", "semi");
+                document.body.appendChild(semi);
+                document.body.appendChild(pop);
+            }
+            function closepop() {
+                document.getElementById('popup').outerHTML = '';
+                document.getElementById('semi').outerHTML = '';
+            }
+            function addBulk() {
+                popup(
+                    "<button style='float:left;' onclick='let isSure = confirm(\"Cancel this process?\");if(isSure){closepop()}'>X Close</button><br>" +
+                    "<h1>Add People</h1>" +
+                    "Separate first and last names with a space, and hit Enter between people<br><br>"+
+                    "<textarea id='userInput' style='width:80%;height:50%;background-color:whitesmoke;color:#167cab;font-family:comic sans ms;'></textarea>"+
+                    "<br><br>"+
+                    "<button onclick='saveBulk()'>Submit</button>"
+                )
+            }
+            function saveBulk() {
+
+            }
+        </script>
+    </head>
+    <body>
+        <br>
+        <h1>GP Youth Check-In</h1>
+        <button>Begin Checking In</button>
+        ~
+        <button onclick="addBulk()">Add Large Amount of People</button>
+        ~
+        <button>Look Up Info</button>
+        ~
+        <button>Options</button>
+    </body>
+</html>
