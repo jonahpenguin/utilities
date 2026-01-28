@@ -1,13 +1,7 @@
 <html>
     <head>
         <title>GP Youth Check-In</title>
-
-
-
-        <!-- **ADD DVD SCREENSAVER WITH GP LOGO** -->
-
-
-
+        <link rel="icon" href="gplogo.png">
         <style>
             body {
                 background-color: white;
@@ -44,6 +38,27 @@
                 color: whitesmoke;
                 background-color: #167cab;
             }
+            textarea:focus {
+                outline: 2px solid #167cab;
+                border: none;
+            }
+            input {
+                color: #167cab;
+                font-family: cursive, "Comic Sans MS", helvetica;
+            }
+            input:focus {
+                outline: 2px solid #167cab;
+                border: none;
+            }
+            #screensaver {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width:100%;
+                height: 100%;
+                background-color: white;
+                z-index: 999;
+            }
         </style>
         <script>
             class Person {
@@ -57,10 +72,62 @@
                     } else {
                         this.addedDate = addedDate;
                     }
+                    this.visits = [this.addedDate];
+                }
+                getFullName() {
+                    return this.fName+" "+this.lName;
+                }
+                toString() {
+                    return this.fName+","+this.lName+","+this.grade+","+this.addedDate+","+this.visits.join("-");
+                }
+                checkIn() {
+                    let d = new Date();
+                    this.visits.push(
+                        (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear()
+                    );
+                    savePeoples();
                 }
             }
             let peoples = [];
+            let allowClose = true;
+            window.addEventListener('keydown', (event) => {
+                if (event.key == "Escape") {
+                    closepop();
+                }
+            }, false);
+            window.addEventListener('mousemove', actionHandler);
+            window.addEventListener('keypress', actionHandler);
+            let idleTimer;
+            let idleFadeInt;
+            function actionHandler() {
+                // Called by mousemove and keypress event listeners
+                if (idleTimer) {
+                    clearTimeout(idleTimer);
+                }
+                if (idleFadeInt) {
+                    clearInterval(idleFadeInt);
+                }
+                document.getElementById('screensaver').style.opacity = 0;
+                idleTimer = setTimeout(showDVD, 10000);
+            }
+            function showDVD() {
+                // Called by actionHandler()
+                let i = 0;
+                idleFadeInt = setInterval(() => {
+                    document.getElementById('screensaver').style.opacity = i;
+                    i += 0.1;
+                    if (i >= 1) {
+                        document.getElementById('screensaver').style.opacity = 1;
+                        clearInterval(idleFadeInt);
+                    }
+                }, 10);
+            }
             function popup(html) {
+                // Generic popup
+                if (document.getElementById('popup')) {
+                    // Prevent multiple popups
+                    return;
+                }
                 let pop = document.createElement('div');
                 pop.style = "z-index:10;position:fixed;top:10%;left:10%;width:80%;height:80%;border:3px dashed #167cab;";
                 pop.innerHTML = html;
@@ -70,35 +137,252 @@
                 semi.setAttribute("id", "semi");
                 document.body.appendChild(semi);
                 document.body.appendChild(pop);
+                document.getElementById('semi').addEventListener("click", closepop);
             }
             function closepop() {
-                document.getElementById('popup').outerHTML = '';
-                document.getElementById('semi').outerHTML = '';
+                // Close generic popup
+                if (allowClose) {
+                    document.getElementById('popup').outerHTML = '';
+                    document.getElementById('semi').outerHTML = '';
+                }
             }
             function addBulk() {
+                // Called from main
                 popup(
                     "<button style='float:left;' onclick='let isSure = confirm(\"Cancel this process?\");if(isSure){closepop()}'>X Close</button><br>" +
                     "<h1>Add People</h1>" +
-                    "Separate first and last names with a space, and hit Enter between people<br><br>"+
+                    "Format as first name space last name space grade (0 if unknown), and hit Enter between people<br><br>"+
                     "<textarea id='userInput' style='width:80%;height:50%;background-color:whitesmoke;color:#167cab;font-family:comic sans ms;'></textarea>"+
                     "<br><br>"+
                     "<button onclick='saveBulk()'>Submit</button>"
                 )
+                document.getElementById('userInput').focus();
+            }
+            window.addEventListener('load', () => {
+                // Load saved people
+                if (localStorage.getItem('peoples')) {
+                    let input = localStorage.getItem('peoples');
+                    input = input.split(";");
+                    for (let i = 0;i<input.length-1;i++) {
+                        let person = input[i].split(",");
+                        if (person.length == 4) {
+                            peoples.push(new Person(person[0],person[1],person[2],person[3].split("-")))
+                        } else if (person.length == 5) {
+                            peoples.push(new Person(person[0],person[1],person[2],person[3].split("-"),person[4]))
+                        } else {
+                            alert("Error: failed to import person ["+person.join(",")+"]")
+                        }
+                    }
+                }
+            }, false);
+            function savePeoples() {
+                // Called from many places after updating peoples array
+                let output = '';
+                for (let i = 0;i<peoples.length;i++) {
+                    output += peoples[i].toString()+";";
+                }
+                localStorage.setItem("peoples", output);
+            }
+            function mainMenu() {
+                document.body.innerHTML = mainHTML;
             }
             function saveBulk() {
-
+                // Called from addBulk() popup
+                let input = document.getElementById("userInput").value.split("\n");
+                for (let i = 0;i<input.length;i++) {
+                    let person = input[i].split(" ");
+                    if (!person[2]) {
+                        person[2] = 0;
+                    }
+                    peoples.push(new Person(person[0],person[1],person[2]))
+                }
+                savePeoples();
+                alert(input.length+" people saved!");
+                // Close the add bulk popup
+                closepop();
             }
+            function startCheckIn() {
+                // Called from main
+                document.body.innerHTML =
+                    "<br><h1>GP Youth Check-In</h1>" +
+                    "Name: <input type='text' id='nameIn' placeholder='Type here...' onkeypress='if(event.key==\"Enter\"){lookupPerson(this)}'><br><br>" +
+                    "<button onclick='lookupPerson(document.getElementById(\"nameIn\"))'>Check In</button>" +
+                    "<br><br>Or...<br><br>"+
+                    "<button onclick='personPopup()'>Add New Person</button>" +
+                    "<br><br><hr><br>" +
+                    "<button onclick='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>"
+                document.getElementById('nameIn').focus();
+            }
+            function lookupPerson(elem) {
+                // Called from startCheckIn() screen
+                let input = elem.value;
+                let matches = [];
+                let matchIndexes = [];
+                let d = new Date()
+                let today = (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();
+                let alreadyChecked = false;
+                for (let i = 0;i<peoples.length;i++) {
+                    if (peoples[i].getFullName().includes(input)) {
+                        if (!peoples[i].visits.includes(today)) {
+                            matches.push(peoples[i].getFullName());
+                            matchIndexes.push(i);
+                        } else {
+                            alreadyChecked = true;
+                        }
+                    }
+                }
+                if (matches.length <= 0) {
+                    if (alreadyChecked) {
+                        alert("No matches found. Maybe you already checked this person in? Try excluding part of the name, or add a person below")
+                    } else {
+                        alert("No matches found. Try excluding part of the name, or add a person below")
+                    }
+                } else if (matches.length == 1) {
+                    peoples[matchIndexes[0]].checkIn();
+                    alert(peoples[matchIndexes[0]].getFullName()+" checked in!")
+                    savePeoples();
+                } else {
+                    // Multiple people popup here
+                    let html = '';
+                    for (let i = 0;i<matches.length;i++) {
+                        html += "<button onclick='choosePerson("+matchIndexes[i]+")'>"+peoples[matchIndexes[i]].getFullName()+"</button><br><br>"
+                    }
+                    popup(
+                        "<button onclick='closepop()' style='position:fixed;top:0;left:0;'>X Close</button>" +
+                        "<br><h1>Select a person to check in:</h1>" +
+                        html
+                    )
+                }
+            }
+            function choosePerson(index) {
+                // Used in lookupPerson() when multiple matches are found
+                peoples[index].checkIn();
+                alert(peoples[index].getFullName() + " checked in!");
+                savePeoples();
+                closepop();
+            }
+            function seeVisits(index) {
+                // Called by showPeople()
+                popup(
+                    "<button onclick='closepop()' style='float:left;'>X Close</button><br><h1>"+peoples[index].getFullName()+"'s past visits</h1>" +
+                    peoples[index].visits.join(" - ")
+                )
+            }
+            function editPerson(index) {
+                // Called by showPeople()
+                popup(
+                    "<button onclick='closepop()' style='float:left;'>X Cancel</button>" +
+                    "<br><h1>Edit "+peoples[index].getFullName()+"</h1>" +
+                    "First name: <input id='fn' type='text' value='"+peoples[index].fName+"'><br>" +
+                    "Last name: <input id='ln' type='text' value='"+peoples[index].lName+"'><br>" +
+                    "Grade: <input id='g' type='number' value='"+peoples[index].grade+"'><br><br>" +
+                    "<br><button onclick='editVisits("+index+")'>Edit Vists</button><br><br>" +
+                    "<button onclick='updatePerson("+index+")'>Save</button>"
+                )
+            }
+            function updatePerson(index) {
+                // Called by editPerson()'s popup
+                peoples[index].fName = document.getElementById('fn').value;
+                peoples[index].lName = document.getElementById('ln').value;
+                peoples[index].grade = parseInt(document.getElementById('g').value);
+                alert(peoples[index].getFullName() + " updated!");
+                closepop();
+                showPeople(index);
+                savePeoples();
+            }
+            function editVisits(index) {
+                // Called only after editPerson(), which opens a popup
+                closepop();
+                let html = '';
+                for (let i = 0;i<peoples[index].visits.length;i++) {
+                    html += peoples[index].visits[i] + ": <button onclick='removeVisit("+index+","+i+")'>Remove Visit</button> - "
+                }
+                popup(
+                    "<button onclick='closepop()' style='float:left;'>X Cancel</button><br><h1>"+peoples[index].getFullName()+"'s Visits</h1>" +
+                    html +
+                    "<br><br>" +
+                    "<button onclick='addVisit("+index+")'>Add Missed Visit</button>"
+                )
+            }
+            function removeVisit(index, i) {
+                // Called from editVisits()
+                let removed = peoples[index].visits.splice(i,1);
+                alert("Removed visit "+removed+".")
+                editVisits(index);
+                savePeoples();
+            }
+            function addVisit(index) {
+                // Called by editVisits popup
+                let visit = prompt("Enter visit date (dd/mm/yyyy):");
+                if (visit == null || visit == undefined) {
+                    return;
+                }
+                peoples[index].visits.push(visit);
+                alert("Added a visit on "+visit+" to "+peoples[index].getFullName()+"!")
+                savePeoples();
+            }
+            function showPeople() {
+                // Called from main
+                let html = '';
+                for (let i = 0;i<peoples.length;i++) {
+                    html += peoples[i].getFullName()+" <button onclick='editPerson("+i+")'>Edit</button> <button onclick='seeVisits("+i+")'>Show past visits</button><br><br>";
+                }
+                if (html == "") {
+                    html = 'Nothing here yet!'
+                }
+                document.body.innerHTML =
+                    "<button onclick='mainMenu()' style='position:fixed;top:0;left:0;'>Back</button>" +
+                    "<br><h1>GP Youth Check-In</h1>" +
+                    "All saved people:<br><br>" +
+                    html;
+            }
+            function resetApp() {
+                // Called from showOptions() popup
+                let isSure = confirm("Reset this application? This will delete all data, including saved people and visits.")
+                if (isSure) {
+                    localStorage.removeItem('peoples')
+                    alert("Reset complete")
+                    location.reload();
+                }
+            }
+            function showOptions() {
+                // Called from main
+                popup(
+                    "<button onclick='closepop()' style='float:left;'>X Close</button>" +
+                    "<br><h1>Options</h1>" +
+                    "<button onclick='resetApp()' style='background-color:red;'>Reset</button>"
+                )
+            }
+            let dvd = {
+                pos: {
+                    x: 0,
+                    y: 0
+                },
+                slope: {
+                    rise: 0.1,
+                    run: 0.1
+                }
+            }
+            setInterval(() => {
+                // DVD movement; finish pls
+                dvd.pos.x += dvd.slope.run;
+                dvd.pos.y += dvd.slope.rise;
+            }, 10);
         </script>
     </head>
     <body>
+        <div id="screensaver" style="opacity:0;">
+            <img src="gplogo.png" id="dvd">
+        </div>
         <br>
         <h1>GP Youth Check-In</h1>
-        <button>Begin Checking In</button>
+        <button onclick="startCheckIn()">Begin Checking In</button>
         ~
         <button onclick="addBulk()">Add Large Amount of People</button>
         ~
-        <button>Look Up Info</button>
+        <button onclick="showPeople()">View/Edit People</button>
         ~
-        <button>Options</button>
+        <button onclick="showOptions()">Options</button>
     </body>
+    <script>const mainHTML = document.body.innerHTML;</script>
 </html>
