@@ -1871,7 +1871,7 @@ class Wall {
             function showCountdown() {
                 popup(
                     "<h1>Choose a time</h1>" +
-                    "<input type='time' id='countIn'><br><br>" +
+                    "<input onkeypress='if(event.key==\"Enter\"){loadCountdown()}' type='time' id='countIn'><br><br>" +
                     "<button onclick='loadCountdown()'>Continue</button>"
                 )
             }
