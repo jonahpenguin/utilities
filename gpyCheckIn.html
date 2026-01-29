@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>GP Youth Check-In</title>
-        <link rel="icon" href="gplogo.png">
+        <link rel="icon" href="gp.jpg">
         <style>
             body {
                 background-color: white;
@@ -59,10 +59,16 @@
                 background-color: white;
                 z-index: 999;
             }
+            #dvd {
+                position:fixed;
+                width: 8%;
+                height: 14%;
+            }
         </style>
         <script>
+            let allowScreensaver = true;
             class Person {
-                constructor(fName, lName, grade, addedDate=0) {
+                constructor(fName, lName, grade, addedDate=0, defaultVisits=true) {
                     this.fName = fName;
                     this.lName = lName;
                     this.grade = grade;
@@ -72,7 +78,11 @@
                     } else {
                         this.addedDate = addedDate;
                     }
-                    this.visits = [this.addedDate];
+                    if (defaultVisits) {
+                        this.visits = [this.addedDate];
+                    } else {
+                        this.visits = [];
+                    }
                 }
                 getFullName() {
                     return this.fName+" "+this.lName;
@@ -85,6 +95,10 @@
                     this.visits.push(
                         (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear()
                     );
+                    savePeoples();
+                }
+                unCheckIn() {
+                    this.visits.pop();
                     savePeoples();
                 }
             }
@@ -107,15 +121,18 @@
                 if (idleFadeInt) {
                     clearInterval(idleFadeInt);
                 }
-                document.getElementById('screensaver').style.opacity = 0;
+                document.getElementById('screensaver').style.display = "none";
+                document.body.style.cursor = '';
                 idleTimer = setTimeout(showDVD, 10000);
             }
             function showDVD() {
                 // Called by actionHandler()
                 let i = 0;
                 idleFadeInt = setInterval(() => {
+                    document.getElementById('screensaver').style.display = "";
+                    document.body.style.cursor = 'none';
                     document.getElementById('screensaver').style.opacity = i;
-                    i += 0.1;
+                    i += 0.01;
                     if (i >= 1) {
                         document.getElementById('screensaver').style.opacity = 1;
                         clearInterval(idleFadeInt);
@@ -184,7 +201,7 @@
                 localStorage.setItem("peoples", output);
             }
             function mainMenu() {
-                document.body.innerHTML = mainHTML;
+                document.getElementById('content').innerHTML = mainHTML;
             }
             function saveBulk() {
                 // Called from addBulk() popup
@@ -194,21 +211,45 @@
                     if (!person[2]) {
                         person[2] = 0;
                     }
-                    peoples.push(new Person(person[0],person[1],person[2]))
+                    peoples.push(new Person(person[0],person[1],person[2],0,false))
                 }
                 savePeoples();
                 alert(input.length+" people saved!");
                 // Close the add bulk popup
                 closepop();
             }
+            function todayPeople() {
+                // Called from startCheckIn screen
+                let todayList = [];
+                let d = new Date();
+                let today = (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();
+                for (let i = 0;i<peoples.length;i++) {
+                    if (peoples[i].visits.includes(today)) {
+                        todayList.push(i);
+                    }
+                }
+                let html = "";
+                for (let i = 0;i<todayList.length;i++) {
+                    html += peoples[todayList[i]].getFullName()+" <button onclick='peoples["+todayList[i]+"].unCheckIn()'>Undo Check-In</button><br>";
+                }
+                if (html == "") {
+                    html = "<i>Nobody checked in yet!</i>"
+                }
+                popup(
+                    "<button onclick='closepop()' style='float:left;'>X Close</button>" +
+                    "<br><h1>People Checked In Today</h1>" +
+                    html
+                )
+            }
             function startCheckIn() {
                 // Called from main
-                document.body.innerHTML =
+                document.getElementById('content').innerHTML =
                     "<br><h1>GP Youth Check-In</h1>" +
-                    "Name: <input type='text' id='nameIn' placeholder='Type here...' onkeypress='if(event.key==\"Enter\"){lookupPerson(this)}'><br><br>" +
+                    "Name: <input type='text' id='nameIn' placeholder='Type here...' onkeydown='if(event.key==\"Enter\"){lookupPerson(this)}'><br><br>" +
                     "<button onclick='lookupPerson(document.getElementById(\"nameIn\"))'>Check In</button>" +
                     "<br><br>Or...<br><br>"+
-                    "<button onclick='personPopup()'>Add New Person</button>" +
+                    "<button onclick='personPopup()'>Add New Person</button> ~" +
+                    "<button onclick='todayPeople()'>View/Edit Checked-In people from today</button>" +
                     "<br><br><hr><br>" +
                     "<button onclick='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>"
                 document.getElementById('nameIn').focus();
@@ -221,6 +262,9 @@
                 let d = new Date()
                 let today = (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();
                 let alreadyChecked = false;
+                function clearInput() {
+                    elem.value = '';
+                }
                 for (let i = 0;i<peoples.length;i++) {
                     if (peoples[i].getFullName().includes(input)) {
                         if (!peoples[i].visits.includes(today)) {
@@ -241,6 +285,7 @@
                     peoples[matchIndexes[0]].checkIn();
                     alert(peoples[matchIndexes[0]].getFullName()+" checked in!")
                     savePeoples();
+                    clearInput()
                 } else {
                     // Multiple people popup here
                     let html = '';
@@ -252,6 +297,7 @@
                         "<br><h1>Select a person to check in:</h1>" +
                         html
                     )
+                    clearInput();
                 }
             }
             function choosePerson(index) {
@@ -276,6 +322,7 @@
                     "First name: <input id='fn' type='text' value='"+peoples[index].fName+"'><br>" +
                     "Last name: <input id='ln' type='text' value='"+peoples[index].lName+"'><br>" +
                     "Grade: <input id='g' type='number' value='"+peoples[index].grade+"'><br><br>" +
+                    "Date added: "+peoples[index].addedDate+"<br>" +
                     "<br><button onclick='editVisits("+index+")'>Edit Vists</button><br><br>" +
                     "<button onclick='updatePerson("+index+")'>Save</button>"
                 )
@@ -314,15 +361,42 @@
             function addVisit(index) {
                 // Called by editVisits popup
                 let visit = prompt("Enter visit date (dd/mm/yyyy):");
-                if (visit == null || visit == undefined) {
+                if (visit == null || visit == undefined || visit == "") {
                     return;
                 }
                 peoples[index].visits.push(visit);
                 alert("Added a visit on "+visit+" to "+peoples[index].getFullName()+"!")
                 savePeoples();
             }
-            function showPeople() {
+            function toShowPeople(input=0) {
                 // Called from main
+                if (input == 0) {
+                    popup(
+                        "<button onclick='closepop()' style='float:left;'>X Close</button>" +
+                        "<br><h1>Verification</h1>" +
+                        "Password: <input id='passIn' type='password' placeholder='Type here...' onkeydown='if(event.key==\"Enter\"){toShowPeople(this)}'>" +
+                        " <button onclick='toShowPeople(1)'>Continue</button>"
+                    )
+                    document.getElementById('passIn').focus();
+                } else {
+                    if (input == 1) {
+                        input = document.getElementById('passIn');
+                    }
+                    if (input.value == atob("Z3BwYzIwMDk0MTE=")) {
+                        showPeople(input.value);
+                        closepop();
+                    } else {
+                        alert("Invalid password")
+                        closepop();
+                    }
+                }
+            }
+            function showPeople(verification=0) {
+                // Called from toShowPeople()
+                if (verification != atob("Z3BwYzIwMDk0MTE=")) {
+                    alert("An error occured")
+                    return;
+                }
                 let html = '';
                 for (let i = 0;i<peoples.length;i++) {
                     html += peoples[i].getFullName()+" <button onclick='editPerson("+i+")'>Edit</button> <button onclick='seeVisits("+i+")'>Show past visits</button><br><br>";
@@ -330,7 +404,7 @@
                 if (html == "") {
                     html = 'Nothing here yet!'
                 }
-                document.body.innerHTML =
+                document.getElementById('content').innerHTML =
                     "<button onclick='mainMenu()' style='position:fixed;top:0;left:0;'>Back</button>" +
                     "<br><h1>GP Youth Check-In</h1>" +
                     "All saved people:<br><br>" +
@@ -345,11 +419,82 @@
                     location.reload();
                 }
             }
+            function toggleScreensaver(elem) {
+                if (allowScreensaver) {
+                    allowScreensaver = false;
+                    alert("Screensaver disabled");
+                    elem.innerText = "Enable Screensaver";
+                } else {
+                    allowScreensaver = true;
+                    alert("Screensaver enabled!");
+                    elem.innerText = "Disable Screensaver";
+                }
+            }
+            function exportData() {
+                // Called from showOptions() popup
+                return;
+            }
+            function importDataPopup() {
+                // Called from showOptions() popup
+                closepop();
+                popup(
+                    "<button onclick='closepop();showOptions()' style='float:left;'>Back</button><br>" +
+                    "<h1>File Import</h1>" +
+                    "<input type='file' id='fileIn'> " +
+                    "<br><br><i>Current data will NOT be overwritten</i>"
+                )
+                let elem = document.getElementById('fileIn');
+                elem.addEventListener('change', (event) => {
+  // Get the first file from the FileList object
+  const file = event.target.files[0];
+
+  if (file) {
+    // Create a new FileReader instance
+    const reader = new FileReader();
+
+    // Define what happens once the file is successfully read
+    reader.onload = function (e) {
+      // The file content is available in reader.result
+      const textContent = e.target.result;
+      importData(textContent);
+    };
+
+    // Define what happens if an error occurs
+    reader.onerror = function (e) {
+      alert("An error occured");
+    };
+
+    // Read the file content as a text string
+    reader.readAsText(file, 'UTF-8'); // Specify encoding (UTF-8 is default)
+  }
+});
+            }
+            function importData(input) {
+                // Called from importDataPopup() popup
+                // That's kinda redundant, huh...
+                input = input.split(";");
+                for (let i = 0;i<input.length-1;i++) {
+                    let person = input[i].split(",");
+                    if (person.length == 4) {
+                        peoples.push(new Person(person[0],person[1],person[2],person[3].split("-")))
+                    } else if (person.length == 5) {
+                        peoples.push(new Person(person[0],person[1],person[2],person[3].split("-"),person[4]))
+                    } else {
+                        alert("Error: failed to import person ["+person.join(",")+"]")
+                    }
+                }
+                savePeoples();
+                alert(input.length+" people saved!");
+            }
             function showOptions() {
                 // Called from main
                 popup(
                     "<button onclick='closepop()' style='float:left;'>X Close</button>" +
                     "<br><h1>Options</h1>" +
+                    // So proud of myself for this; conditional strings, translates to if (allowScreensaver) {return "Disable Screensaver"} else {return "Enable Screensaver"}
+                    "<button onclick='toggleScreensaver(this)'>"+(allowScreensaver?"Disable Screensaver":"Enable Screensaver")+"</button><br><br>" +
+                    "<button onclick='exportData()'>Export Data to file</button><br><br>" +
+                    "<button onclick='importDataPopup()'>Import Data</button><br><br>" +
                     "<button onclick='resetApp()' style='background-color:red;'>Reset</button>"
                 )
             }
@@ -363,26 +508,56 @@
                     run: 0.1
                 }
             }
-            //setInterval(() => {
-                // DVD movement; finish pls
-                // dvd.pos.x += dvd.slope.run;
-                // dvd.pos.y += dvd.slope.rise;
-            // }, 10);
+            setInterval(() => {
+                // DVD movement
+                dvd.pos.x += dvd.slope.run;
+                dvd.pos.y += dvd.slope.rise;
+                if (dvd.pos.x > 91.9 || dvd.pos.x < 0.1) {
+                    dvd.slope.run = -dvd.slope.run;
+                }
+                if (dvd.pos.y > 85.9 || dvd.pos.y < 0.1) {
+                    dvd.slope.rise = -dvd.slope.rise;
+                }
+                if (document.getElementById('screensaver').style.display != "none") {
+                    document.getElementById("dvd").style.top = dvd.pos.y+"%";
+                    document.getElementById("dvd").style.left = dvd.pos.x+"%";
+                }
+            }, 10);
+            function report() {
+                // Called by main menu
+                let todayList = [];
+                let d = new Date();
+                let today = (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();
+                for (let i = 0;i<peoples.length;i++) {
+                    if (peoples[i].visits.includes(today)) {
+                        todayList.push(i);
+                    }
+                }
+                let output = 'Date: '+today+"%0ATotal number of people checked in: "+todayList.length+"%0APeople Checked In Today:%0A";
+                for (let i = 0;i<todayList.length;i++) {
+                    output += peoples[todayList[i]].getFullName()+"%0A";
+                }
+                window.open("mailto:graham@gracepointsc.com?subject=Youth%20Check-In%20Report&body="+output);
+            }
         </script>
     </head>
     <body>
-        <div id="screensaver" style="display:none;opacity:0;">
-            <img src="gplogo.png" id="dvd">
+        <div id="screensaver" style="opacity:0;display:none;">
+            <img src="gp.jpg" id="dvd">
         </div>
-        <br>
-        <h1>GP Youth Check-In</h1>
-        <button onclick="startCheckIn()">Begin Checking In</button>
-        ~
-        <button onclick="addBulk()">Add Large Amount of People</button>
-        ~
-        <button onclick="showPeople()">View/Edit People</button>
-        ~
-        <button onclick="showOptions()">Options</button>
+        <div id="content">
+            <br>
+            <h1>GP Youth Check-In</h1>
+            <button onclick="startCheckIn()">Begin Checking In</button>
+            ~
+            <button onclick="addBulk()">Add Large Amount of People</button>
+            ~
+            <button onclick="toShowPeople()">View/Edit People</button>
+            ~
+            <button onclick="report()">Send Report</button>
+            ~
+            <button onclick="showOptions()">Options</button>
+        </div>
     </body>
-    <script>const mainHTML = document.body.innerHTML;</script>
+    <script>const mainHTML = document.getElementById('content').innerHTML;</script>
 </html>
