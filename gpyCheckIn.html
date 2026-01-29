@@ -432,7 +432,18 @@
             }
             function exportData() {
                 // Called from showOptions() popup
-                return;
+                // Shoutout to stackOverflow for this file download code; heavily modified to fit this application
+                var fileName = "gpyCheckInExport.txt";
+                var fileContent = "";
+                for (let i = 0;i<peoples.length;i++) {
+                    fileContent += peoples[i].toString()+";";
+                }
+                var elem = document.createElement("a");
+                elem.setAttribute("href", 'data:text/plain;charset=utf-8,'+encodeURIComponent(fileContent));
+                elem.setAttribute("download",fileName);
+                elem.style.display = 'none';
+                elem.click();
+                document.body.removeChild(elem);
             }
             function importDataPopup() {
                 // Called from showOptions() popup
@@ -443,31 +454,32 @@
                     "<input type='file' id='fileIn'> " +
                     "<br><br><i>Current data will NOT be overwritten</i>"
                 )
+                // w to internet peoples that post helpful things like the following lines
                 let elem = document.getElementById('fileIn');
                 elem.addEventListener('change', (event) => {
-  // Get the first file from the FileList object
-  const file = event.target.files[0];
+                    // Get the first file from the FileList object
+                    const file = event.target.files[0];
 
-  if (file) {
-    // Create a new FileReader instance
-    const reader = new FileReader();
+                    if (file) {
+                        // Create a new FileReader instance
+                        const reader = new FileReader();
 
-    // Define what happens once the file is successfully read
-    reader.onload = function (e) {
-      // The file content is available in reader.result
-      const textContent = e.target.result;
-      importData(textContent);
-    };
+                        // Define what happens once the file is successfully read
+                        reader.onload = function (e) {
+                            // The file content is available in reader.result
+                            const textContent = e.target.result;
+                            importData(textContent);
+                        };
 
-    // Define what happens if an error occurs
-    reader.onerror = function (e) {
-      alert("An error occured");
-    };
+                        // Define what happens if an error occurs
+                        reader.onerror = function (e) {
+                            alert("An error occured");
+                        };
 
-    // Read the file content as a text string
-    reader.readAsText(file, 'UTF-8'); // Specify encoding (UTF-8 is default)
-  }
-});
+                        // Read the file content as a text string
+                        reader.readAsText(file, 'UTF-8'); // Specify encoding (UTF-8 is default)
+                    }
+                });
             }
             function importData(input) {
                 // Called from importDataPopup() popup
@@ -484,7 +496,8 @@
                     }
                 }
                 savePeoples();
-                alert(input.length+" people saved!");
+                alert(input.length-1+" people saved!");
+                closepop();
             }
             function showOptions() {
                 // Called from main
@@ -493,8 +506,8 @@
                     "<br><h1>Options</h1>" +
                     // So proud of myself for this; conditional strings, translates to if (allowScreensaver) {return "Disable Screensaver"} else {return "Enable Screensaver"}
                     "<button onclick='toggleScreensaver(this)'>"+(allowScreensaver?"Disable Screensaver":"Enable Screensaver")+"</button><br><br>" +
-                    "<button onclick='exportData()'>Export Data to file</button><br><br>" +
-                    "<button onclick='importDataPopup()'>Import Data</button><br><br>" +
+                    "<button onclick='exportData()'>Export Raw Data to file</button><br><br>" +
+                    "<button onclick='importDataPopup()'>Import Raw Data</button><br><br>" +
                     "<button onclick='resetApp()' style='background-color:red;'>Reset</button>"
                 )
             }
