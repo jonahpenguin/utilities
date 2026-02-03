@@ -279,6 +279,9 @@
                 }
             }, false);
             window.addEventListener('keydown', (event) => {
+                if (event.key == "R") {
+                    location.reload();
+                }
                 if (event.key == "D") {
                     window.open("https://utilities-8tvg.onrender.com/dvd.html");
                 }
