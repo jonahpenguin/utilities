@@ -150,17 +150,23 @@
                 pop.innerHTML = html;
                 pop.setAttribute("id", "popup");
                 let semi = document.createElement('div');
-                semi.style = "z-index:9;position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;";
+                // z-index of 8 to leave space for screen and highlighted content (see tutorial())
+                semi.style = "z-index:7;position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;";
                 semi.setAttribute("id", "semi");
                 document.body.appendChild(semi);
                 document.body.appendChild(pop);
-                document.getElementById('semi').addEventListener("click", closepop);
+                document.getElementById('semi').addEventListener("click", (event) => {
+                    closepop();
+                    event.stopPropagation();
+                }, false);
             }
-            function closepop() {
+            function closepop(bypassAllow=false) {
                 // Close generic popup
-                if (allowClose) {
+                if ((allowClose || bypassAllow) && (document.getElementById("popup") && document.getElementById("semi"))) {
                     document.getElementById('popup').outerHTML = '';
                     document.getElementById('semi').outerHTML = '';
+                } else {
+                    console.log("Blocked closepop()");
                 }
             }
             function addBulk() {
@@ -241,6 +247,45 @@
                     html
                 )
             }
+            function personPopup() {
+                // Called from startCheckIn screen
+                popup(
+                    "<br><h1>Add Person</h1>" +
+                    "First name: <input id='fn' type='text'><br>" +
+                    "Last name: <input id='ln' type='text'><br>" +
+                    "Grade (zero if unknown): <input id='g' type='number'><br><br>" +
+                    "<button onclick='addPerson()'>Save</button>"
+                )
+            }
+            function addPerson() {
+                // Called from personPopup popup, from check-in session
+                let fName = document.getElementById('fn').value;
+                let lName = document.getElementById('ln').value;
+                let g = parseInt(document.getElementById("g").value);
+                let strikes = 0;
+                if (isNaN(g) || g == "") {
+                    strikes++;
+                    g = 0;
+                }
+                if (fName == "") {
+                    strikes++;
+                    fName = "<Unknown>"
+                }
+                if (lName == "") {
+                    strikes++;
+                    lName = "<Unknown>"
+                }
+                if (strikes >= 3) {
+                    alert("Cancelled");
+                    return;
+                }
+                let index = peoples.push(
+                    new Person(fName, lName, g)
+                )
+                peoples[index].checkIn();
+                savePeoples();
+                alert(peoples[index].getFullName()+" saved!");
+            }
             function startCheckIn() {
                 // Called from main
                 document.getElementById('content').innerHTML =
@@ -248,10 +293,10 @@
                     "Name: <input type='text' id='nameIn' placeholder='Type here...' onkeydown='if(event.key==\"Enter\"){lookupPerson(this)}'><br><br>" +
                     "<button onclick='lookupPerson(document.getElementById(\"nameIn\"))'>Check In</button>" +
                     "<br><br>Or...<br><br>"+
-                    "<button onclick='personPopup()'>Add New Person</button> ~" +
-                    "<button onclick='todayPeople()'>View/Edit Checked-In people from today</button>" +
+                    "<button id='tAddB' onclick='personPopup()'>Add New Person</button> ~ " +
+                    "<button id='tTodayB' onclick='todayPeople()'>View/Edit Checked-In people from today</button>" +
                     "<br><br><hr><br>" +
-                    "<button onclick='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>"
+                    "<button id='tEndB' onclick='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>"
                 document.getElementById('nameIn').focus();
             }
             function lookupPerson(elem) {
@@ -552,6 +597,186 @@
                 }
                 window.open("mailto:graham@gracepointsc.com?subject=Youth%20Check-In%20Report&body="+output);
             }
+            // Stores screensaver settings for after tutorial ends
+            let tempScreen = false;
+            let inTutorial = false;
+            function tutorial(prog=0,bypassPrompt=false) {
+                inTutorial = true;
+                let stillTutorial = true;
+                let nextHTML = "<button onclick='tutorial(-1)' style='position:fixed;top:0;left:0;z-index:20;'>X Exit Tutorial</button>"+"<br><button onclick='tutorial("+(prog+1)+")'>Next</button>"
+                function highlightElem(id) {
+                    if (document.getElementById(id)) {
+                        document.getElementById(id).style.zIndex = 8;
+                        document.getElementById(id).style.position = "relative";
+                    } else {
+                        console.log("Failed to highlight: "+id);
+                    }
+                }
+                function unHighlightElem(id) {
+                    if (document.getElementById(id)) {
+                        document.getElementById(id).style.zIndex = 1;
+                        document.getElementById(id).style.position = "";
+                    } else {
+                        console.log("Failed to unhighlight: "+id);
+                    }
+                }
+                function styleLower() {
+                    document.getElementById("popup").style.top = "";
+                    document.getElementById("popup").style.bottom = "3%";
+                    document.getElementById("popup").style.height = "20%";
+                }
+                switch(prog) {
+                    case -1:
+                        let isSure;
+                        if (!bypassPrompt) {
+                            isSure = confirm("Exit tutorial?");
+                        } else {
+                            isSure = true;
+                        }
+                        if (!isSure) {
+                            return;
+                        }
+                        stillTutorial = false;
+                        break;
+                    case 0:
+                        tempScreen = allowScreensaver;
+                        allowScreensaver = false;
+                        allowClose = false;
+                        closepop(true);
+                        document.getElementById("tCheckIn").style.zIndex = 1;
+                        popup(
+                            "<br>Welcome to the home screen; this is where all the main actions can be taken."+nextHTML
+                        )
+                        styleLower();
+                        break;
+                    case 1:
+                        closepop(true);
+                        popup(
+                            "<br>On a normal Sunday, this is where you'll go when check-in starts:"+nextHTML
+                        )
+                        styleLower();
+                        highlightElem("tCheckIn");
+                        break;
+                    case 2:
+                        unHighlightElem("tCheckIn");
+                        closepop(true);
+                        popup(
+                            "<br>Most of these other buttons aren't used regularly; we'll be back to look at them later"+nextHTML
+                        )
+                        styleLower();
+                        break;
+                    case 3:
+                        closepop(true);
+                        document.getElementById("tCheckIn").click();
+                        
+                        // w stackoverflow for the following line; makes so much more sense than what I was trying lol
+                        document.activeElement.blur();
+                        popup(
+                            "<br>This is what happens when you Begin Checking In. At the top, you'll see that text box. " +
+                            "You can enter people's names, and this program looks them up. Hint: if you're not sure how to spell a name, " +
+                            "it recognizes partial names too. For instance, you can put 'Jonah Deren' if you aren't certain how to spell 'DeRenzo'."+nextHTML
+                        )
+                        document.getElementById("popup").focus();
+                        highlightElem("nameIn");
+                        styleLower();
+                        break;
+                    case 4:
+                        unHighlightElem("nameIn");
+                        closepop(true);
+                        popup(
+                            "<br>If you can't find a person, or know for sure that they're new, you can add them " +
+                            "using this button."+nextHTML
+                        )
+                        highlightElem("tAddB");
+                        styleLower();
+                        break;
+                    case 5:
+                        unHighlightElem("tAddB");
+                        closepop(true);
+                        popup(
+                            "<br>If you want to see who all has checked in during a session, or check-in somebody by accident, "+
+                            "you can use this button to view and undo check-in for these people."+nextHTML
+                        )
+                        highlightElem("tTodayB");
+                        styleLower();
+                        break;
+                    case 6:
+                        unHighlightElem("tTodayB");
+                        closepop(true);
+                        popup(
+                            "<br>Once you're done for the day, you can use the End Session button to return to the main menu."+nextHTML
+                        )
+                        highlightElem("tEndB")
+                        styleLower();
+                        break;
+                    case 7:
+                        closepop(true);
+                        mainMenu();
+                        popup(
+                            "<br>Now let's take a look at the other menus! If you know a large group of people are showing up and want "+
+                            "to add them all at once, you can use this button to add many people at once."+nextHTML
+                        )
+                        highlightElem("tBulkB");
+                        styleLower();
+                        break;
+                    case 8:
+                        unHighlightElem("tBulkB");
+                        closepop(true);
+                        popup(
+                            "<br>This menu can only be opened with Graham's password, for security reasons, and contains <b><u>all</u></b> the "+
+                            "records for everybody, their grade (if available), when they were added to this database, and when they came to youth. "+
+                            "You shouldn't need to worry about accessing this menu."+nextHTML
+                        )
+                        highlightElem("tViewB");
+                        styleLower();
+                        break;
+                    case 9:
+                        unHighlightElem("tViewB");
+                        closepop(true);
+                        popup(
+                            "<br>This button is used after everybody has been checked-in, and will open a new tab with a pre-filled email report. This "+
+                            "gets sent to Graham. Make sure to do this after every session, and be sure to actually click 'Send'."+nextHTML
+                        )
+                        highlightElem("tReportB");
+                        styleLower();
+                        break;
+                    case 10:
+                        unHighlightElem("tReportB");
+                        closepop(true);
+                        popup(
+                            "<br>This last one opens a little popup for other options, such as disabling the epic screensaver, exporting/importing to and from "+
+                            "files, resetting this program, and possibly more in the future. Shouldn't need to be messed with, but occasionally exporting the database, "+
+                            "especially as it gets larger, is not a bad thing."+nextHTML
+                        )
+                        highlightElem("tOptB");
+                        styleLower();
+                        break;
+                    case 11:
+                        unHighlightElem("tOptB");
+                        closepop(true);
+                        popup(
+                            "<br><br>That's all for this tutorial! If you have any questions, ask Graham, or you can text/call me at 803-626-2512.<br><br>" +
+                            "<button onclick='tutorial(-1,true)'>Sweet!</button>"
+                        )
+                        break;
+                }
+                if (stillTutorial) {
+                    if (!document.getElementById('screen')) {
+                        let screen = document.createElement("div");
+                        screen.setAttribute('id', "screen");
+                        // Highlighted content on z-index 8
+                        screen.style = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:9;background-color:transparent;";
+                        document.body.appendChild(screen);
+                    }
+                } else {
+                    inTutorial = false;
+                    document.getElementById("screen").outerHTML = '';
+                    allowScreensaver = tempScreen;
+                    allowClose = true;
+                    closepop();
+                    mainMenu();
+                }
+            }
         </script>
     </head>
     <body>
@@ -561,15 +786,19 @@
         <div id="content">
             <br>
             <h1>GP Youth Check-In</h1>
-            <button onclick="startCheckIn()">Begin Checking In</button>
+            <button id="tCheckIn" onclick="startCheckIn()">Begin Checking In</button>
             ~
-            <button onclick="addBulk()">Add Large Amount of People</button>
+            <button id="tBulkB" onclick="addBulk()">Add Large Amount of People</button>
             ~
-            <button onclick="toShowPeople()">View/Edit People</button>
+            <button id="tViewB" onclick="toShowPeople()">View/Edit People</button>
             ~
-            <button onclick="report()">Send Report</button>
+            <button id="tReportB" onclick="report()">Send Report</button>
             ~
-            <button onclick="showOptions()">Options</button>
+            <button id="tOptB" onclick="showOptions()">Options</button>
+            <br><br><br>
+            Not sure where to start?
+            <br><br>
+            <button onclick="tutorial(0)">Tutorial</button>
         </div>
     </body>
     <script>const mainHTML = document.getElementById('content').innerHTML;</script>
