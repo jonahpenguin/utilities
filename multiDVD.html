@@ -1,0 +1,250 @@
+<html>
+    <head>
+        <title>DVD logo</title>
+        <link rel="icon" href="dvd.png">
+        <style>
+            body {
+                background-color: black;
+                color: lime;
+                font-family: "comic sans ms", helvetica;
+            }
+            img.dvd {
+                position: fixed;
+                width: 8%;
+                height: 14%;
+            }
+            button {
+                background-color: white;
+                color: black;
+            }
+            button:hover {
+                background-color: black;
+                color: white;
+            }
+            button:focus {
+                background-color: black;
+                color: white;
+            }
+        </style>
+        <script>
+            let canMove = true;
+            
+            window.addEventListener("mousemove", actionHandler);
+
+            let hideMouseInt;
+            function actionHandler() {
+                document.body.style.cursor = '';
+                if (hideMouseInt) {
+                    clearTimeout(hideMouseInt)
+                }
+                hideMouseInt = setTimeout(() => {
+                    // Used to determine if an option has been selected
+                    if (selectedAction != 0) {
+                        document.body.style.cursor = 'none';
+                    }
+                }, 1000);
+            }
+
+            function popup(html) {
+                // Generic popup
+                if (document.getElementById('popup')) {
+                    // Prevent multiple popups
+                    return;
+                }
+                let pop = document.createElement('div');
+                pop.style = "text-align:center;z-index:10;position:fixed;top:10%;left:10%;width:80%;height:80%;border:3px dashed #167cab;";
+                pop.innerHTML = html;
+                pop.setAttribute("id", "popup");
+                let semi = document.createElement('div');
+                // z-index of 8 to leave space for screen and highlighted content (see tutorial())
+                semi.style = "z-index:7;position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;";
+                semi.setAttribute("id", "semi");
+                document.body.appendChild(semi);
+                document.body.appendChild(pop);
+            }
+            function closepop() {
+                // Close generic popup
+                if (document.getElementById("popup") && document.getElementById("semi")) {
+                    document.getElementById('popup').outerHTML = '';
+                    document.getElementById('semi').outerHTML = '';
+                } else {
+                    console.log("Blocked closepop()");
+                }
+            }
+
+            function openOriginal() {
+                window.open("https://utilities-8tvg.onrender.com/dvd.html");
+                document.activeElement.blur();
+            }
+
+            window.addEventListener('load', () => {
+                popup(
+                    "<button onclick='openOriginal()' style='float:left;'>Back to Original Version</button>" +
+                    "<br><h1>DVD v2</h1>" +
+                    "Fun things that didn't work in the original; reload to return to this menu<br><br>" +
+                    "<button onclick='init(1)'>Increase speed on collision</button><br><br>" +
+                    "<button onclick='init(2)'>Add logo on collision</button><br><br>" +
+                    "<button onclick='init(3)'>Set random slope on collision</button><br><br>" +
+                    "<button onclick='init(4)'>Do all three above on collision</button><br><br>"
+                )
+            }, false);
+
+            let positions = [
+                {x:0,y:0}
+            ]
+            let slopes = [
+                {rise:0.1,run:0.1}
+            ]
+            let int = setInterval(moveDVD, 5)
+            let selectedAction = 0;
+            function init(id) {
+                selectedAction = parseInt(id);
+                closepop();
+            }
+            function handleAction() {
+                switch(selectedAction) {
+                    case 1:
+                        increaseSpeed();
+                        break;
+                    case 2:
+                        addDVD();
+                        break;
+                    case 3:
+                        randomSpeed();
+                        break;
+                    case 4:
+                        increaseSpeed();
+                        addDVD();
+                        randomSpeed();
+                        break;
+                }
+            }
+            function moveDVD() {
+                if (!canMove) {return;}
+                for (let i = 0;i<positions.length;i++) {
+                    positions[i].x += slopes[i].run;
+                    positions[i].y += slopes[i].rise;
+
+                    if (positions[i].x >= 86) {
+                        handleAction();
+                        slopes[i].run = -slopes[i].run
+                    }
+                    if (positions[i].x <= 0) {
+                        handleAction();
+                        slopes[i].run = -slopes[i].run
+                    }
+
+                    if (positions[i].y >= 92) {
+                        handleAction();
+                        slopes[i].rise = -slopes[i].rise
+                    }
+                    if (positions[i].y <= 0) {
+                        handleAction();
+                        slopes[i].rise = -slopes[i].rise
+                    }
+
+                   if (positions[i].x < 50.1 && positions[i].x > 49.9) {
+                        // Position snapping for easier corners
+                        /*
+                        Corner list (x,y,rise,run):
+                            Bottom right:
+                                Corner: 91.9,86,0.1,0.1
+                                X=50:   50,44.1,0.1,0.1
+                            Top left:
+                                Corner: 0.1,0.1,-0.1,-0.1
+                                X=50:   50,50,-0.1,-0.1
+                            Top right:
+                                Corner: 91.9,0.1,-0.1,0.1
+                                X=50:   50,42,-0.1,0.1
+                            Bottom left:
+                                Corner: 0.1,86,0.1,-0.1
+                                X=50:   50,36.1,0.1,-0.1
+                        */
+                        if (slopes[i].rise == 0.1 && slopes[i].run == 0.1) {
+                            // bottom right
+                            if (positions[i].y > 43.1 && positions[i].y < 45.1) {
+                                positions[i].y = 44.1;
+                            }
+                        }
+                        if (slopes[i].rise == -0.1 && slopes[i].run == -0.1) {
+                            // top left
+                            if (position.y > 49 && position.y < 51) {
+                                positions[i].y = 50;
+                            }
+                        }
+                        if (slopes[i].rise == -0.1 && slopes[i].run == 0.1) {
+                            // top right
+                            if (positions[i].y > 41 && positions[i].y < 43) {
+                                positions[i].y = 42;
+                            }
+                        }
+                        if (slopes[i].rise == 0.1 && slopes[i].run == -0.1) {
+                            // bottom left
+                            if (positions[i].y > 35.1 && positions[i].y < 37.1) {
+                                positions[i].y = 36.1;
+                            }
+                        }
+                   }
+
+                    document.getElementById('dvd'+i).style.top = positions[i].x+"%";
+                    document.getElementById('dvd'+i).style.left = positions[i].y+"%";
+                }
+            }
+            // setInterval(addDVD, 50);
+            function randomSpeed() {
+                setTimeout(() => {
+                    for (let i = 0;i<slopes.length;i++) {
+                        if (slopes[i].rise > 0) {
+                            slopes[i].rise = Math.floor(Math.random()*10)/10;
+                        } else {
+                            slopes[i].rise = -Math.floor(Math.random()*10)/10;
+                        }
+                        if (slopes[i].run > 0) {
+                            slopes[i].run = Math.floor(Math.random()*10)/10;
+                        } else {
+                            slopes[i].run = -Math.floor(Math.random()*10)/10;
+                        }
+                        
+                        if (slopes[i].rise < 0.1 && slopes[i].rise > -0.1) {
+                            slopes[i].rise = 0.1;
+                        }
+                        if (slopes[i].run < 0.1 && slopes[i].run > -0.1) {
+                            slopes[i].run = 0.1;
+                        }
+                    }
+                }, 5);
+            }
+            function increaseSpeed() {
+                for (let i = 0;i<positions.length;i++) {
+                    if (slopes[i].rise > 0) {
+                        slopes[i].rise += 0.1;
+                    } else {
+                        slopes[i].rise -= 0.1;
+                    }
+                    if (slopes[i].run > 0) {
+                        slopes[i].run += 0.1;
+                    } else {
+                        slopes[i].run -= 0.1;
+                    }
+                }
+            }
+            function addDVD() {
+                let elem = document.createElement("img");
+                elem.setAttribute('id', "dvd"+positions.length);
+                elem.setAttribute('class', 'dvd');
+                elem.src = 'dvd.png';
+                document.body.appendChild(elem);
+                positions.push({x:Math.floor(Math.random()*86),y:Math.floor(Math.random()*92)})
+                slopes.push({rise:0.1,run:0.1})
+            }
+            window.addEventListener("keydown", (event) => {
+                if (event.key == "+") {
+                    addDVD();
+                }
+            }, false);
+        </script>
+    </head>
+    <body>
+        <img src="dvd.png" class="dvd" id="dvd0">
+    </body>
+</html>
