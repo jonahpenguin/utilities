@@ -25,7 +25,7 @@
             window.addEventListener('load', init);
             function init() {
                 let content = document.getElementById('content');
-                let html = '';
+                let html = '<br><br>';
                 for (let i = 0;i<games.length;i++) {
                     html += "<button onclick=games["+i+"].launch()>"+games[i].name+"</button><br><br>";
                 }
@@ -34,7 +34,7 @@
         </script>
     </head>
     <body>
-        <button onclick="location.replace('utilities-8tvg.onrender.com')">Back to Index</button>
+        <button onclick="location.replace('utilities-8tvg.onrender.com/renderIndex.html')">Back to Index</button>
         <br>
         <h1>Game Archive</h1>
         <div id="content">
