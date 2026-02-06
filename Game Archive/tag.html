@@ -1,0 +1,919 @@
+<html>
+	<head>
+		<title>Tag ~ Penguin Gamez</title>
+		<link rel="stylesheet" href="Style1.css">
+		<script src="load.js"></script>
+		<style>
+			.mpre {
+				width: 300px;
+				height: 200px;
+				border: 3px dashed green;
+				background-color: darkblue;
+			}
+			input:focus {
+				border: 3px dashed green;
+			}
+			.mpre:hover {
+				zoom: 100%;
+			}
+			.player {
+				position: absolute;
+				width: 100px;
+				height: 100px;
+			}
+			.bg {
+				position: absolute;
+				top: 55;
+				left: 0;
+				width: 1300px;
+				height: 560px;
+				border: none;
+			}
+			.speed {
+				background-color: cyan;
+				color: black;
+			}
+			.bg:hover {
+				zoom: 100%;
+			}
+			.border {
+				position: absolute;
+				background-color: cyan;
+			}
+			div#p1 { 
+				top: 60;
+				left: 0;
+				background-color: blue;
+			}
+			div#p2 {
+				top: 160;
+				left: 100;
+				background-color: red;
+			}
+			div#hud {
+				background-color: cyan;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 1300px;
+				height: 60px;
+				color: black;
+			}
+			div#b1 {
+				top: 0;
+				left: 1300;
+				width: 10px;
+				height: 560px;
+			}
+			div#b2 {
+				top: 560;
+				left: 0;
+				width: 1310px;
+				height: 100px;
+			}
+		</style>
+		<script>
+			var colenabled = true;
+			var player1x = 0;
+			var p1total = 0;
+			var p2total = 0;
+			var totalgames = 0;
+			var totaltime = 0;
+			var player1y = 60;
+			var player2x = 100;
+			var player2y = 160;
+			var gameactive = false;
+			var player1 = 'Player 1';
+			var player2 = 'Player 2';
+			var tagger = 0;
+			var timerno = 15;
+			var score1 = 0;
+			var score2 = 0;
+			var mapid = 0;
+			var infinitegame = false;
+			var fixint = null;
+			var timeint = null;
+			var endtime = 300;
+			var isminutes = true;
+			var endtimer = null;
+			var speedplus = 0;
+			var localyes = false;
+			var map1vis = 0;
+			var map2vis = 0;
+			var map3vis = 0;
+			var map4vis = 0;
+			var map5vis = 0;
+			var map6vis = 0;
+			function calculatecol(pid) {
+				if (colenabled == true) {
+					if (player1x == player2x) {
+						if (player1y == player2y) {
+							tagged();
+						}
+					}
+					var valuex = eval('player' + pid + 'x');
+					var valuey = eval('player' + pid + 'y');
+					if (mapid == 1) {
+						if (valuex < 0|valuey < 0|valuey > 500|valuex > 1200) {
+							return true;
+						} else if (valuey == 60) {
+							if (valuex == 1000|valuex == 1100|valuex == 1200) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 160) {
+							if (valuex == 300|valuex == 400|valuex == 500|valuex == 1000|valuex == 1100|valuex == 1200) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 260) {
+							if (valuex == 300|valuex == 400|valuex == 500|valuex == 600|valuex == 700) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 360) {
+							if (valuex == 400|valuex == 500|valuex == 700|valuex == 800) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 460) {
+							if (valuex == 100) {
+								return true;
+							} else {
+								return false;
+							}
+						} else {
+							return false;
+						}
+					} else if (mapid == 2) {
+						if (valuex < 0|valuey < 0|valuey > 500|valuex > 1200) {
+							return true;
+						} else if (valuey == 60) {
+							if (valuex == 1000|valuex == 1100|valuex == 1200) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 160) {
+							if (valuex == 200|valuex == 300|valuex == 400|valuex == 500|valuex == 600) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 260){
+							if (valuex == 200|valuex == 300|valuex == 400|valuex == 500|valuex == 600) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 360) {
+							if (valuex == 900|valuex == 1000|valuex == 1100|valuex == 1200) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 460) {
+							if (valuex == 0|valuex == 100|valuex == 800|valuex == 900|valuex == 1000|valuex == 1100|valuex == 1200) {
+								return true;
+							} else {
+								return false;
+							}
+						} else {
+							return false;
+						}
+					} else if (mapid == 3) {
+						if (valuex < 0|valuey < 0|valuey > 500|valuey > 1200|valuex > 1200) {
+							return true;
+						} else if (valuey == 160) {
+							if (valuex == 200|valuex == 300|valuex == 400|valuex == 800|valuex == 900|valuex == 1000) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 360) {
+							if (valuex == 200|valuex == 300|valuex == 400|valuex == 800|valuex == 900|valuex == 1000) {
+								return true;
+							} else {
+								return false;
+							}
+						} else {
+							return false;
+						}
+					} else if (mapid == 4) {
+						if (valuex < 0|valuey < 0|valuey > 500|valuey > 1200|valuex > 1200) {
+							return true;
+						} else if (valuey == 160) {
+							if (valuex == 100|valuex == 200|valuex == 300|valuex == 400|valuex == 500|valuex == 700|valuex == 800|valuex == 900|valuex == 1000|valuex == 1100) {
+								 return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 360) {
+							if (valuex == 100|valuex == 200|valuex == 300|valuex == 400|valuex == 500|valuex == 700|valuex == 800|valuex == 900|valuex == 1000|valuex == 1100) {
+								return true;
+							} else {
+								return false;
+							}
+						} else {
+							return false;
+						}
+					} else if (mapid == 5) {
+						if (valuex < 0|valuey < 0|valuey > 500|valuey > 1200|valuex > 1200) {
+							return true;
+						} else if (valuey == 160) {
+						    if (valuex == 200|valuex == 600|valuex == 700) {
+						        return true;
+						    } else {
+						        return false;
+						    }
+						} else if (valuey == 260) {
+						    if (valuex == 600|valuex == 700) {
+						        return true;
+						    } else {
+						        return false;
+						    }
+						} else if (valuey == 360) {
+                            if (valuex == 300|valuex == 400|valuex == 900|valuex == 1000) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+						} else {
+							return false;
+						}
+					} else if (mapid == 6) {
+						if (valuex < 0|valuey < 0|valuey > 500|valuey > 1200|valuex > 1200) {
+							return true;
+						} else if (valuey == 160) {
+							 if (valuex == 200|valuex == 300|valuex == 400|valuex == 700|valuex == 800|valuex == 900|valuex == 1000) {
+							 	return true;
+							 } else {
+							 	return false;
+							 }
+						} else if (valuey == 260) {
+							if (valuex == 200|valuex == 300|valuex == 400|valuex == 700|valuex == 800|valuex == 900|valuex == 1000) {
+								return true;
+							} else {
+								return false;
+							}
+						} else if (valuey == 360) {
+							if (valuex == 200|valuex == 300|valuex == 400|valuex == 700|valuex == 800|valuex == 900|valuex == 1000) {
+								return true;
+							} else {
+								return false;
+							}
+						} else {
+							return false;
+						}
+					} else {
+						return true;
+					}
+				} else {
+					return false;
+				}
+			}
+			function fiximg() {
+				document.getElementById('bgimg').style = 'position: absolute; top: 55; left: 0; width: 1300px; height: 505px; border: none;';
+			}
+			function fiximgb() {
+				document.getElementById('bgimg').style = 'position: absolute; top: 60; left: 0; width: 1300px; height: 500px; border: none;';
+			}
+			function flingg() {
+				document.getElementById('p1score').innerText = score1;
+				document.getElementById('p2score').innerText = score2;
+				player1x = 0;
+				player1y = 60;
+				player2x = 1200;
+				player2y = 260;
+				setcoordinate();
+				setcoordinateb();
+			}
+			function tagged() {
+				if (tagger == 1) {
+					score1++;
+					flingg();
+				} else if (tagger == 2) {
+					score2++;
+					flingg();
+				}
+			}
+			function updatetagger() {
+				switch(tagger) {
+					case 0:
+						tagger = 1;
+						document.getElementById('tagging').innerHTML = player2 + ' is tagging in: ';
+						document.getElementById('p1').style = 'top: ' + player1y + '; left: ' + player1x + '; border: 3px dashed orange;';
+						document.getElementById('p2').style = 'top: ' + player2y + '; left: ' + player2x + ';';
+						break;
+					case 1:
+						tagger = 2;
+						document.getElementById('tagging').innerHTML = player1 + ' is tagging in: ';
+						document.getElementById('p2').style = 'top: ' + player2y + '; left: ' + player2x + '; border: 3px dashed orange;';
+						document.getElementById('p1').style = 'top: ' + player1y + '; left: ' + player1x + ';';
+						break;
+					case 2:
+						document.getElementById('tagging').innerHTML = player2 + ' is tagging in: ';
+						document.getElementById('p1').style = 'top: ' + player1y + '; left: ' + player1x + '; border: 3px dashed orange;';
+						document.getElementById('p2').style = 'top: ' + player2y + '; left: ' + player2x + ';';
+						tagger = 1;
+						break;
+				}
+			}
+			function timerset() {
+				if (timerno == 0) {
+					timerno = 60;
+					updatetagger();
+				} else {
+					timerno = timerno - 1;
+					document.getElementById('time').innerText = timerno + ' second(s)';
+				}
+			}
+			document.addEventListener('keydown', (event) => {
+  var name = event.key;
+  var code = event.code;
+  switch(code) {
+                    case 'ArrowUp':
+                        player1y = player1y - 100;
+		  						player1y = player1y - speedplus;
+                        iscolliding = calculatecol(1);
+                        if (iscolliding == false) {
+                            setcoordinate();
+                        } else {
+                            player1y = player1y + 100;
+		  							player1y = player1y + speedplus;
+                        }
+                        break;
+                    case 'ArrowDown':
+                        player1y = player1y + 100;
+		  						player1y = player1y + speedplus;
+                        iscolliding = calculatecol(1);
+                        if (iscolliding == false) {
+                            setcoordinate();
+                        } else {
+                            player1y = player1y - 100;
+		  							player1y = player1y - speedplus;
+                        }
+                        break;
+                    case 'ArrowRight':
+                        player1x = player1x + 100;
+		  						player1x = player1x + speedplus;
+                        iscolliding = calculatecol(1);
+                        if (iscolliding == false) {
+                            setcoordinate();
+                        } else {
+                            player1x = player1x - 100;
+		  							player1x = player1x - speedplus;
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        player1x = player1x - 100;
+		  						player1x = player1x - speedplus;
+                        iscolliding = calculatecol(1);
+                        if (iscolliding == false) {
+                            setcoordinate();
+                        } else {
+                            player1x = player1x + 100;
+		  							player1x = player1x + speedplus;
+                        }
+                        break;
+                    case 'KeyW':
+                        player2y = player2y - 100;
+		  						player2y = player2y - speedplus;
+                        iscolliding = calculatecol(2);
+                        if (iscolliding == false) {
+                            setcoordinateb();
+                        } else {
+                            player2y = player2y + 100;
+		  							player2y = player2y + speedplus;
+                        }
+                        break;
+                    case 'KeyS':
+                        player2y = player2y + 100;
+		  						player2y = player2y + speedplus;
+                        iscolliding = calculatecol(2);
+                        if (iscolliding == false) {
+                            setcoordinateb();
+                        } else {
+                            player2y = player2y - 100;
+		  							player2y = player2y - speedplus;
+                        }
+                        break;
+                    case 'KeyD':
+                        player2x = player2x + 100;
+		  						player2x = player2x + speedplus;
+                        iscolliding = calculatecol(2);
+                        if (iscolliding == false) {
+                            setcoordinateb();
+                        } else {
+                            player2x = player2x - 100;
+		  							player2x = player2x - speedplus;
+                        }
+                        break;
+                    case 'KeyA':
+                        player2x = player2x - 100;
+		  						player2x = player2x - speedplus;
+                        iscolliding = calculatecol(2);
+                        if (iscolliding == false) {
+                            setcoordinateb();
+                        } else {
+                            player2x = player2x + 100;
+		  							player2x = player2x + speedplus;
+                        }
+                        break;
+	  					case 'Space':
+		  					alert('Player 1 x: ' + player1x + '\n' + 'Player 1 y: ' + player1y + '\n' + 'Player 2 x: ' + player2x + '\n' + 'Player 2 y: ' + player2y);
+		  					break;
+  }
+}, false);
+            function setcoordinate() {
+					if (tagger == 1) {
+						document.getElementById('p1').style = 'top: ' + player1y + '; left: ' + player1x + '; border: 3px dashed orange;';
+					} else {
+                	document.getElementById('p1').style = 'top: ' + player1y + '; left: ' + player1x + ';';
+					}
+            }
+			function setcoordinateb() {
+				if (tagger == 2) {
+					document.getElementById('p2').style = 'top: ' + player2y + '; left: ' + player2x + '; border: 3px dashed orange;';
+				} else {
+                document.getElementById('p2').style = 'top: ' + player2y + '; left: ' + player2x + ';';
+				}
+         }
+			function reset() {
+				let enablebutton = 'Enable local saving';
+				p1total = p1total + score1;
+				p2total = p2total + score2;
+				if (localStorage.getItem('localyes')) {
+					localStorage.setItem('p1total', p1total);
+					localStorage.setItem('p2total', p2total);
+					enablebutton = 'Disable local saving and delete data';
+				}
+				document.getElementById('body').innerHTML =
+					'<a href="https://more-penguin-gamez-8742575.codehs.me/mainpage.html">Back</a>' +
+					'<h1>Tag</h1>' +
+					'<center>' +
+						'<div id="content">' +
+							'Loading...' +
+						'</div>' +
+						'<button id="savebutton" onclick="enablesave()">' + enablebutton + '</button>' +
+						' ~ ' +
+						'<button onclick="showstats()">Open Stats</button>' +
+					'</center>';
+				clearInterval(timerint);
+				clearInterval(fixint);
+				player1x = 0;
+				player1y = 60;
+				player2x = 100;
+				player2y = 160;
+				tagger = 0;
+				timerno = 15;
+				score1 = 0;
+				score2 = 0;
+				infinitegame = false;
+				speedplus = 0;
+				mapid = 0;
+				loadgame();
+			}
+			function map1() {
+				mapid = 1;
+				timerint = setInterval(() => {timerset();}, 1000);
+				document.getElementById('body').innerHTML =
+					'<div id="hud">' +
+						'Loading...' +
+					'</div>' +
+					'<img src="https://codehs.com/uploads/cc90ceee01c9e0c1294a088873c5c391" style="position: absolute; top: 60; left: 0; width: 1300px; height: 560px; border: none;" id="bgimg" class="bg">' +
+					'<div id="p1" class="player"></div>' +
+					'<div id="p2" class="player"></div>' +
+					'<div class="border" id="b1"></div>' +
+					'<div class="border" id="b2">' +
+						'<br>' +
+						'<small style="color: black; float: left;">' +
+							'Map drawn by Noah DeRenzo' +
+						'</small>' +
+					'</div>';
+				loadhud();
+				setgametimer();
+			}
+			function map2() {
+				mapid = 2;
+				timerint = setInterval(() => {timerset();}, 1000);
+				fixint = setInterval(() => {fiximg();}, 3000);
+				document.getElementById('body').innerHTML =
+					'<div id="hud">' +
+						'Loading...' +
+					'</div>' +
+					'<img src="https://codehs.com/uploads/f6c6bb7d5c6eff3ad0ac91f977945725" style="position: absolute; top: 55; left: 0; width: 1300px; height: 505px; border: none;" id="bgimg" class="bg">' +
+					'<div id="p1" class="player"></div>' +
+					'<div id="p2" class="player"></div>' +
+					'<div class="border" id="b1"></div>' +
+					'<div class="border" id="b2">' +
+						'<br>' +
+						'<small style="color: black; float: left;">' +
+							'Map drawn by Noah DeRenzo' +
+						'</small>' +
+					'</div>';
+				loadhud();
+				setgametimer();
+			}
+			function map3() {
+				mapid = 3;
+				timerint = setInterval(() => {timerset();}, 1000);
+				document.getElementById('body').innerHTML =
+					'<div id="hud">' +
+						'Loading...' +
+					'</div>' +
+					'<img src="https://codehs.com/uploads/c9b9941520ec0a8f97d1da3ce6ddd759" style="position: absolute; top: 60; left: 0; width: 1300px; height: 560px; border: none;" id="bgimg" class="bg">' +
+					'<div id="p1" class="player"></div>' +
+					'<div id="p2" class="player"></div>' +
+					'<div class="border" id="b1"></div>' +
+					'<div class="border" id="b2"></div>';
+				loadhud();
+				setgametimer();
+			}
+			function map4() {
+				mapid = 4;
+				player2y = 60;
+				setInterval(() => {fiximgb()}, 1000);
+				timerint = setInterval(() => {timerset();}, 1000);
+				document.getElementById('body').innerHTML =
+					'<div id="hud">' +
+						'Loading...' +
+					'</div>' +
+					'<img src="https://codehs.com/uploads/462d717c601fee8b8c7a5935e9bb0758" style="position: absolute; top: 60; left: 0; width: 1300px; height: 500px; border: none;" id="bgimg" class="bg">' +
+					'<div id="p1" class="player"></div>' +
+					'<div style="top: 60; left: 100;" id="p2" class="player"></div>' +
+					'<div class="border" id="b1"></div>' +
+					'<div class="border" id="b2">' +
+						'<br>' +
+						'<small style="color: black; float: left;">' +
+							'Map drawn by Noah DeRenzo' +
+						'</small>' +
+					'</div>';
+				loadhud();
+				setgametimer();
+			}
+			function map5() {
+				mapid = 5;
+				timerint = setInterval(() => {timerset();}, 1000);
+				document.getElementById('body').innerHTML =
+					'<div id="hud">' +
+						'Loading...' +
+					'</div>' +
+					'<img src="https://codehs.com/uploads/1648af76afde0c2aa6762581b6678d5b" style="position: absolute; top: 60; left: 0; width: 1300px; height: 500px; border: none;" id="bgimg" class="bg">' +
+					'<div id="p1" class="player"></div>' +
+					'<div id="p2" class="player"></div>' +
+					'<div class="border" id="b1"></div>' +
+					'<div class="border" id="b2">' +
+					    '<br>' +
+					    '<small style="color: black; float: left;">' +
+					        'Map requested by Jeff "Jeffis" McDowell' +
+					    '</small>' +
+					'</div>';
+				loadhud();
+				setgametimer();
+			}
+			function map6() {
+				mapid = 6;
+				timerint = setInterval(() => {timerset();}, 1000);
+				document.getElementById('body').innerHTML =
+					'<div id="hud">' +
+						'Loading...' +
+					'</div>' +
+					'<img src="https://codehs.com/uploads/4ac2df88b06d5e05ae7f5fc21194d4b3" style="position: absolute; top: 60; left: 0; width: 1300px; height: 500px; border: none;" id="bgimg" class="bg">' +
+					'<div id="p1" class="player"></div>' +
+					'<div id="p2" class="player"></div>' +
+					'<div class="border" id="b1"></div>' +
+					'<div class="border" id="b2">' +
+						'<br>' +
+						'<small style="color: black; float: left;">' +
+							'Map drawn by Noah DeRenzo' +
+						'</small>' +
+					'</div>';
+				loadhud();
+				setgametimer();
+			}
+			function main(bypass) {
+				if (bypass == 'pass') {
+					var resetall = true;
+				} else {
+					var resetall = confirm('End game?');
+				}
+				if (resetall == true) {
+					gameactive = false;
+					document.getElementById('body').innerHTML =
+						'<h1>Results</h1>' +
+						player1 + ' tags: ' + score1 +
+						'<br>' +
+						player2 + ' tags: ' + score2 +
+						'<br><br>' +
+						'<button onclick="reset()">Back to map selection</button>';
+				}
+			}
+			function fulltimer() {
+				if (gameactive == true) {
+					totaltime++;
+				}
+			}
+			function loadgame() {
+				setInterval(() => {fulltimer()}, 1000);
+				//document.getElementById('content').innerHTML = '<h1>~This game is under construction~</h1>Apologies for the inconvienience.';
+				//let pass;
+				//if (localStorage.getItem('devkey')) {
+				    //pass = 13579;
+				//} else {
+				     //pass = parseInt(prompt('Enter dev key'));
+				//}
+				//if (pass == 13579) {
+				    //localStorage.setItem('devkey', true);
+				document.getElementById('content').innerHTML =
+				    //'<button onclick="localStorage.removeItem(\'devkey\');location.reload();" style="position:fixed;top:0;left:0;">Log out</button>' +
+					'<span style="float: left;">' +
+						'Player 1 Username: <span id="p1in" style="background-color: cyan; color: black;" contentEditable>' + player1 + '</span>' +
+					'</span>' +
+					'<span style="float: right;">' +
+						'Player 2 Username: <span id="p2in" style="background-color: cyan; color: black;" contentEditable>' + player2 + '</span>' +
+					'</span>' +
+					'<b>Select a map:</b><br>' +
+					'<button onclick="loadready(1)" style="background-color: grey;"><img src="https://codehs.com/uploads/cc90ceee01c9e0c1294a088873c5c391" class="mpre"><br>Outer Space Map</button>' +
+					'<button onclick="loadready(2)" style="background-color: grey;"><img src="https://codehs.com/uploads/f6c6bb7d5c6eff3ad0ac91f977945725" class="mpre"><br>Backyard Map</button>' +
+					'<button onclick="loadready(3)" style="background-color: grey;"><img src="https://codehs.com/uploads/c9b9941520ec0a8f97d1da3ce6ddd759" class="mpre"><br>Classic Map</button>' +
+					'<button onclick="loadready(4)" style="background-color: grey;"><img src="https://codehs.com/uploads/462d717c601fee8b8c7a5935e9bb0758" class="mpre"><br>Garden Map</button>' +
+					'<button onclick="loadready(5)" style="background-color: grey;"><img src="https://codehs.com/uploads/1648af76afde0c2aa6762581b6678d5b" class="mpre"><br>Bowling Map</button>' +
+					'<button onclick="loadready(6)" style="background-color: grey;"><img src="https://codehs.com/uploads/4ac2df88b06d5e05ae7f5fc21194d4b3" class="mpre"><br>Road Map</button>';
+				//}
+			}
+			function loadplayer() {
+				player1 = document.getElementById('p1in').innerText;
+				player2 = document.getElementById('p2in').innerText;
+				if (localyes == true) {
+					localStorage.setItem('player1', player1);
+					localStorage.setItem('player2', player2);
+				}
+			}
+			function getmap(mapint) {
+				switch(mapint) {
+					case 1:
+						return 'Outer Space';
+					case 2:
+						return 'Backyard';
+					case 3:
+						return 'Classic';
+					case 4:
+						return 'Garden';
+					case 5:
+						return 'Bowling';
+					case 6:
+						return 'Road';
+					default:
+						alert('An error occured. Please try again.');
+						location.replace('');
+				}
+			}
+			function resetgame() {
+				player1x = 0;
+				player1y = 60;
+				player2x = 100;
+				player2y = 160;
+				tagger = 0;
+				timerno = 15;
+				score1 = 0;
+				score2 = 0;
+				mapid = 0;
+				loadgame();
+			}
+			function gametimeout() {
+				var resetend = confirm('The game timer has ended. End game?');
+				if (resetend == true) {
+					main('pass');
+				} else {
+					alert('To end the game, use the end game button at the top right');
+				}
+			}
+			function gametimer() {
+				if (endtime == 0) {
+					document.getElementById('gtimer').innerHTML = '';
+					gametimeout();
+					clearInterval(endtimer);
+				} else if (infinitegame == true) {
+					document.getElementById('gtimer').innerHTML = '';
+				} else {
+					endtime = endtime - 1;
+					document.getElementById('gtimer').innerHTML =
+						'Game timer:' +
+						'<br>' +
+						endtime + ' seconds left';
+				}
+			}
+			function setgametimer() {
+				if (endtime != -1) {
+					endtimer = setInterval(() => {gametimer()}, 1000);
+				} else {
+					document.getElementById('gtimer').innerHTML = '';
+				}
+			}
+			function inftime() {
+				infinitegame = true;
+				alert('Game timer set to infinite. \n Change the time in the textbox to undo and set.');
+			}
+			function checkno() {
+				infinitegame = false;
+				var timeset = document.getElementById('timein').value;
+				if (timeset < 1) {
+					document.getElementById('timein').value = 1;
+					endtime = 60;
+				} else {
+					if (isminutes == true) {
+						endtime = timeset * 60;
+					} else {
+						endtime = timeset;
+					}
+				}
+			}
+			function loadhud() {
+				gameactive = true;
+				totalgames++;
+				if (localStorage.getItem('localyes')) {
+					localStorage.setItem('totalgames', totalgames);
+				}
+				document.getElementById('hud').innerHTML =
+					'<div id="gtimer" style="float: left;">' +
+						'Game timer:' +
+						'<br>' +
+						'<span id="timerdisplay">Loading...</span>' +
+					'</div>' +
+					'<span id="tagging">' + player1 + ' is tagging in: </span>' +
+					'<span id="time">15 second(s)</span>' +
+					'<button style="float: right;" onclick="main()">End game</button>' +
+					'<br>' +
+					player1 + ' tags: <span id="p1score">0</span>' +
+					'~' +
+					player2 + ' tags: <span id="p2score">0</span>';
+			}
+			function changeunit() {
+				if (isminutes == true) {
+					isminutes = false;
+					document.getElementById('units').innerText = 'seconds ';
+					document.getElementById('unitbutton').innerText = 'Change to minutes';
+				} else {
+					isminutes = true;
+					document.getElementById('units').innerText = 'minutes ';
+					document.getElementById('unitbutton').innerText = 'Change to seconds';
+				}
+				checkno();
+			}
+			function loadready(mapid) {
+				loadplayer();
+				eval('map' + mapid + 'vis++');
+				var mapvis = eval('map' + mapid + 'vis');
+				if (localyes == true) {
+					localStorage.setItem('map' + mapid + 'vis', mapvis);
+				}
+				var mapname = getmap(mapid);
+				document.getElementById('content').innerHTML =
+					'<button style="float: left;" onclick="loadgame()"><- Back to Main Menu</button>' +
+					'<br>' +
+					'<h1>Ready?</h1>' +
+					'Selected map: ' + mapname + ' map' +
+					'<br><br>' +
+					'Player 1 username: <input onchange="loadplayer();" type="text" style="background-color: cyan; color: black; text-align: left; font-family: comic sans ms; font-size: 24px;" value="' + player1 + '">' +
+					'<br>' +
+					'Player 2 username: <input onchange="loadplayer();" style="background-color: cyan; color: black; text-align: left; font-family: comic sans ms; font-size: 24px;" type="text" value="' + player2 + '">' +
+					'<br><br>' +
+					'Game length: <input value="5" onchange="checkno()" id="timein" type="number" style="font-size: 24px; text-align: center; background-color: cyan; color: black; font-family: comic sans ms;"> <span id="units">minutes </span>' +
+					'<button id="unitbutton" onclick="changeunit()">Change to seconds</button>' +
+					'<br>' +
+					'<button onclick="inftime()">Set to infinite</button>' +
+					'<br><br>' +
+					'<button style="font-size: 40px;" onclick="map' + mapid + '()">Start!</button>';
+			}
+			function enablesave() {
+				if (localyes == false) {
+					localyes = true;
+					localStorage.setItem('localyes', true);
+					document.getElementById('savebutton').innerText =
+						'Disable local saving and delete data';
+				} else {
+					var clearallnow = confirm('Disable all saving mechanisms and clear all saved data?');
+					if (clearallnow == true) {
+						localyes = false;
+						document.getElementById('savebutton').innerText =
+							'Enable local saving';
+						localStorage.removeItem('player1');
+						localStorage.removeItem('player2');
+						localStorage.removeItem('localyes');
+						localStorage.removeItem('p1total');
+						localStorage.removeItem('p2total');
+						localStorage.clear();
+						location.replace('');
+					}
+				}
+			}
+			function loadlocal() {
+				if (localStorage.getItem('localyes')) {
+					if (localStorage.getItem('map1vis')) {
+						map1vis = parseInt(localStorage.getItem('map1vis'));
+					}
+					if (localStorage.getItem('map2vis')) {
+						map2vis = parseInt(localStorage.getItem('map2vis'));
+					}
+					if (localStorage.getItem('map3vis')) {
+						map3vis = parseInt(localStorage.getItem('map3vis'));
+					}
+					if (localStorage.getItem('map4vis')) {
+						map4vis = parseInt(localStorage.getItem('map4vis'));
+					}
+					if (localStorage.getItem('map5vis')) {
+						map5vis = parseInt(localStorage.getItem('map5vis'));
+					}
+					if (localStorage.getItem('map6vis')) {
+						map6vis = parseInt(localStorage.getItem('map6vis'));
+					}
+					if (localStorage.getItem('totaltime')) {
+						totaltime = parseInt(localStorage.getItem('totaltime'));
+					}
+					if (localStorage.getItem('player1')) {
+						player1 = localStorage.getItem('player1');
+					}
+					if (localStorage.getItem('player2')) {
+						player2 = localStorage.getItem('player2');
+					}
+					if (localStorage.getItem('p1total')) {
+						p1total = parseInt(localStorage.getItem('p1total'));
+					}
+					if (localStorage.getItem('p2total')) {
+						p2total = parseInt(localStorage.getItem('p2total'));
+					}
+					if (localStorage.getItem('totalgames')) {
+						totalgames = parseInt(localStorage.getItem('totalgames'));
+					}
+					localyes = true;
+					document.getElementById('savebutton').innerText = 
+						'Disable local saving and delete data';
+				}
+			}
+			function showstats() {
+				var totalmin = totaltime / 60;
+				var bannerin = '<div style="background-color: red; color: yellow;">' +
+									'<b>Notice</b>' +
+									'<br>' +
+									'Stats for this game work best when data is saved over multiple visits. Use the button at the bottom of the main window to enable local saving, so this page can show cumulative data.' +
+								'</div>';
+				if (localStorage.getItem('localyes')) {
+					bannerin = '';
+				}
+				var win2 = open('about:blank', 'win2', 'width=600', 'height=600');
+				win2.document.open();
+				win2.document.write(
+					'<html>' +
+						'<head>' +
+							'<title>Tag Stats ~ Penguin Gamez</title>' +
+							'<link rel="stylesheet" href="Style1.css">' +
+						'</head>' +
+						'<body>' +
+							'<br>' + bannerin +
+							'<h1>Tag Stats</h1>' +
+							'Total tags by ' + player1 + ': ' + p1total +
+							'<br>' +
+							'Total tags by ' + player2 + ': ' + p2total +
+							'<br><br>' +
+							'Total games played: ' + totalgames +
+							'<br><br>' +
+							'Total time spent ingame: ' + totaltime + ' seconds (' + totalmin + ' minutes)' +				
+							'<br><br>' +
+							'Played Outer Space map ' + map1vis + ' times' +
+							'<br>' +
+							'Played Backyard map ' + map2vis + ' times' +
+							'<br>' +
+							'Played Classic map ' + map3vis + ' times' +
+							'<br>' +
+							'Played Garden map ' + map4vis + ' times' +
+							'<br>' +
+							'Played Empty map ' + map5vis + ' times' +
+							'<br>' +
+							'Played Road map ' + map6vis + ' times' +
+						'</body>' +
+					'</html>'
+					);
+				win2.document.close();
+			}
+		</script>
+	</head>
+	<body onload="loadlocal()" id="body">
+		<a href="https://more-penguin-gamez-8742575.codehs.me/mainpage.html">Back</a>
+		<h1>Tag</h1>
+		<center>
+			<div id="content" style="cursor: wait;">
+				Loading game...
+				<br>
+				<progress max="100" value="0" id="progbar"></progress>
+			</div>
+			<button id="savebutton" onclick="enablesave()">Enable local saving</button>
+			~
+			<button onclick="showstats()">Open Stats</button>
+		</center>
+	</body>
+</html>
