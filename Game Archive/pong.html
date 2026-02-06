@@ -1,0 +1,1235 @@
+<html>
+    <head>
+        <title>Penguin Pong ~ Penguin Gamez</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script src="load.js"></script>
+	<style>
+		#player {
+			position:fixed;
+			top:45%;
+			left:15%;
+			width:3%;
+			height:15%;
+			background-color:blue;
+			border:3px dashed cyan;
+			border-radius:10%;
+		}
+		#enemy {
+		    border-radius:10%;
+			position:fixed;
+			top:45%;
+			right:15%;
+			width:3%;
+			height:15%;
+			background-color:orange;
+			border:3px dashed yellow;
+		}
+		#ball {
+			position:fixed;
+			top:0;
+			left:0;
+			width:5%;
+			height:10%;
+			border-radius:50%;
+			background-color:white;
+		}
+	</style>
+    <script>
+        // All default variables (except Tourney data)
+        let gtimer;
+        let gtime = 0;
+    	let playerx = 45;
+    	let moveint;
+    	let moveint2;
+    	let canmove = false;
+    	let ismoving = false;
+    	let emove = false;
+    	let emoving = false;
+    	let difficulty;
+    	let autodiff = [1,1];
+    	let enemyx = 45;
+    	let entimer;
+    	let atimer;
+    	let score = [0,0];
+    	let volleys = 0;
+    	let capscore;
+    	let ballint;
+    	let ballspeed = 50;
+    	let speedint;
+    	let canscore = true;
+	    let incvolley = true;
+	    let scoreint;
+	    let canclose = true;
+    	let ballpos = {
+    		x:0,
+    		y:0
+    	};
+    	let ballslope = {
+    		rise: 1,
+    		run: 1
+    	}
+    	let stats = {
+    	    playtime: 0,
+    	    p1wins: 0,
+    	    p2wins: 0,
+    	    comwins: 0,
+    	    egames: 0,
+    	    megames: 0,
+    	    hargames: 0,
+    	    hacgames: 0,
+    	    mugames: 0
+    	}
+        let controls = {
+            p1: {
+                up: 'ArrowUp',
+                down: 'ArrowDown'
+            },
+            p2: {
+                up: 'w',
+                down: 's'
+            }
+        }
+        let isdev = false;
+        let mousetime = setTimeout(() => {
+            document.body.style.cursor = 'none';
+        }, 10000);
+    	// Shows all variables and values
+    	function showvar() {
+    	    alert(
+    	        'gtime=' + gtime + '\n' +
+    	        'playerx=' + playerx + '\n' +
+    	        'canmove=' + canmove + '\n' +
+    	        'ismoving=' + ismoving + '\n' +
+    	        'emove=' + emove + '\n' +
+    	        'emoving=' + emoving + '\n' +
+    	        'difficulty=' + difficulty + '\n' +
+    	        'autodiff=' + autodiff + '\n' +
+    	        'enemyx=' + enemyx + '\n' +
+    	        'score=' + score + '\n' +
+    	        'volleys=' + volleys + '\n' +
+    	        'capscore=' + capscore + '\n' +
+    	        'canscore=' + canscore + '\n' +
+    	        'incvolley=' + incvolley + '\n' +
+    	        'canclose=' + canclose + '\n' +
+    	        'ballpos={x:' + ballpos.x + ',y:' + ballpos.y + '}\n' +
+    	        'ballslope={rise:' + ballslope.rise + ',run:' + ballslope.run + '}\n' +
+    	        'controls={p1:{up:' + controls.p1.up + ',down:' + controls.p1.down + '},p2:{up:'+controls.p2.up+',down:'+controls.p2.down+'}}'
+    	    );
+    	}
+    	</script>
+    	<script>
+    	// When the tab is left, if the game is running, pause it
+    	window.addEventListener('blur', () => {
+    	    if (canmove) {
+    	        pause();
+    	    }
+    	}, false);
+    	function moveball() {
+    		if (canmove) {
+    		    if (canscore && ballpos.x == 3 && ballslope.run == -1) {
+    		        canscore = false;
+    		        scoreint = setTimeout(() => {canscore=true;}, 4000);
+    		        score[1]++;
+    		        updatescore();
+    		    }
+    		    if (canscore && ballpos.x == 87 && ballslope.run == 1) {
+    		        canscore = false;
+    		        scoreint = setTimeout(() => {canscore=true;}, 4000);
+    		        score[0]++;
+    		        updatescore();
+    		    }
+    		    if (ballpos.x == 45) {
+    		        if (scoreint) {
+    		            clearTimeout(scoreint);
+    		            canscore = true;
+    		        }
+    		    }
+    			ballpos.y = ballpos.y + ballslope.rise;
+    			ballpos.x = ballpos.x + ballslope.run;
+    			if (ballpos.x > 94 || ballpos.x < 1) {
+    				if (ballslope.run == 1) {
+    					ballslope.run = -1;
+    				} else {
+    					ballslope.run = 1;
+    				}
+    			}
+    			if (ballpos.y < 1 || ballpos.y > 89) {
+    				if (ballslope.rise == 1) {
+    					ballslope.rise = -1;
+    				} else {
+    					ballslope.rise = 1;
+    				}
+    			}
+    			if (ballpos.x <= 18 && ballpos.x > 10) {
+    				if (ballpos.y+5 > playerx && ballpos.y+5 < playerx+15) {
+    					ballslope.run = 1;	
+    				}
+    			}
+    			if (ballpos.x >= 77 && ballpos.x < 90) {
+    				if (ballpos.y+5 > enemyx && ballpos.y+5 < enemyx+15) {
+    					ballslope.run = -1;
+    				}
+    			}
+    			updateplayer(3);
+    		}
+    	}
+    	function bounceball() {
+    		if (ballslope.rise == 1) {
+    			ballslope.rise = -1;
+    		} else {
+    			ballslope.rise = 1;
+    		}
+    		if (ballslope.run == 1) {
+    			ballslope.run = -1;
+    		} else {
+    			ballslope.run = 1;
+    		}
+    	}
+    	function updateplayer(p=1) {
+    		if (p == 1) {
+    			document.getElementById('player').style.top = playerx + '%';
+    		} else if (p == 2) {
+    			document.getElementById('enemy').style.top = enemyx + '%';
+    		} else if (p == 3) {
+    			document.getElementById('ball').style.top = ballpos.y + '%';
+    			document.getElementById('ball').style.left = ballpos.x + '%';
+    		}
+    	}
+    	// Player collision
+    	function checkcolp() {
+    		if (playerx < 0 || playerx > 84) {
+    			return true;
+    		} else {
+    			return false;
+    		}
+    	}
+    	// Enemy collision
+    	function checkcole() {
+    		if (enemyx < 0 || enemyx > 84) {
+    			return true;
+    		} else {
+    			return false;
+    		}
+    	}
+    	// Movement controls
+    	window.addEventListener('keydown', (event) => {
+    		if (canmove && !ismoving && difficulty != 0) {
+    			switch(event.key) {
+    				case controls.p1.up:
+    					ismoving = true;
+    					moveint = setInterval(() => {
+    						playerx--;
+    						let iscol = checkcolp();
+    						if (iscol) {playerx++;}
+    						updateplayer();
+    					}, 10);
+    					break;
+    				case controls.p1.down:
+    					ismoving = true;
+    					moveint = setInterval(() => {
+    						playerx++;
+    						let iscol = checkcolp();
+    						if (iscol) {playerx--;}
+    						updateplayer();
+    					}, 10);
+    					break;
+    			}
+    		}
+    		if (emove && !emoving) {
+    			switch(event.key) {
+    				case controls.p2.up:
+    					emoving = true;
+    					moveint2 = setInterval(() => {
+    						enemyx--;
+    						let iscol = checkcole();
+    						if (iscol) {enemyx++;}
+    						updateplayer(2);
+    					}, 10);
+    					break;
+    				case controls.p2.down:
+    					emoving = true;
+    					moveint2 = setInterval(() => {
+    						enemyx++;
+    						let iscol = checkcole();
+    						if (iscol) {enemyx--;}
+    						updateplayer(2);
+    					}, 10);
+    					break;
+    			}
+    		}
+    	}, false);
+    	window.addEventListener('keyup', () => {
+            if (event.key == 'm') {
+                speedup();
+            }
+    		if (ismoving) {
+    			if (event.key == controls.p1.up || event.key == controls.p1.down) {
+    				ismoving = false;
+    				clearInterval(moveint);
+    			}
+    		}
+    		if (emoving) {
+    			if (event.key == controls.p2.up || event.key == controls.p2.down) {
+    				emoving = false;
+    				clearInterval(moveint2);
+    			}
+    		}
+    	}, false);
+    	</script>
+    	<script>
+    	// Tourney
+    	
+    	// Tourney player class
+    	class Player {
+    	    constructor(username, up, down) {
+    	        this.username = username;
+    	        this.up = up;
+    	        this.down = down;
+    	        this.isin = true;
+    	    }
+    	}
+    	// Tourney data
+    	let td = {
+    	    players: [null,null,null],
+    	    currentmatch: [null,null],
+    	    capscore: 1,
+    	    setcont: (elem,val,p) => {
+    	        if (elem.id == 'up') {
+    	            td.players[p].up = val;
+    	        } else {
+    	            td.players[p].down = val;
+    	        }
+    	        elem.value = val;
+    	        return false;
+    	    }
+    	}
+    	// Opens the username and controls options for Tourney, as well as making Player objects if they don't exist; part of the chain of functions leading to the Tourney rounds
+    	function psettings(setplayers=true) {
+    	    let i = 1;
+    	    if (setplayers) {
+        	    while(i<td.players.length) {
+        	        if (i%2 == 1) {
+            	        td.players[i] = new Player('Player ' + i, 'ArrowUp', 'ArrowDown');
+        	        } else {
+            	        td.players[i] = new Player('Player ' + i, 'w', 's');
+        	        }
+        	        i++;
+        	    }
+    	        bb.outerHTML = '<button id="tb" onclick="dselect(6)" style="float:left;">Back</button>';
+    	        header.innerText = 'Tourney Setup';
+    	        i = 1;
+    	    }
+    	    let html = '';
+    	    while(i<td.players.length) {
+    	        html += '<button onclick="editp(' + i + ')">Edit ' + td.players[i].username + '\'s controls/username</button>';
+    	        if (i!=td.players.length-1) {
+    	            html += ' ~ ';
+    	        }
+    	        i++;
+    	    }
+    	    html += '<br><br><button onclick="showbracket()">Continue</button>'
+    	    tsetup.innerHTML = html;
+    	}
+    	// Exits Tourney after confirmation
+    	function endtourney() {
+    	    let issure = confirm('End Tourney?\nAll settings will be lost.');
+    	    if (issure) {
+    	        loadgame();
+    	    }
+    	}
+    	// Shows current bracket for Tourney
+    	function showbracket() {
+    	    let i = 1;
+    	    let html = '';
+    	    while(i<td.players.length) {
+    	        html += td.players[i].username;
+    	        if (i != td.players.length-1) {
+    	            if (i%2 == 1) {
+        	            html += ' vs ';
+    	            } else {
+    	                html += ' - ';
+    	            }
+    	        } else {
+    	            if (i%2 == 1) {
+        	            html += ' vs Winner of Previous';
+    	            }
+    	        }
+    	        i++;
+    	    }
+    	    document.body.innerHTML =
+    	        '<button onclick="endtourney()" style="float:left;">Exit Tourney</button>' +
+    	        '<br>' +
+    	        '<h1>Tourney Bracket [Round 1]</h1>' +
+    	        html +
+    	        '<br><br>' +
+    	        '<button onclick="">Start First Round</button>';
+    	}
+    	// Edit username and control scheme for Tourney
+    	function editp(p) {
+    	    canclose = false;
+    	    popup(
+    	        '<br>' +
+    	        '<h1>Editing ' + td.players[p].username + '</h1>' +
+    	        'Username: <input type="text" placeholder="Type here..." onkeyup="td.players[' + p + '].username = this.value;" id="userin" value="' + td.players[p].username + '">' +
+    	        '<br><hr>' +
+    	        'Up: <input type="text" id="up" value="' + td.players[p].up + '" onkeydown="return td.setcont(this,event.key,' + p + ')"><br><br>' +
+    	        'Down: <input type="text" id="down" value="' + td.players[p].down + '" onkeydown="return td.setcont(this,event.key,' + p + ')">' +
+    	        '<br><br>' +
+    	        '<button onclick="canclose=true; closepop(); psettings(false);">Save</button>'
+    	    );
+    	}
+    	// Set duration for Tourney, then open Player settings
+    	function settdur(d) {
+    	    td.capscore = parseInt(d);
+    	    psettings();
+    	}
+    	// Set the amount of players in Tourney; caps at 40
+    	function setnop(elem) {
+    	    if (elem.value > 40) {
+    	       elem.value = 40; 
+    	    }
+    	    td.players.length = parseInt(elem.value)+1;
+    	    elem.value = parseInt(td.players.length)-1;
+    	}
+    	
+    	// End Tourney stuff
+    	</script>
+    	<script>
+    	// Difficulty selection
+            function dselect(diff) {
+    		    difficulty = parseInt(diff);
+    		    playerx = 45;
+    		    let twopval = false;
+    		    if (diff == 5) {
+    		    	twopval = true;
+    		    }
+    		    if (diff == 6) {
+    		        content.innerHTML =
+    		            '<button id="bb" onclick="let issure = confirm(\'Go back? Tourney settings will be lost.\'); if (issure){loadgame()}" style="float:left;">Back</button>' +
+    		            '<br>' +
+    		            '<h1 id="header">Tourney Setup</h1>' +
+    		            '<span id="tsetup">' +
+    		                'Number of players: <input type="number" placeholder="Number..." value="' + (td.players.length-1) + '" onchange="setnop(this); return true;td.players.length=parseInt(this.value+1);return true;this.value=parseInt(td.players.length-1);">' +
+    		                '<br><br>' +
+    		                'Duration:<br>' +
+    		                '<button onclick="settdur(1)">Instant Death (first to score wins)</button> ' +
+    		                '<button onclick="settdur(5)">First to 5</button> ' +
+    		                '<button onclick="settdur(10)">First to 10</button> ' +
+    		                '<button onclick="settdur(15)">First to 15</button> ' +
+    		                '<button onclick="settdur(21)">First to 21</button>' +
+    		            '</span>';
+    		    } else {
+        	    	content.innerHTML =
+        	    		'<button onclick="loadgame()" style="float:left;">Back</button>' +
+        	    		'<br>' +
+        	    		'<h1>Choose a duration</h1>' +
+        	    		'<button onclick="start(1,' + twopval + ')">Instant Death (first to score wins)</button> <button onclick="start(5,' + twopval + ')">First to 5</button> <button onclick="start(10,' + twopval + ')">First to 10</button> <button onclick="start(15,' + twopval + ')">First to 15</button> <button onclick="start(21,' + twopval + ')">First to 21</button> <button onclick="start(100,' + twopval + ')">Infinite</button>' +
+        	    		'<br><br>' +
+        	    		'<span id="autosetup"></span>';
+        	    	/*if (difficulty == 0) {
+        	    	    document.getElementById('autosetup').innerHTML =
+        	    	        'Computer 1 Difficulty: ' +
+        	    	        '<select onchange="autodiff[0]=parseInt(this.value)">' +
+        	    	            '<option value=1>Easy</option>' +
+        	    	            '<option value=2>Medium</option>' +
+        	    	            '<option value=3>Hard</option>' +
+        	    	            '<option value=4>Hacker Mode</option>' +
+        	    	        '</select>' +
+        	    	        '<br><br>' +
+        	    	        'Computer 2 Difficulty: ' +
+        	    	        '<select onchange="autodiff[1]=parseInt(this.value)">' +
+        	    	            '<option value=1>Easy</option>' +
+        	    	            '<option value=2>Medium</option>' +
+        	    	            '<option value=3>Hard</option>' +
+        	    	            '<option value=4>Hacker Mode</option>' +
+        	    	        '</select>';
+        	    	}*/
+    		    }
+            }
+	// Load home screen and framing if not existing
+        function loadgame() {
+            if (document.getElementById('content')) {
+                content.innerHTML =
+                        '<button style="float:left;" onclick="editcont()">Edit Controls</button>' +
+                        '<br>' +
+                        '<h1>Single Player</h1>' +
+                        '<button onclick="dselect(0)" hidden>Auto</button> <button onclick="dselect(1)">Easy</button> <button onclick="dselect(2)">Medium</button> <button onclick="dselect(3)">Hard</button> <button onclick="dselect(4)">Hacker Mode</button>' +
+    			        '<h1>Multiplayer</h1>' +
+    			        '<button onclick="dselect(5)">Two players</button><br><br><button onclick="alert(\'Coming soon!\')" hidden style="background-color:grey;color:black;">Tourney</button><br><i style="font-size:14px;" hidden>Coming soon!</i></span>';
+    			        //'<br><br><br><br><hr>' +
+    			        //'<button onclick="openstats()">Show stats</button>';
+            } else {
+                document.body.innerHTML =
+                    '<a href="mainpage.html">Back</a>' +
+                    '<h1>Penguin Pong</h1>' +
+                    '<center>' +
+                        '<div id="content">' +
+                            'Loading game...' +
+                            '<br>' +
+                            '<progress value=0 max=100 id="progbar"></progress>' +
+                        '</div>' +
+                        '<small>This game uses local storage</small>' +
+                    '</center>';
+                loadgame();
+            }
+        }
+            </script>
+            <script>
+        // Would be total playing time but stats were scrapped
+        setInterval(() => {
+            if (canmove) {
+                //stats.playtime++;
+            }
+        }, 1000);
+        // Would load stats from localStorage but again stats were scrapped
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('playtime')) {
+                stats = {
+    	            playtime: parseInt(localStorage.getItem('playtime')),
+    	            p1wins: parseInt(localStorage.getItem('p1wins')),
+    	            p2wins: parseInt(localStorage.getItem('p2wins')),
+    	            comwins: parseInt(localStorage.getItem('comwins')),
+    	            egames: parseInt(localStorage.getItem('egames')),
+    	            megames: parseInt(localStorage.getItem('megames')),
+    	            hargames: parseInt(localStorage.getItem('hargames')),
+    	            hacgames: parseInt(localStorage.getItem('hacgames')),
+    	            mugames: parseInt(localStorage.getItem('mugames'))
+    	        }
+            }
+        }, false);
+        // Would save stats but stats were scrapped
+        function savestats() {
+            return true;
+            localStorage.setItem('playtime', stats.playtime);
+            localStorage.setItem('p1wins', stats.p1wins);
+            localStorage.setItem('p2wins', stats.p2wins);
+            localStorage.setItem('comwins', stats.comwins);
+            localStorage.setItem('egames', stats.egames);
+            localStorage.setItem('megames', stats.megames);
+            localStorage.setItem('hargames', stats.hargames);
+            localStorage.setItem('hacgames', stats.hacgames);
+            localStorage.setItem('mugames', stats.mugames);
+        }
+        // Mapping Escape to closepop() only if popup exists and not editing controls
+        window.addEventListener('keydown', (event) => {
+            if (event.key == 'Escape' && document.getElementById('popup')) {
+                if (document.activeElement.id != 'p1up' && document.activeElement.id != 'p1down' && document.activeElement.id != 'p2up' && document.activeElement.id != 'p2down') {
+                    closepop();
+                }
+            }
+        }, false);
+        // Clear stats
+        function clearlocal() {
+            localStorage.removeItem('playtime');
+            localStorage.removeItem('p1wins');
+            localStorage.removeItem('p2wins');
+            localStorage.removeItem('comwins');
+            localStorage.removeItem('egames');
+            localStorage.removeItem('megames');
+            localStorage.removeItem('hargames');
+            localStorage.removeItem('hacgames');
+            localStorage.removeItem('mugames');
+        }
+        // Would open stats but this was scrapped
+        function openstats() {
+            popup(
+                '<button onclick="closepop()" style="float:left;">X Close</button>' +
+                '<br>' +
+                '<h1>Stats</h1>' +
+                'Total playtime: ' + stats.playtime + ' second(s) (~' + Math.round(stats.playtime/60) + ' minute(s))<br>' +
+                'Player 1 wins: ' + stats.p1wins + '<br>' +
+                'Player 2 wins: ' + stats.p2wins + '<br>' +
+                'Computer wins: ' + stats.comwins + '<br>' +
+                'Easy games played: ' + stats.egames + '<br>' +
+                'Medium games played: ' + stats.megames + '<br>' +
+                'Hard games played: ' + stats.hargames + '<br>' +
+                'Hacker mode games played: ' + stats.hacgames + '<br>' +
+                'Multiplayer games played: ' + stats.mugames + '<br>' +
+                '<br><br>' +
+                '<button onclick="let issure=confirm(\'Delete all stats? This cannot be undone\');if(issure){clearlocal()}" style="background-color:red;">Reset stats</button>'
+            );
+        }
+        // Generic popup function; opens popup and takes a parameter for html inside the popup, and uses fancy semi to fade out background. Also makes sure the popup doesn't already exist
+        function popup(html) {
+            if (!document.getElementById('popup')) {
+                let pop = document.createElement('div');
+                pop.style = 'position:fixed;z-index:11;top:10%;left:10%;height:80%;width:80%;background-color:blue;border:3px dashed cyan;';
+                pop.innerHTML = html;
+                pop.setAttribute('id', 'popup');
+                let semi = document.createElement('div');
+                semi.style = 'position:fixed;z-index:10;top:0;left:0;height:100%;width:100%;background-color:black;opacity:0.5;';
+                semi.setAttribute('id', 'semi');
+                document.body.appendChild(pop);
+                document.body.appendChild(semi);
+            }
+        }
+        // Closes popup opened by popup()
+        function closepop() {
+            if (canclose) {
+                document.getElementById('semi').outerHTML = '';
+                document.getElementById('popup').outerHTML = '';
+            }
+        }
+        // Calculates the percent chance of the com successfully hitting the ball back
+        function getmc(value=difficulty) {
+            switch(value) {
+                case 1:
+                    //easy
+                    return 40;
+                    break;
+                case 2:
+                    //medium
+                    return 65;
+                    break;
+                case 3:
+                    //hard
+                    return 85;
+                    break;
+                case 4:
+                    //hacker mode
+                    return 99;
+                    break;
+            }
+        }
+        // Updates the scoreboard
+        function updatescore() {
+            volleys++;
+            if (document.getElementById('scoreboard')) {
+                document.getElementById('scoreboard').innerText = score[0] + '-' + score[1];
+            }
+            if (score[0] >= capscore || score[1] >= capscore) {
+                endgame();
+            }
+        }
+        // Ends the current game and determines the winner; sometimes declares that it is a tie even when that is false (fixed?)
+        function endgame(usedq=false) {
+            canmove = false;
+            emove = false;
+            if (scoreint) {
+                clearTimeout(scoreint);
+                canscore = true;
+            }
+            ballpos = {
+                x:0,
+                y:0
+            };
+            ballslope = {
+    		    rise: 1,
+    		    run: 1
+    	    }
+            //if (speedint) {
+                clearTimeout(speedint);
+            //}
+            clearInterval(gtimer);
+            ballspeed = 50;
+            let headertext;
+            let winner;
+            if (score[0] >= capscore || score[0] > score[1]) {
+                headertext = 'Player 1 wins!';
+                stats.p1wins++;
+                //savestats();
+            } else if (score[1] >= capscore || score[1] > score[0]) {
+                headertext = 'Player 2 wins!';
+            } else {
+                headertext = 'It\'s a tie!';
+            }
+            if (entimer) {
+                clearInterval(entimer);
+            }
+            let gmin = Math.round(gtime/60);
+            let min = 'minutes';
+            if (gmin == 1) {
+                min = 'minute';
+            }
+            let sec = 'seconds';
+            if (gtime == 1) {
+                sec = 'second';
+            }
+            let gmode;
+            switch(difficulty) {
+                case 0:
+                    gmode = 'Auto';
+                case 1:
+                    gmode = 'Easy';
+                    break;
+                case 2:
+                    gmode = 'Medium';
+                    break;
+                case 3:
+                    gmode = 'Hard';
+                    break;
+                case 4:
+                    gmode = 'Hacker mode';
+                    break;
+                default:
+                    gmode = 'Multiplayer';
+                    break;
+            }
+            let is2p;
+            if (difficulty == 5) {
+                is2p = true;
+                if (headertext == 'Player 2 wins!') {
+                    //stats.p2wins++;
+                    //savestats();
+                }
+            } else {
+                if (headertext == 'Player 2 wins!') {
+                    headertext = 'The computer wins!';
+                    //stats.comwins++;
+                    //savestats();
+                }
+                is2p = false;
+            }
+            /*if (difficulty == 0) {
+                if (headertext == 'The computer wins!') {
+                    headertext = 'Computer 2 wins!';
+                }
+                if (headertext == 'Player 1 wins!') {
+                    headertext = 'Computer 1 wins!';
+                }
+            }*/
+            document.body.innerHTML =
+                '<h1>' + headertext + '</h1>' +
+                'Final score: ' + score[0] + '-' + score[1] + '<br>' +
+                'Game duration: ' + gtime + ' ' + sec + ' (~' + gmin + ' ' + min + ')<br>' +
+                'Mode: ' + gmode + '<br>' +
+                'Played until: ' + capscore + ' <span id="endedearly"></span><br>' +
+                'Total volleys (aka total points): ' + volleys + '<br><br>' +
+                '<button onclick="start(null,' + is2p + ',false)">Play again with same settings</button><br><br>' +
+                '<button onclick="loadgame()">Back to Main Menu</button><br><br>';
+            if (usedq) {
+                document.getElementById('endedearly').innerText = '(Ended early)';
+            }
+            if (gtime <= 1 && !usedq && false) {
+                popup(
+                    '<br>' +
+                    '<h1>Oops...</h1>' +
+                    'You seem to have run into a bug. Try not to spam Manual Speed Up to much, as it may cause this issue to occur again.' +
+                    '<br><br>' +
+                    '<button onclick="location.reload()" style="font-size:48px;">Reload</button>' +
+                    '<br><br>' +
+                    '<button onclick="closepop()">Continue anyway (Not recommended)</button>'
+                );
+                document.getElementById('popup').style.width = '100%';
+                document.getElementById('popup').style.height = '100%';
+                document.getElementById('popup').style.top = '0';
+                document.getElementById('popup').style.left = '0';
+                document.getElementById('popup').style.border = 'none';
+            }
+            clearInterval(ballint);
+        }
+        // Increases ball speed by 10 until the ball's speed is less than 10, then reduces by 5, capping at 1
+        function speedup() {
+            if (ballspeed <= 10) {
+                ballspeed = ballspeed - 5;
+                if (ballspeed <= 1) {
+                    ballspeed = 1;
+		            if (document.getElementById('subutton')) {
+		                document.getElementById('subutton').outerHTML = '';
+		            }
+                    clearInterval(speedint);
+                } else {
+                    clearInterval(ballint);
+                    if (!document.getElementById('endedearly')) {
+                        ballint = setInterval(moveball, ballspeed);
+                    }
+                }
+            } else {
+                ballspeed = ballspeed - 10;
+                clearInterval(ballint);
+                ballint = setInterval(moveball, ballspeed);
+	        }
+	        if (!canmove) {
+	            resume();
+	            pause();
+	        }
+	        if (document.getElementById('endedearly')) {
+	            ballspeed = 50;
+	            if (ballint) {
+                    clearInterval(ballint);
+	            }
+	            if (speedint) {
+                    clearInterval(speedint);
+	            }
+	        }
+        }
+        // Pauses the current game
+        function pause() {
+            if (canmove) {
+                canmove = false;
+                if (isdev) {
+                    opendev(document.getElementById('dev'),atob('MTkyMTY4'));
+                }
+                if (difficulty == 5) {
+                    emove = false;
+                }
+                semi.style.display = '';
+                pausepop.style.display = '';
+                let mode;
+                switch(difficulty) {
+                    case 1:
+                        mode = 'Easy';
+                        break;
+                    case 2:
+                        mode = 'Medium';
+                        break;
+                    case 3:
+                        mode = 'Hard';
+                        break;
+                    case 4:
+                        mode = 'Hacker mode';
+                        break;
+                    default:
+                        mode = 'Multiplayer';
+                        break;
+                }
+                document.getElementById('info').innerHTML =
+                    'Mode: ' + mode + '<br>' +
+                    'Ball speed (lower=faster; caps at 1): ' + ballspeed + '<br>' +
+                    'Current game duration: ' + gtime + ' second(s) (~' + Math.round(gtime/60) + ' minute(s))<br>' +
+                    'Playing until: ' + capscore + '<br><br>';
+            }
+        }
+        // Resumes the current game
+        function resume() {
+            semi.style.display = 'none';
+            pausepop.style.display = 'none';
+            canmove = true;
+            if (difficulty == 5) {
+                emove = true;
+            }
+        }
+        // Reveals mouse when moved, then resets timer for hiding mouse
+        window.addEventListener('mousemove', () => {
+            if (mousetime) {
+                clearTimeout(mousetime);
+            }
+            document.body.style.cursor = 'auto';
+            mousetime = setTimeout(() => {
+                document.body.style.cursor = 'none';
+            }, 10000);
+        }, false);
+        // Hotkeys for pausing, resuming and speedup
+        window.addEventListener('keypress', (event) => {
+            if (event.key == 'p') {
+                if (canmove) {
+                    pause();
+                } else {
+                    resume();
+                }
+            }
+            if (event.key == 'c' && document.getElementById('pausepop').style.display != 'none') {
+                resume();
+            }
+            if (event.key == 'q' && document.getElementById('pausepop')) {
+                let issure = confirm('End game?');
+                if (issure) {
+                    endgame(true);
+                }
+            }
+        }, false);
+        // Starts new  game, taking a score to play to (endval), is two-player (is2p) and if it should reset the variables (reset)
+    	function start(endval, is2p, reset=true) {
+    	    if (reset) {
+    	        if (endval == 100) {
+    	            endval = Infinity;
+    	            capscore = Infinity;
+    	        } else {
+        	        capscore = parseInt(endval);
+    	        }
+    	    }
+	    // Game recovery, continue game, restore game, all that fun stuff
+	    /*localStorage.setItem('capscore', capscore);
+	    localStorage.setItem('ponggame', true);
+	    localStorage.setItem('difficulty', difficulty);
+	    localStorage.setItem('p1score', 0);
+	    localStorage.setItem('p2score', 0);*/
+    	    if (mousetime) {
+                clearTimeout(mousetime);
+    	    }
+            document.body.style.cursor = 'none';
+    	    /*switch(difficulty) {case 1:stats.egames++;break;case 2:stats.megames++;break;case 3:stats.hargames++;break;case 4:stats.hacgames++;break;default:stats.mugames++;break;}*/
+    	    //savestats();
+    	    gtime = 0;
+    	    gtimer = setInterval(() => {
+    	        if (canmove) {
+        	        gtime++;
+    	        }
+    	    }, 1000);
+    	    score = [0,0];
+    	    volleys = 0;
+    	    playerx = 45;
+    	    enemyx = 45;
+    		canmove = true;
+    		let sbhtml = '';
+    		if (capscore != 1) {
+    		    sbhtml = '<span style="position:fixed;top:1%;left:45%;height:5%;width:10%;text-align:center;" id="scoreboard">0-0</span>';
+    		}
+    		ballspeed = 50;
+    		ballint = setInterval(moveball, ballspeed);
+    		let speedtimer = 0;
+    		speedint = setInterval(() => {
+    		    if (canmove) {
+        		    speedtimer++;
+    		    }
+    		    if (speedtimer == 500) {
+    		        speedup();
+    		    }
+    		}, 10);
+            document.body.innerHTML =
+		'<button id="subutton" onclick="speedup()" style="position:fixed;bottom:0;right:0;z-index:11;"><u>M</u>anual speed up</button>' +
+                '<div id="semi" style="display:none;position:fixed;z-index:10;background-color:black;opacity:0.5;top:0;left:0;width:100%;height:100%;"></div>' +
+                '<div id="pausepop" style="display:none;position:fixed;z-index:11;background-color:blue;top:10%;left:10%;width:80%;height:80%;border:3px dashed cyan;">' +
+                    '<button onclick="editcont()" style="float:left;">Edit controls</button>' +
+                    '<br>' +
+                    '<h1>Paused</h1>' +
+                    '<span id="info"></span>' +
+                    '<button onclick="resume()"><u>C</u>ontinue</button><br><br>' +
+                    '<button onclick="let issure=confirm(\'End game?\');if(issure){endgame(true);}"><u>Q</u>uit</button>' +
+                    '<br><br>' +
+                    '<span id="dev"><button onclick="opendev(this)">Dev</button></span>' +
+                '</div>' +
+                sbhtml +
+                '<button onclick="pause()" style="position:fixed;top:0;right:0;"><u>P</u>ause</button>' +
+    			'<button onclick="let issure=confirm(\'End game?\');if(issure){endgame(true);}" style="position:fixed;top:0;left:0;"><u>Q</u>uit</button>' +
+                '<div id="player"></div>' +
+    			'<div id="enemy"></div>' +
+    			'<div id="ball" style="font-size:48px">🐧</div>';
+    		/*if (difficulty == 0) {
+    		    let mc1 = getmc(autodiff[0]);
+    		    alert('autodiff=' + autodiff)
+    		    let shouldmiss = false;
+    		    atimer = setInterval(() => {
+    		        if (ballpos.x == 50 && ballslope.run == -1) {
+    		            let sm = Math.floor(Math.random() * 100);
+    		            if (sm > mc2) {
+    		                shouldmiss = true;
+    		            } else {
+    		                shouldmiss = false;
+    		            }
+    		        }
+    		        if (!shouldmiss && playerx > ballpos.y) {
+    		            playerx--;
+    		            let iscol = checkcolp();
+    		            if (iscol) {
+    		                playerx++;
+    		            }
+    		        } else if (!shouldmiss && playerx < ballpos.y) {
+    		            playerx++;
+    		            let iscol = checkcolp();
+    		            if (iscol) {
+    		                playerx--;
+    		            }
+    		        }
+    		        updateplayer();
+    		    }, 10);
+    		}*/
+    		if (is2p) {
+    			emove = true;
+    		} else {
+    		    let misschance = getmc();
+    		    if (difficulty==0) {
+    		        misschance = getmc(autodiff[1]);
+    		    }
+    		    let shouldmiss = false;
+    		    entimer = setInterval(() => {
+    		        if (ballpos.x == 50 && ballslope.run == 1) {
+    		            let sm = Math.floor(Math.random() * 100);
+    		            if (sm > misschance) {
+    		                shouldmiss = true;
+    		            } else {
+    		                shouldmiss = false;
+    		            }
+    		        }
+    		        if (!shouldmiss && enemyx > ballpos.y) {
+    		            enemyx--;
+    		            let iscol = checkcole();
+    		            if (iscol) {
+    		                enemyx++;
+    		            }
+    		        } else if (!shouldmiss && enemyx < ballpos.y) {
+    		            enemyx++;
+    		            let iscol = checkcole();
+    		            if (iscol) {
+    		                enemyx--;
+    		            }
+    		        }
+    		        updateplayer(2);
+    		    }, 10);
+    		}
+    		ballspeed = 50;
+    	}
+    	// Open dev tools
+    	function opendev(elem,devin=prompt('Enter key')) {
+    	    if (devin == atob('MTkyMTY4')) {
+    	    elem.parentElement.innerHTML =
+    	        '<u>Dev</u><br>' +
+    	        '<button onclick="eval(prompt(\'Enter command\'))">Issue command</button><br>' +
+    	        '<button onclick="showvar()">Display variables</button><br>' +
+    	        '<button onclick="lazybot()">Lazy bot</button>';
+    	    }
+    	}
+    	// Auto but not; accessible from Dev
+    	let ltimer;
+    	function lazybot() {
+    		    ltimer = setInterval(() => {
+    		        if (playerx > ballpos.y) {
+    		            playerx--;
+    		            let iscol = checkcolp();
+    		            if (iscol) {
+    		                playerx++;
+    		            }
+    		        } else if (playerx < ballpos.y) {
+    		            playerx++;
+    		            let iscol = checkcolp();
+    		            if (iscol) {
+    		                playerx--;
+    		            }
+    		        }
+    		        updateplayer(1);
+    		    }, 1);
+    	}
+    // Load controls from localStorage
+    window.addEventListener('load', () => {
+        if (localStorage.getItem('pong1up')) {
+            controls.p1.up = localStorage.getItem('pong1up');
+        }
+        if (localStorage.getItem('pong1down')) {
+            controls.p1.up = localStorage.getItem('pong1down');
+        }
+        if (localStorage.getItem('pong2up')) {
+            controls.p1.up = localStorage.getItem('pong2up');
+        }
+        if (localStorage.getItem('pong2down')) {
+            controls.p1.up = localStorage.getItem('pong2down');
+        }
+    }, false);
+    </script>
+    <script>
+    // Set controls
+    function setcont(elem, val) {
+        switch(elem.id) {
+            case 'p1up':
+                localStorage.setItem('pong1up', val);
+                controls.p1.up = val;
+                break;
+            case 'p1down':
+                localStorage.setItem('pong1down', val);
+                controls.p1.down = val;
+                break;
+            case 'p2up':
+                localStorage.setItem('pong2up', val);
+                controls.p2.up = val;
+                break;
+            case 'p2down':
+                localStorage.setItem('pong2down', val);
+                controls.p2.down = val;
+                break;
+            default:
+                alert('Something went wrong :/');
+        }
+        elem.value = val;
+        return false;
+    }
+    // Reset all controls and delete localStorage info
+    function resetcont() {
+        let issure = confirm('Reset all controls?');
+        if (issure) {
+            controls = {
+                p1: {
+                    up: 'ArrowUp',
+                    down: 'ArrowDown'
+                },
+                p2: {
+                    up: 'w',
+                    down: 's'
+                }
+            }
+            localStorage.removeItem('pong1up');
+            localStorage.removeItem('pong1down');
+            localStorage.removeItem('pong2up');
+            localStorage.removeItem('pong2down');
+            closepop();
+        }
+    }
+    // Return a random keyboard key (used for randomizing controls)
+    function randokey() {
+        let id = Math.floor(Math.random() * 57);
+        let key;
+        switch(id) {
+            case 0:
+                return '`';
+            case 1:
+                return 1;
+            case 2:
+                return 2;
+            case 3:
+                return 3;
+            case 4:
+                return 4;
+            case 5:
+                return 5;
+            case 6:
+                return 6;
+            case 7:
+                return 7;
+            case 8:
+                return 8;
+            case 9:
+                return 9;
+            case 10:
+                return 0;
+            case 11:
+                return '-';
+            case 12:
+                return '=';
+            case 13:
+                return 'Backspace';
+            case 14:
+                return 'Tab';
+            case 15:
+                return 'q';
+            case 16:
+                return 'w';
+            case 17:
+                return 'e';
+            case 18:
+                return 'r';
+            case 19:
+                return 't';
+            case 20:
+                return 'y';
+            case 21:
+                return 'u';
+            case 22:
+                return 'i';
+            case 23:
+                return 'o';
+            case 24:
+                return 'p';
+            case 25:
+                return '[';
+            case 26:
+                return ']';
+            case 27:
+                return '\\';
+            case 28:
+                return 'a';
+            case 29:
+                return 's';
+            case 30:
+                return 'd';
+            case 31:
+                return 'f';
+            case 32:
+                return 'g';
+            case 33:
+                return 'h';
+            case 34:
+                return 'j';
+            case 35:
+                return 'k';
+            case 36:
+                return 'l';
+            case 37:
+                return ';';
+            case 38:
+                return '\'';
+            case 39:
+                return 'Enter';
+            case 40:
+                return 'Shift';
+            case 41:
+                return 'z';
+            case 42:
+                return 'x';
+            case 43:
+                return 'c';
+            case 44:
+                return 'v';
+            case 45:
+                return 'b';
+            case 46:
+                return 'n';
+            case 47:
+                return 'm';
+            case 48:
+                return ',';
+            case 49:
+                return '.';
+            case 50:
+                return '/';
+            case 51:
+                return 'Control';
+            case 52:
+                return 'Space';
+            case 53:
+                return 'ArrowUp';
+            case 54:
+                return 'ArrowDown';
+            case 55:
+                return 'ArrowLeft';
+            case 56:
+                return 'ArrowRight';
+            case 57:
+                return 'Alt';
+            default:
+                return 'ArrowUp';
+        }
+        return key;
+    }
+    // Randomize controls
+    function randocont() {
+        controls = {
+            p1: {
+                up: randokey(),
+                down: randokey()
+            },
+            p2: {
+                up: randokey(),
+                down: randokey()
+            }
+        }
+        localStorage.setItem('pong1up', controls.p1.up);
+        localStorage.setItem('pong1down', controls.p1.down);
+        localStorage.setItem('pong2up', controls.p2.up);
+        localStorage.setItem('pong2down', controls.p2.down);
+        closepop();
+        editcont();
+    }
+    // Open the edit controls popup
+	function editcont() {
+		popup(
+			'<button onclick="closepop()" style="float:left;">X Close</button>' +
+			'<br>' +
+			'<h1>Controls</h1>' +
+			'Click a textbox and press the key you want that movement to be mapped to' +
+			'<h3>Player 1</h3>' +
+			'Up: <input type="text" id="p1up" onkeydown="return setcont(this,event.key)" value="' + controls.p1.up + '"><br><br>' +
+			'Down: <input type="text" id="p1down" onkeydown="return setcont(this,event.key)" value="' + controls.p1.down + '"><br>' +
+			'<h3>Player 2</h3>' +
+			'Up: <input type="text" id="p2up" onkeydown="return setcont(this,event.key)" value="' + controls.p2.up + '"><br><br>' +
+			'Down: <input type="text" id="p2down" onkeydown="return setcont(this,event.key)" value="' + controls.p2.down + '"><br>' +
+			'<br>' +
+			'<button onclick="resetcont()">Reset Controls</button>' +
+			'<br>' +
+			'<button onclick="randocont()">Randomize Controls :)</button>' +
+			'<br><br>' +
+			'<i>Controls are saved to local storage</i>'
+		);
+	}
+        </script>
+</head>
+    <body>
+        <a href="mainpage.html">Back</a>
+        <h1>Penguin Pong</h1>
+        <center>
+            <div id="content">
+                Loading game...
+                <br>
+                <progress value=0 max=100 id="progbar"></progress>
+            </div>
+            <small>This game uses local storage</small>
+        </center>
+    </body>
+</html>
