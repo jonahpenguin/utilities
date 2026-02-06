@@ -1,0 +1,497 @@
+<html>
+    <head>
+        <title>Block Dodger ~ Penguin Gamez</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script src="load.js"></script>
+        <style>
+            body {
+                z-index: 1;
+            }
+            .block {
+                background-color: red;
+                border: 3px dotted orange;
+                position: fixed;
+                width: 10%;
+                height: 10%;
+                z-index: 2;
+            }
+            .coin {
+                position: fixed;
+                width: 10%;
+                height: 10%;
+                z-index: 1;
+            }
+            #player {
+                z-index: 2;
+            }
+            #leveldisp {
+                position: fixed;
+                top: 0;
+                left: 0;
+                background-color: blue;
+                border-bottom: 3px dashed cyan;
+                border-right: 3px dashed cyan;
+                z-index: 4;
+            }
+            #pause {
+                position: fixed;
+                top: 10%;
+                left: 10%;
+                width: 80%;
+                height: 80%;
+                border: 3px dashed cyan;
+                background-color: blue;
+                z-index: 4;
+            }
+            #semi {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 3;
+                background-color: black;
+                opacity: 0.5;
+            }
+            #lifecount {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                background-color: blue;
+                border-top: 3px dashed cyan;
+                border-right: 3px dashed cyan;
+                z-index: 4;
+            }
+            #coincount {
+                position: fixed;
+                right: 0;
+                bottom: 0;
+                background-color: blue;
+                border-top: 3px dashed cyan;
+                border-left: 3px dashed cyan;
+                z-index: 4;
+            }
+        </style>
+        <script>
+            let controls = 1;
+            let fallint = [];
+            let blocks = [];
+            let coinobjects = [];
+            let upint;
+            let ispaused = false;
+            let timer;
+            let isstarted = false;
+            let timecount = 0;
+            let hitpoints = [];
+            let coinpoints = [];
+            let lastlevel = 1;
+            let blockdodged = -9;
+            let coins = 0;
+            let mousetimer;
+            let lifes = 1;
+            let player = {
+                x: 0,
+                y: 0
+            }
+function damageflash(x,y) {
+    if (!document.getElementById('redDiv')) {
+        let reddiv = document.createElement('div');
+        reddiv.style.zIndex = 2.5;
+        reddiv.style.backgroundColor = 'red';
+        reddiv.style.position = 'fixed';
+        reddiv.style.left = 0;
+        reddiv.style.top = 0;
+        reddiv.style.width = '100%';
+        reddiv.style.height = '100%';
+        reddiv.style.opacity = 0.1;
+        reddiv.setAttribute('id', 'redDiv');
+        document.body.appendChild(reddiv);
+        let rd = document.getElementById('redDiv');
+        let i = 0.1;
+        let nextflash;
+        let flashint = setInterval(() => {
+            if (i < 0.5) {
+                i = i + 0.1;
+                rd.style.opacity = i;
+            } else {
+                nextflash = setInterval(() => {
+                    if (i > -1) {
+                        i = i - 0.1;
+                        rd.style.opacity = i;
+                    } else {
+                        document.getElementById('redDiv').outerHTML = '';
+                        clearInterval(nextflash);
+                    }
+                }, 30);
+                clearInterval(flashint);
+            }
+        }, 30);
+    }
+}
+            function checkcap(box) {
+                if (box.value > 999) {
+                    box.value = 999;
+                }
+            }
+            function loadgame() {
+                document.getElementById('body').innerHTML = 
+                    '<a href="https://more-penguin-gamez-8742575.codehs.me/mainpage.html">Back</a>' +
+                    '<h1>Block Dodger</h1>' +
+                    '<center>' +
+                        '<div id="content"></div>' +
+                        '<button onmouseup="opencont()" hidden>Edit Controls</button>' +
+                    '</center>';
+                document.getElementById('content').innerHTML = '<br><br><br><br><button onmouseup="start()" style="font-size: 48px;">Start!</button><br><br>' +
+                    'Start on level:' +
+                    '<input type="number" value=' + lastlevel + ' id="startlevel" onchange="checkcap(this)" placeholder="Level #">' +
+                    '<br><br>' +
+                    '<details>' +
+                        '<summary style="cursor: hand;">How to play</summary>' +
+                        '<p>' +
+                            'This game is very simple: Avoid the falling blocks for as long as possible. Good luck!' +
+                        '</p>' +
+                    '</details>';
+            }
+            let lastisdone = true;
+            function blockdrop() {
+                if (!ispaused && lastisdone) {
+                lastisdone = false;
+                let nbid = 'b' + blocks.length;
+                let bx = Math.floor(Math.random() * 10) * 10;
+                let i = 0;
+                while(i<blocks.length) {
+                    blocks[i].blocky = blocks[i].blocky + 10;
+                    document.getElementById(blocks[i].blockid).style = 'top: ' + blocks[i].blocky + '%; left: ' + blocks[i].blockx + '%;';
+                    if (blocks[i].blocky == 90) {
+                        hitpoints[i] = blocks[i].blockx;
+                    } else {
+                        hitpoints[i] = null;
+                    }
+                    i++;
+                }
+                let newblock = document.createElement('div');
+                newblock.setAttribute('class', 'block');
+                newblock.setAttribute('id', 'b' + blocks.length);
+                newblock.style = 'top: 0%; left: ' + bx + '%;';
+                document.body.appendChild(newblock);
+                blocks.push(
+                    {
+                        blockid: nbid,
+                        blocky: 0,
+                        blockx: bx
+                    }
+                );
+                i = 0;
+                while(i<coinobjects.length) {
+                    coinobjects[i].cy = coinobjects[i].cy + 10;
+                    document.getElementById(coinobjects[i].cid).style = 'top: ' + coinobjects[i].cy + '%; left: ' + (coinobjects[i].cx - 5) + '%;';
+                    if (coinobjects[i].cy == 90) {
+                        coinpoints[i] = coinobjects[i].cx;
+                    } else {
+                        coinpoints[i] = null;
+                    }
+                    i++;
+                }
+                let ncid = 'c' + coinobjects.length;
+                let cx = (Math.floor(Math.random() * 10) * 10);
+                let dropcoin = Math.floor(Math.random() * 2);
+                if (dropcoin == 1) {
+                    let newcoin = document.createElement('div');
+                    newcoin.setAttribute('class', 'coin');
+                    newcoin.setAttribute('id', 'c' + coinobjects.length);
+                    newcoin.style = 'top: 0%; left: ' + (parseInt(cx) - 5) + '%;';
+                    newcoin.innerHTML = '<img class="coin" src="https://www.pngall.com/wp-content/uploads/5/Plain-Game-Gold-Coin-PNG-File.png">';
+                    document.body.appendChild(newcoin);
+                    coinobjects.push(
+                        {
+                            cid: ncid,
+                            cy: 0,
+                            cx: cx
+                        }
+                    );
+                }
+                checkcol();
+                blockdodged++;
+                lastisdone = true;
+                }
+            }
+            function findcoin(coin) {
+                if (coin.cy == 90 && coin.cx == player.x) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            function filterfunc(obj) {
+                return obj.x === player.x;
+            }
+            function checkcol() {
+                if (hitpoints.includes(player.x)) {
+                    damageflash();
+                    lifes--;
+                    document.getElementById('lifecount').innerText = 'Lives: ' + lifes;
+                    if (lifes == 0) {
+                        endgame();
+                    }
+                }
+                if (coinpoints.includes(player.x)) {
+                    coinpoints[coinpoints.indexOf(player.x)] = null;
+                    //let colcoin = coinpoints.filter(filterfunc);
+                    //document.getElementById(colcoin[0].cid).innerHTML = '';
+                    coins++;
+                    document.getElementById('coincount').innerHTML = 'Coins: ' + coins + ' <button onmouseup="buylife(this)"><u>B</u>uy life (5 coins)</button>';
+                }
+            }
+            function levelup() {
+                if (!ispaused) {
+                    fallint.push(setInterval(blockdrop, parseInt('1' + Math.floor(Math.random() * 10) + '00')));
+                    document.getElementById('leveldisp').innerText = 'Level ' + fallint.length;
+                }
+            }
+            function endgame() {
+                ispaused = false;
+                hitpoints = [];
+                lifes = 1;
+                player.x = 0;
+                coins = 0;
+                document.getElementById('semi').style = 'display: none';
+                document.getElementById('pause').style = 'display: none';
+                let levelno = fallint.length;
+                clearInterval(upint);
+                clearInterval(timer);
+                while(fallint.length>0) {
+                    clearInterval(fallint[0])
+                    fallint.shift();
+                }
+                while(blocks.length>0) {
+                    document.getElementById(blocks[0].blockid).outerHTML = '';
+                    blocks.shift();
+                }
+                while(coinobjects.length>0) {
+                    document.getElementById(coinobjects[0].cid).outerHTML = '';
+                    coinobjects.shift();
+                }
+                isstarted = false;
+                if (blockdodged < 0) {
+                    blockdodged = 0;
+                }
+                document.getElementById('body').innerHTML =
+                    '<h1 style="color: red;">Game over...</h1>' +
+                    'You lasted ' + timecount + ' seconds (~' + Math.round(timecount/60) + ' minutes), and got to level ' + levelno + '. You dodged ' + blockdodged + ' blocks.' +
+                    '<br><br>' +
+                    '<button id="ngb" style="font-size: 24px;" onmouseup="start()">New game!</button><br>' +
+                    'Start on level:' +
+                    '<input type="number" value=' + lastlevel + ' id="startlevel" onchange="checkcap(this)" placeholder="Level #">' +
+                    '<br><br>' +
+                    '<button id="bb" onmouseup="loadgame()">Back to startup screen</button>' +
+                    '<br><br>' +
+                    '<button onmouseup="opencont()" hidden>Edit Controls</button>';
+                if ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                    document.getElementById('ngb').style.fontSize = '48px';
+                    document.getElementById('bb').style.fontSize = '38px';
+                }
+            }
+            function pause() {
+                document.getElementById('semi').style.display = '';
+                document.getElementById('pause').style.display = '';
+                ispaused = true;
+            }
+            function resume() {
+                document.getElementById('semi').style.display = 'none';
+                document.getElementById('pause').style.display = 'none';
+                ispaused = false;
+            }
+            function start() {
+                blockdodged = -9;
+                lastlevel = document.getElementById('startlevel').value;
+                isstarted = true;
+                let i = 0;
+                while(i<parseInt(document.getElementById('startlevel').value)) {
+                    fallint.push(setInterval(blockdrop, parseInt('1' + i + '00')));
+                    i++;
+                }
+                upint = setInterval(levelup, 30100);
+                timecount = 0;
+                hitpoints = [];
+                lifes = 1;
+                timer = setInterval(() => {if(!ispaused){timecount++}}, 1000);
+                mousetimer = setTimeout(() => {
+                    if (isstarted) {
+                        document.body.style.cursor = 'none';
+                    }
+                }, 5000);
+                let mobilehtml = '';
+                if ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                    document.body.style.fontSize = '24px';
+                    mobilehtml =
+                        '<button onmouseup="left()" style="position:fixed;bottom:10%;left:1%;width:15%;height:15%;background-color:grey;opacity:0.6;z-index:3;">🡄</button>' +
+                        '<button onmouseup="right()" style="position:fixed;bottom:10%;right:1%;width:15%;height:15%;background-color:grey;opacity:0.6;z-index:3;">🡆</button>';
+                }
+                body.innerHTML =
+                    mobilehtml +
+                    '<span id="leveldisp">Level ' + fallint.length + '</span>' +
+                    '<div id="semi" style="display: none;"></div>' +
+                    '<div id="pause" style="display: none;">' +
+                        '<h1>Paused</h1>' +
+                        '<button id="resumeb" onmouseup="resume()"><u>R</u>esume</button>' +
+                        '<br><br>' +
+                        '<button id="exitb" onmouseup="exit()">End game</button>' +
+                    '</div>' +
+                    '<button style="position: fixed; top: 0; right: 0; z-index: 3;" id="pausebutton" onmouseup="pause()"><u>P</u>ause</button>' +
+                    '<div id="coincount">Coins: 0 <button id="lifebutton" onmouseup="buylife(this)"><u>B</u>uy life (5 coins)</button></div>' +
+                    '<div id="lifecount">Lives: 1</div>' +
+                    '<div id="player"></div>';
+                if ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                    document.getElementById('lifebutton').style.fontSize = '24px';
+                    document.getElementById('pausebutton').style.fontSize = '24px';
+                    document.getElementById('resumeb').style.fontSize = '24px';
+                    document.getElementById('exitb').style.fontSize = '20px';
+                }
+            }
+            function buylife(elem) {
+                if (coins >= 5) {
+                    coins = coins - 5;
+                    lifes++;
+                    document.getElementById('lifecount').innerText = 'Lives: ' + lifes;
+                    document.getElementById('coincount').innerHTML = 'Coins: ' + coins + ' <button id="lifebutton" onmouseup="buylife(this)"><u>B</u>uy life (5 coins)</button>';
+                    if ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                        document.getElementById('lifebutton').style.fontSize = '24px';
+                    }
+                    if (elem != undefined) {
+                        elem.innerText = 'Life bought!';
+                    }
+                } else {
+                    if (elem != undefined) {
+                        elem.innerText = 'Not enough coins!';
+                    }
+                }
+                setTimeout(() => {elem.innerHTML = '<u>B</u>uy life (5 coins)';}, 1000);
+            }
+            function exit() {
+                let issure = confirm('End game early?');
+                if (issure) {
+                    ispaused = false;
+                    endgame();
+                }
+            }
+            window.addEventListener('mousemove', () => {
+                document.body.style.cursor = '';
+                clearTimeout(mousetimer);
+                mousetimer = setTimeout(() => {
+                    document.body.style.cursor = 'none';
+                }, 5000);
+            }, false);
+            function left() {
+                            if (player.x > 0) {
+                                player.x = player.x - 10;
+                            }
+                            document.getElementById('player').style = 'left: ' + player.x + '%;';
+            }
+            function right() {
+                            if (player.x <= 80) {
+                                player.x = player.x + 10;
+                            }
+                            document.getElementById('player').style = 'left: ' + player.x + '%;';
+            }
+            window.addEventListener('keydown', (event) => {
+                if (event.key == 'r') {
+                    resume();
+                }
+                if (isstarted && !ispaused) {
+                    checkcol();
+                    switch(event.key) {
+                        case 'ArrowLeft':
+                        case 'a':
+                        case 'Control':
+                            left();
+                            break;
+                        case 'ArrowRight':
+                        case 'd':
+                        case 'Alt':
+                            right();
+                            break;
+                        case 'p':
+                            pause();
+                            break;
+                        case 'b':
+                            buylife();
+                            break;
+                    }
+                    checkcol();
+                }
+            }, false);
+            function opencont() {
+                let win = document.createElement('div');
+                win.style.position = 'fixed';
+                win.style.top = '10%';
+                win.style.left = '10%';
+                win.style.width = '80%';
+                win.style.height = '80%';
+                win.style.backgroundColor = 'blue';
+                win.style.border = '3px dashed cyan';
+                win.style.zIndex = '5';
+                win.setAttribute('id', 'contwin');
+                win.innerHTML =
+                    '<button onmouseup="closecont()" style="float:left;">X Close</button>' +
+                    '<br>' +
+                    '<h1>Controls</h1>' +
+                    '';
+                let semi = document.createElement('div');
+                semi.style.position = 'fixed';
+                semi.style.top = '0';
+                semi.style.left = '0';
+                semi.style.width = '100%';
+                semi.style.height = '100%';
+                semi.style.backgroundColor = 'black';
+                semi.style.opacity = '0.5';
+                semi.style.zIndex = '4';
+                semi.setAttribute('id', 'semi');
+                document.body.appendChild(semi);
+                document.body.appendChild(win);
+            }
+            function closecont() {
+                document.getElementById('semi').outerHTML = '';
+                document.getElementById('contwin').outerHTML = '';
+            }
+        </script>
+        <style>
+            .preload {
+                position: absolute;
+                top: -105px;
+                left: -105px;
+                width: 100px;
+                height: 100px;
+            }
+        </style>
+    </head>
+    <body>
+        <img class="preload" src="https://www.pngall.com/wp-content/uploads/5/Plain-Game-Gold-Coin-PNG-File.png">
+        <span id="body">
+        <a href="https://more-penguin-gamez-8742575.codehs.me/mainpage.html">Back</a>
+        <h1>Block Dodger</h1>
+        <center>
+            <div id="content">
+                Loading game...
+                <br>
+                <progress max="100" value="0"></progress>
+            </div>
+            <button onmouseup="opencont()" hidden>Edit Controls</button>
+        </center>
+        </span>
+    </body>
+    <style>
+        div#player {
+            width: 10%;
+            height: 10%;
+            position: fixed;
+            bottom: 0%;
+            left: 0%;
+            background-color: blue;
+            border: 3px dashed cyan;
+        }
+    </style>
+    <script>
+        const content = document.getElementById('content');
+        const body = document.getElementById('body');
+    </script>
+</html>
