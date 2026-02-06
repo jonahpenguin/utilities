@@ -1,0 +1,782 @@
+<html>
+    <head>
+        <title>Try your luck!</title>
+        <link rel="stylesheet" href="Style1.css">
+        <style>
+            /*
+                z-index
+                Main: 1
+                
+                Semi: 10
+                Popups: 11
+                Screen: 12
+                
+                Top: 15
+            */
+            img {
+                border:none;
+                box-shadow:none;
+            }
+            img:hover {
+                box-shadow:none;
+            }
+            body {
+                background-image: url('curtainbg.png');
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-color:black;
+                color:orange;
+                font-family:Garamond;
+                z-index:1;
+            }
+            button {
+                background-color:red;
+                color:black;
+                text-decoration:bold;
+                border:3px outset orange;
+                font-family:Garamond;
+                font-size:24px;
+            }
+            button:hover {
+                background-color:black;
+                color:red;
+                text-decoration:bold;
+                border:3px outset orange;
+                font-family:Garamond;
+            }
+            button:focus {
+                background-color:black;
+                color:red;
+                text-decoration:bold;
+                border:3px outset orange;
+                font-family:Garamond;
+            }
+            a {
+                color:orange;
+            }
+            a:hover {
+                color:black;
+                background-color:orange;
+            }
+            a:focus {
+                color:black;
+                background-color:orange;
+            }
+            div#content {
+                background-color: transparent;
+                border:none;
+                text-align:center;
+            }
+            #screen {
+                position:fixed;
+                top:0;
+                left:0;
+                width:100%;
+                height:100%;
+                z-index:12;
+                background-color:black;
+            }
+            .nolight {
+                color:orange;
+                background-color:black;
+            }
+            .nolight:hover {
+                color:orange;
+                background-color:black;
+            }
+            .nolight:focus {
+                color:orange;
+                background-color:black;
+            }
+            .preload {
+                position:fixed;
+                top:150%;
+                left:150%;
+            }
+            #semi {
+                z-index: 10;
+                background-color:black;
+                opacity:0.5;
+                width:100%;
+                height:100%;
+                position:fixed;
+                top:0;
+                left:0;
+            }
+            #popup {
+                z-index: 11;
+                background-color:black;
+                border:3px dashed red;
+                color:orange;
+                position:fixed;
+                top:10%;
+                left:10%;
+                width:80%;
+                height:80%;
+            }
+            .slot {
+                font-size:48px;
+                cursor:hand;
+            }
+            input {
+                outline: 1px solid orange;
+                border: 1px solid orange;
+                background-color: black;
+                font-family: Garamond;
+                color: orange;
+            }
+            input:focus {
+                outline: 3px dashed orange;
+            }
+        </style>
+        <!-- General functions -->
+        <script>
+            // Noah's ID: 1903
+            let usefade = true;
+            let so = 1;
+            let fadeint;
+            let moneys = 250;
+            let timeval = 0;
+            let dateobj = new Date();
+            if (!localStorage.getItem('id')) {
+                localStorage.setItem('id', Math.floor(Math.random()*10000));
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('timeval')) {
+                    timeval = parseInt(localStorage.getItem('timeval'));
+                    if (timeval > 3600) {
+                        timeup();
+                    }
+                }
+                if (dateobj.getDate() != localStorage.getItem('day') || true) {
+                    timeval = 0;
+                    mtimer = setInterval(() => {
+                        timeval++;
+                        localStorage.setItem('timeval', timeval);
+                        if (timeval > 3600) {
+                            timeup();
+                        }
+                    }, 1000);
+                    header.innerText = 'Try your luck!';
+                    content.innerHTML = '<button onclick="modelist()" style="font-size:30px;">Let\'s go!</button><br><br><button onclick="togglefade()" id="fadebutton">Turn off fade</button>';
+                }
+                localStorage.setItem('day', dateobj.getDate());
+            }, false);
+            let mtimer = setInterval(() => {
+                timeval++;
+                localStorage.setItem('timeval', timeval);
+                if (timeval > 3600) {
+                    timeup();
+                }
+            }, 1000);
+            window.addEventListener('blur', () => {
+                clearInterval(mtimer);
+            }, false);
+            window.addEventListener('focus', () => {
+                mtimer = setInterval(() => {
+                    timeval++;
+                    localStorage.setItem('timeval', timeval);
+                    if (timeval > 3600) {
+                        timeup();
+                    }
+                }, 1000);
+            }, false);
+            function timeup() {
+                clearInterval(mtimer);
+                localStorage.setItem('time', 3601);
+                header.innerHTML = 'Time\'s up!';
+                content.innerHTML =
+                    'You have reached the maximum time for today. Come back tomorrow to play more!';
+            }
+            function loadgame() {
+                fadein();
+                setTimeout(() => {
+                    header.innerText = 'Try your luck!';
+                    content.innerHTML = '<button onclick="modelist()" style="font-size:30px;">Let\'s go!</button><br><br><button onclick="togglefade()" id="fadeb">Turn off fade</button>';
+                    fadeout();
+                }, 1000);
+            }
+            function modelist() {
+                header.innerHTML = 'Choose a mode<br><span style="font-size:14px;">Hover over a mode to learn more</span>';
+                content.innerHTML =
+                    '<button onclick="loadgame()" style="position:fixed;top:0;left:0;">Back</button>' +
+                    '<button onclick="loadclassic()" title="Make your bet, choose from three chests, and win big!">Classic</button> ' +
+                    '<button onclick="loadslots()" title="Click on the columns, match all three, and get coins!">Slots</button> ' +
+                    '<button onclick="loadbj()" title="Bet coins, run the risks, and double your cash!">Blackjack</button>';
+            }
+            function updatemon() {
+                document.getElementById('mdisp').innerText = moneys;
+                localStorage.setItem('moneys', moneys);
+            }
+            function popup(html) {
+                semi.style.display = '';
+                document.getElementById('popup').style.display = '';
+                document.getElementById('popup').innerHTML = html;
+            }
+            function closepop() {
+                semi.style.display = 'none';
+                document.getElementById('popup').style.display = 'none';
+            }
+            function fadein() {
+                if (usefade) {
+                    document.getElementById('screen').style.display = '';
+                    fadeint = setInterval(() => {
+                        so = so + 0.1;
+                        document.getElementById('screen').style.opacity = so;
+                        if (so > 0.9) {
+                            clearInterval(fadeint);
+                        }
+                    }, 100);
+                }
+            }
+            function fadeout() {
+                if (usefade) {
+                    fadeint = setInterval(() => {
+                        so = so - 0.1;
+                        document.getElementById('screen').style.opacity = so;
+                        if (so < 0.1) {
+                        document.getElementById('screen').style.display = 'none';
+                            clearInterval(fadeint);
+                        }
+                    }, 100);
+                } else {
+                    document.getElementById('screen').style.display = 'none';
+                }
+            }
+            function checkmon() {
+                if (moneys < 0) {
+                    moneys = 0;
+                    updatemon();
+                    closepop();
+                    moneys = -1;
+                    localStorage.setItem('moneys', moneys);
+                    popup(
+                        '<br>' +
+                        '<h1>Oops...</h1>' +
+                        'You went bankrupt...' +
+                        '<br><br>' +
+                        'You will be restored to 250 coins in <span id="moncount">30</span> second(s)'
+                    );
+                    let timercount = 30;
+                    setInterval(() => {
+                        timercount--;
+                        document.getElementById('moncount').innerText = timercount;
+                        if (timercount == 0) {
+                            closepop();
+                            loadgame();
+                            moneys = 250;
+                            updatemon();
+                        }
+                    }, 1000);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            setInterval(() => {
+                localStorage.setItem('moneys', moneys);
+            }, 10000);
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('moneys')) {
+                    moneys = parseInt(localStorage.getItem('moneys'));
+                    if (moneys == -1) {
+                        resetcoins();
+                    }
+                    updatemon();
+                }
+                fadeout();
+            }, false);
+            function resetcoins() {
+                if (moneys <= 0) {
+                    document.getElementById('rcbutton').style.display = 'none';
+                    moneys = 0;
+                    updatemon();
+                    closepop();
+                    moneys = -1;
+                    localStorage.setItem('moneys', moneys);
+                    popup(
+                        '<br>' +
+                        '<h1>Out of coins</h1>' +
+                        'You will be restored to 250 coins in <span id="moncount">59</span> second(s)'
+                    );
+                    let timercount = 59;
+                    setInterval(() => {
+                        timercount--;
+                        document.getElementById('moncount').innerText = timercount;
+                        if (timercount == 0) {
+                            document.getElementById('rcbutton').style.display = '';
+                            closepop();
+                            loadgame();
+                            moneys = 250;
+                            updatemon();
+                        }
+                    }, 1000);
+                } else {
+                    if (semi.style.display != 'none') {
+                        loadgame();
+                        closepop();
+                    }
+                    popup(
+                        '<br>' +
+                        '<h1>You cannot reset your coins unless you have 0 or less</h1>' +
+                        '<button onclick="closepop()">Okay</button>'
+                    );
+                }
+            }
+        </script>
+        <!-- Classic functions -->
+        <script>
+            function loadclassic() {
+                fadein();
+                setTimeout(() => {
+                    closepop();
+                    fadeout();
+                    header.innerText = 'Place your bet!';
+                    content.innerHTML =
+                        '<button onclick="modelist()" style="position:fixed;top:0;left:0;">Back</button>' +
+                        '<button onclick="cl(10)">10</button> ' +
+                        '<button onclick="cl(50)">50</button> ' +
+                        '<button onclick="cl(100)">100</button>';
+                }, 1000);
+            }
+            function cl(bet) {
+                let oldmon = parseInt(moneys);
+                moneys = moneys - parseInt(bet);
+                let isbank;
+                if (moneys < 0) {
+                    moneys = parseInt(oldmon);
+                    popup(
+                        '<br>' +
+                        '<h1>Oops...</h1>' +
+                        'You don\'t have enough coins!<br><br>' +
+                        '<button onclick="closepop()">Okay</button>'
+                    );
+                } else {
+                    updatemon();
+                    if (!isbank) {
+                        header.innerText = 'Choose a chest!';
+                        content.innerHTML =
+                            '<a class="nolight" href="#" onclick="clroll(' + bet + ')"><img src="chest.png"></a> ' +
+                            '<a class="nolight" href="#" onclick="clroll(' + bet + ')"><img src="chest.png"></a> ' +
+                            '<a class="nolight" href="#" onclick="clroll(' + bet + ')"><img src="chest.png"></a> ';
+                    }
+                }
+            }
+            function clroll(bet) {
+                let rollid = Math.random() * 10;
+                let chestcheck = Math.floor(Math.random() * 3);
+                let tone;
+                let gained;
+                if (chestcheck == 1) {
+                    tone = '!';
+                    gained = Math.floor(rollid*bet);
+                    moneys = moneys + Math.floor(rollid*bet);
+                } else {
+                    tone = '...';
+                    gained = Math.floor(rollid);
+                    moneys = moneys + Math.floor(rollid);
+                }
+                updatemon();
+                popup(
+                    '<br>' +
+                    '<h1>You got ' + gained + ' coins' + tone + '</h1>' +
+                    '<button onclick="loadclassic();">Play again!</button>' +
+                    '<br><br>' +
+                    '<button onclick="fadein(); setTimeout(() => {modelist();closepop();fadeout();}, 1000);">Play another game</button>'
+                );
+            }
+        </script>
+        <!-- Slots functions -->
+        <script>
+            let slots = {
+                ints: [],
+                vals: [null,0,0,0],
+                intcount: 0
+            }
+            function loadslots() {
+                fadein();
+                setTimeout(() => {
+                    closepop();
+                    header.innerText = 'Slots';
+                    content.innerHTML =
+                        '<button onclick="sl()">Pay 50 coins and start game!</button>' +
+                        '<button onclick="modelist()" style="position:fixed;top:0;left:0;">Back</button>';
+                    fadeout();
+                    if (localStorage.getItem('id') == 1903) {
+                        document.getElementById('screen').style.display = 'none';
+                    }
+                }, 1000);
+            }
+            function sl() {
+                let oldmon = parseInt(moneys);
+                moneys = moneys - 50;
+                if (moneys < 0) {
+                    popup(
+                        '<br>' +
+                        '<h1>Oops...</h1>' +
+                        'You don\'t have enough coins...' +
+                        '<br><br>' +
+                        '<button onclick="closepop()">Okay</button>'
+                    );
+                    moneys = parseInt(oldmon);
+                } else {
+                    let isbank = checkmon();
+                    updatemon();
+                    if (!isbank) {
+                        header.innerText = 'Click a column to stop it';
+                        content.innerHTML =
+                            '<span class="slot" onclick="stopsl(1)" id="s1">🪙</span>' +
+                            '<span class="slot" onclick="stopsl(2)" id="s2">🪙</span>' +
+                            '<span class="slot" onclick="stopsl(3)" id="s3">🪙</span>';
+                        slots.ints[1] = setInterval(() => {changeslot(1)}, 100);
+                        slots.ints[2] = setInterval(() => {changeslot(2)}, 100);
+                        slots.ints[3] = setInterval(() => {changeslot(3)}, 100);
+                        slots.intcount = 3;
+                    }
+                }
+            }
+            function stopsl(id) {
+                if (slots.ints[id] != 'sus') {
+                    clearInterval(slots.ints[id]);
+                    slots.ints[id] = 'sus';
+                    if (slots.intcount != 0) {
+                        slots.intcount--;
+                        if (slots.intcount == 0) {
+                            setTimeout(() => {endsl();}, 1000);
+                        }
+                    }
+                }
+            }
+            function endsl() {
+                let gained;
+                let tone;
+                if (slots.vals[1] == slots.vals[2] && slots.vals[2] == slots.vals[3] && slots.vals[3] == slots.vals[1]) {
+                    console.log(1)
+                    gained = Math.floor(Math.random() * 500) + 500;
+                    tone = '!';
+                } else if (slots.vals[1] != slots.vals[2] && slots.vals[2] != slots.vals[3] && slots.vals[3] != slots.vals[1]) {
+                    console.log(2)
+                    gained = Math.floor(Math.random() * 10);
+                    tone = '...';
+                } else if (slots.vals[1] == slots.vals[2] || slots.vals[2] == slots.vals[3] || slots.vals[1] == slots.vals[3]) {
+                    console.log(3)
+                    gained = Math.floor(Math.random() * 50);
+                }
+                if (gained == null || gained == undefined) {
+                    console.log(4)
+                    gained = 0;
+                }
+                if (slots.vals.includes(1) || slots.vals.includes(2) || slots.vals.includes(4)) {
+                    console.log(5)
+                    gained = gained + 5;
+                }
+                if (slots.vals.includes(3)) {
+                    console.log(6)
+                    gained = gained + 10;
+                }
+                moneys = moneys + gained;
+                updatemon();
+                if (tone == undefined || tone == null) {
+                    tone = '';
+                }
+                popup(
+                    '<br>' +
+                    '<h1>You got ' + gained + ' coins' + tone + '</h1>' +
+                    '<button onclick="loadslots();">Play again!</button>' +
+                    '<br><br>' +
+                    '<button onclick="fadein(); setTimeout(() => {modelist();closepop();fadeout();}, 1000);">Play another game</button>'
+                );
+            }
+            /*
+                coin: 1
+                dollar: 2
+                bag: 3
+                flying: 4
+            */
+            function changeslot(id) {
+                let elem = document.getElementById('s' + id);
+                let sstate = elem.innerText;
+                switch(sstate) {
+                    case '🪙':
+                        elem.innerText = '💵';
+                        slots.vals[id] = 2;
+                        break;
+                    case '💵':
+                        elem.innerText = '💰';
+                        slots.vals[id] = 3;
+                        break;
+                    case '💰':
+                        elem.innerText = '💸';
+                        slots.vals[id] = 4;
+                        break;
+                    default:
+                        elem.innerText = '🪙';
+                        slots.vals[id] = 1;
+                        break;
+                }
+            }
+        </script>
+        <!-- Blackjack functions -->
+        <script>
+            function loadbj() {
+                playerval = 0;
+                dealerval = 0;
+                fadein();
+                setTimeout(() => {
+                    closepop();
+                    fadeout();
+                    header.innerText = 'Blackjack';
+                    content.innerHTML =
+                        '<button onclick="modelist()" style="position:fixed;top:0;left:0;">Back</button>' +
+                        '<button onclick="bj()">Start game and place bet</button><br>' +
+                        '<span style="font-size:14px;">You will get double the coins back when you win!</span>' +
+                        '<br><br>' +
+                        'Bet: <input id="betin" onchange="checkbjbet(this)" type="number" placeholder="Type here..." value=50>' +
+                        '<br><br>' +
+                        '<button onclick="htpbj()">How to play</button>';
+                    if (moneys < 50) {
+                        document.getElementById('betin').value = moneys;
+                    }
+                }, 1000);
+            }
+            let betval;
+            let playerval = 0;
+            let dealerval = 0;
+            let bjprog = 1;
+            function checkbjbet(elem) {
+                if (elem.value > moneys) {
+                    elem.value = moneys;
+                }
+                if (elem.value < 0) {
+                    elem.value = 1;
+                }
+                elem.value = Math.trunc(elem.value);
+            }
+            function htpbj() {
+                popup(
+                    '<br>' +
+                    '<h1>How to play Blackjack</h1>' +
+                    '<p>' +
+                        'You will start by rolling (usually drawing a card), and then you can decide to "hit" or "stand." If you hit, you draw another card. However, if your rolls\' combined value ends up over 21, you loose. But you want to get as close as possible to 21 so when the "dealer" (computer in this case) rolls, your combined value is greater than the computer\'s. If the computer goes over 21 or is lower than your value, you win!<br>Good luck!' +
+                    '</p>' +
+                    '<br>' +
+                    '<button onclick="closepop()">Okay!</button>'
+                );
+            }
+            function rollcard() {
+                let val = Math.floor(Math.random() * 12) + 1;
+                return val;
+            }
+            function bj() {
+                betval = parseInt(document.getElementById('betin').value);
+                moneys = moneys - betval;
+                updatemon();
+                let isbank = checkmon();
+                if (!isbank) {
+                    closepop();
+                    content.innerHTML =
+                        '<span id="bj1"></span>' +
+                        '<span id="bj2"></span>' +
+                        '<span id="bj3"></span>' +
+                        '<span id="bj4"></span>' +
+                        '<span id="bj5"></span>' +
+                        '<span id="bj6"></span>' +
+                        '<span id="bj7"></span>' +
+                        '<span id="bj8"></span>' +
+                        '<span id="bj9"></span>' +
+                        '<span id="bj10"></span>' +
+                        '<span id="bj11"></span>' +
+                        '<span id="bj12"></span>' +
+                        '<span id="bj13"></span>' +
+                        '<span id="bj14"></span>' +
+                        '<span id="bj15"></span>' +
+                        '<span id="bj16"></span>' +
+                        '<span id="bj17"></span>' +
+                        '<span id="bj18"></span>' +
+                        '<span id="bj19"></span>' +
+                        '<span id="bj20"></span>' +
+                        '<span id="bj21"></span>' +
+                        '<br><br>' +
+                        '<span id="dvdisp"></span>';
+                    rollbj();
+                }
+            }
+            function dealbj() {
+                document.getElementById('nb').outerHTML = '';
+                bjprog = 1;
+                dvdisp.innerText =
+                    'Dealer\'s roll:';
+                let dr = [rollcard(), rollcard()];
+                dealerval = dr[0] + dr[1];
+                setTimeout(() => {
+                    dvdisp.innerHTML =
+                        'Dealer\'s roll: ' + dealerval;
+                    setTimeout(() => {
+                        if (playerval > dealerval || dealerval > 21) {
+                            moneys = moneys + (betval*2);
+                            updatemon();
+                            popup(
+                                '<br>' +
+                                '<h1>You won! You got ' + (betval*2) + ' coins</h1>' +
+                                '<button onclick="loadbj();">Play again!</button>' +
+                                '<br><br>' +
+                                '<button onclick="fadein(); setTimeout(() => {modelist();closepop();fadeout();}, 1000);">Play another game</button>'
+                            );
+                        } else {
+                            popup(
+                                '<br>' +
+                                '<h1>You lost...</h1>' +
+                                'The dealer rolled higher than you...<br><br>' +
+                                '<button onclick="loadbj();">Play again!</button>' +
+                                '<br><br>' +
+                                '<button onclick="fadein(); setTimeout(() => {modelist();closepop();fadeout();}, 1000);">Play another game</button>'
+                            );
+                        }
+                    }, 1000);
+                }, 1000);
+            }
+            function rollbj() {
+                let roll;
+                if (bjprog > 1) {
+                    document.getElementById('nb').outerHTML = '';
+                }
+                setTimeout(() => {
+                    document.getElementById('bj' + bjprog).innerText = 'Roll ' + bjprog + ':';
+                    setTimeout(() => {
+                        roll = rollcard();
+                        playerval = playerval + roll;
+                        document.getElementById('bj' + bjprog).innerHTML = 'Roll ' + bjprog + ': ' + roll + '<br>' + '<span id="nb"><button onclick="rollbj()">Hit</button> ~ <button onclick="dealbj()">Stand</button></span>';
+                        bjprog++;
+                        if (playerval > 21) {
+                            document.getElementById('nb').outerHTML = '';
+                            setTimeout(() => {
+                                bjprog = 1;
+                                popup(
+                                    '<h1>You lost...</h1>' +
+                                    'You went over 21 and therefore lost.' +
+                                    '<br><br>' +
+                                    '<button onclick="loadbj();">Play again!</button>' +
+                                    '<br><br>' +
+                                    '<button onclick="fadein(); setTimeout(() => {modelist();closepop();fadeout();}, 1000);">Play another game</button>'
+                                );
+                            }, 1000);
+                        }
+                        if (bjprog > 21) {
+                            dealbj();
+                        }
+                    }, 1000);
+                }, 500);
+            }
+        </script>
+        <!-- Dev -->
+        <script>
+            function dev() {
+                if (semi.style.display != 'none') {
+                    loadgame();
+                }
+                popup(
+                    '<button onclick="closepop()" style="float:left;">X Close</button>' +
+                    '<br>' +
+                    '<h1>Verification</h1>' +
+                    '<input id="devin" type="password" onkeypress="if(event.key==\'Enter\'){verif();}" placeholder="Password..."><br><small id="rs" style="color:red;"></small><br><br>' +
+                    '<button onclick="verif()">Continue</button>'
+                );
+                document.getElementById('popup').style.zIndex = 15;
+                location.href = '#devin';
+            }
+            function runfunc() {
+                let cmd = prompt('Enter a command');
+                if (cmd != '' && cmd != null && cmd != undefined) {
+                    eval(cmd);
+                }
+            }
+            function showvars() {
+                alert(
+                    'so=' + so + '\n' +
+                    'fadeint=' + fadeint + '\n' +
+                    'moneys=' + moneys + '\n' +
+                    'timeval=' + timeval + '\n' +
+                    'date=' + dateobj.getDate() + '\n' +
+                    'mtimer=' + mtimer + '\n' +
+                    'slots\n' +
+                    ' ints.length=' + slots.ints.length + '\n' +
+                    ' vals=' + slots.vals + '\n' +
+                    ' intcount=' + slots.intcount + '\n' +
+                    'bj\n' +
+                    ' betval=' + betval + '\n' +
+                    ' playerval=' + playerval + '\n' +
+                    ' dealerval=' + dealerval + '\n' +
+                    ' bjprog=' + bjprog + '\n'
+                );
+            }
+            function uniqueid(elem) {
+                if (elem.innerText != 'Get unique ID') {
+                    elem.innerText = 'Get unique ID';
+                } else {
+                    elem.innerText = localStorage.getItem('id');
+                }
+            }
+            function closedev() {
+                devspan.innerHTML =
+                    '<button onclick="dev()">Open Dev Toolbar</button>';
+            }
+            function fixscreen() {
+                screen.style.opacity = 0;
+                so = 0;
+                screen.style.display = 'none';
+            }
+            function verif() {
+                if (devin.value == atob('R0BtYmxpbmc=')) {
+                    document.getElementById('popup').style.zIndex = 11;
+                    closepop();
+                    devspan.innerHTML =
+                        '<button onclick="closedev()">Close Toolbar</button> ' +
+                        '<button onclick="showvars()">Show variables</button> ' +
+                        '<button onclick="runfunc()">Open Command Prompt</button> ' +
+                        '<button onclick="uniqueid(this)">Get unique ID</button> ' +
+                        '<button onclick="fixscreen()">Screen=dum</button> ';
+                } else {
+                    rs.innerText = 'Invalid password';
+                }
+            }
+            function togglefade() {
+                if (usefade) {
+                    localStorage.setItem('nofade', true);
+                    usefade = false;
+                    document.getElementById('fadebutton').innerText = 'Turn on fade';
+                    popup('<br><h1>Note</h1>Disabling fade may result in some transitions taking a moment.<br><br>Fade disabled.<br><br><button onclick="closepop()">Okay</button>');
+                } else {
+                    localStorage.removeItem('nofade');
+                    usefade = true;
+                    document.getElementById('fadebutton').innerText = 'Turn off fade';
+                }
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('nofade')) {
+                    togglefade();
+                }
+            }, false)
+        </script>
+    </head>
+    <body>
+        <div id="popup" style="display:none;"></div>
+        <div id="semi" style="display:none;"></div>
+        <img src="chest.png" class="preload">
+        <span style="position:fixed;top:5px;right:20px;"><img src="pcoin.png" style="width:40px;height:40px;"> <b><span style="font-size:48px" id="mdisp">250</span></b></span>
+        <div id="screen" style="opacity:1;"></div>
+        <br>
+        <h1 id="header">Try your luck!</h1>
+        <br><br>
+        <center>
+            <div id="content">
+                <button onclick="modelist()" style="font-size:30px;">Let's go!</button>
+                <br><br>
+                <button onclick="togglefade()" id="fadebutton">Turn off fade</button>
+            </div>
+        </center>
+        <span id="devspan" style="position:fixed;bottom:0;right:0;z-index:99999999999;">
+            <button onclick="dev()">Open Dev Toolbar</button>
+        </span>
+        <button id="rcbutton" style="z-index:15;position:fixed;bottom:0;left:0;" onclick="resetcoins()">Out of coins?</button>
+    </body>
+</html>
