@@ -1,0 +1,1830 @@
+<html>
+    <head>
+        <title>Stupid Game ~ Penguin Gamez</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script src="load.js"></script>
+        <script src="sgdata.js"></script>
+        <script>
+/*
+
+Version 1.2.1
+Added function for loading player
+Added health display loadmovement()
+
+Heavily altered specifically for this game
+
+*/
+    function loadmovement() {
+        if (!document.getElementById('movementstyle')) {
+            let css = document.createElement('style');
+            css.innerHTML = 'body {    text-align: center;    z-index: 1;    background-color: darkblue;    color: yellow;    }div#playerdiv {    position: fixed;    top: 0;    left: 90%;    height: 10%;    width: 5%;    background-color: blue;    outline-offset:-3px;outline: 3px dashed cyan;    box-shadow: 3px 3px black;}.wall {    position: fixed;    background-color: lightblue;    vertical-align: center;    width: 5%;    height: 10%;}';
+            css.setAttribute('id', 'movementstyle');
+            document.head.appendChild(css);
+        }
+        let pdiv = document.createElement('div');
+        pdiv.setAttribute('id', 'playerdiv');
+        document.getElementById('body').appendChild(pdiv);
+        let xydisp = document.createElement('span');
+        xydisp.style = 'position:fixed;bottom:0;left:0;';
+        xydisp.innerText = 'X: ' + player.x + ' Y: ' + player.y + ' ismoving: ' + ismoving + ' ';
+        xydisp.setAttribute('id', 'xydisp');
+        //document.getElementById('body').appendChild(xydisp);
+    }
+let autoCont = false;
+let ismoving = false;
+let moveinterval;
+let player = {
+    x: 90,
+    y: 0
+}
+let showret = true;
+function run(userin) {
+    let returnval;
+    try {
+        returnval = eval(userin);
+    } catch (e) {
+        if (e instanceof TypeError) {
+            returnval = 'TypeError: ' + e.message;
+        } else if (e instanceof RangeError) {
+            returnval = 'RangeError: ' + e.message;
+        } else if (e instanceof EvalError) {
+            returnval = 'EvalError: ' + e.message;
+        } else {
+            returnval = 'Unknown Error: ' + e.message;
+        }
+    }
+    if (showret) {
+        document.getElementById('cmdin').value = returnval;
+    }
+    location.href='#cmdin';
+}
+class Wall {
+    constructor(x, y, show = true) {
+        this.x = x;
+        this.y = y;
+        this.id = 'wall' + walls.length;
+        this.shown = show;
+        if (show) {
+            let newwall = document.createElement('div');
+            newwall.setAttribute('class', 'wall');
+            newwall.setAttribute('id', 'wall' + walls.length);
+            newwall.style.top = y + '%';
+            newwall.style.left = x + '%';
+            document.getElementById('body').appendChild(newwall);
+        }
+    }
+}
+window.addEventListener('keydown', (event) => {
+    if (event.key == '`' && false) {
+        log.push(player.x + '&' + player.y + '-');
+    }
+    if (event.key == '\\' && false) {
+        let win2 = open('about:blank', 'win2', 'width=600', 'height=600');
+        let html = '';
+        let i = 0;
+        while(i<log.length) {
+            html += log[i] + '<br>';
+            i++;
+        }
+        win2.document.write(html);
+    }
+}, false);
+function setpos() {
+    let pos = document.getElementById('playpos').value.split(',');
+    player.x = pos[0];
+    player.y = pos[1];
+}
+let log = [];
+let walls = [];
+let canmove = false;
+let usecol = true;
+function updateplayer() {
+    if (document.getElementById('playerdiv')) {
+        let playerobj = document.getElementById('playerdiv');
+        //document.getElementById('xydisp').innerText = 'X: ' + player.x + ' Y: ' + player.y + ' ismoving: ' + ismoving + ' ';
+        playerobj.style.top = player.y + '%';
+        playerobj.style.left = player.x + '%';
+    }
+}
+let enemies = [];
+let bzlist = [];
+let hearts = [];
+let loadzones = [];
+let npcs = [];
+let cfpos = [0,95];
+let compUL = [];
+let practicing = false;
+let cheatDetection = setInterval(() => {
+    if (!usecol && !runRando) {
+        /*alert('You filthy cheater...');
+        localStorage.setItem('SGScompleted', true);
+        clearInterval(cheatDetection);
+        cheatDetection = 'You filthy cheater...';*/
+    }
+}, 5000);
+function checkcol() {
+    if (!document.getElementById('notifbox') && runRando) {
+        usecol = true;
+        xspeed = 30;
+        yspeed = 20;
+    }
+    let i = 0;
+    if (document.getElementById('notifbox')) {
+        if (document.getElementById('notifbox').innerText.includes('Freeze')) {
+            canmove=false;
+        }
+    }
+    if (!canmove) {
+        return true;
+    }
+    if (player.x < 0 || player.x > 95 || player.y < 0 || player.y > 90) {
+        return true;
+    }
+    if (player.x > 80 && player.y < 10) {
+        if (currentlevel > completed && currentlevel < 100 && currentlevel != 99) {
+            completed++;
+            localStorage.setItem('sgcomp', completed);
+        }
+        canmove = false;
+        prepload();
+        if (autoCont) {
+            loadlevel(currentlevel+1);
+        } else {
+            if (parseInt(currentlevel)>100) {
+                playingUL = currentlevel-100;
+                if (!compUL.includes(playingUL)) {
+                    ULcomps++;
+                    savestats();
+                    compUL.push(playingUL);
+                }
+                localStorage.setItem('SGcust', compUL.join('-'));
+                document.getElementById('body').innerHTML =
+                    '<h1 style="color:lime;">"' + custLevels[currentlevel-100].name + '" complete!</h1>' +
+                    '<button id="contbutton" onclick="loadlevel(' + (playingUL+100) + ')">Play again</button><br><br>' +
+                    '<button onclick="openCust()">Back to User Levels</button>';
+                playingUL = false;
+            } else {
+                if (!isMaker && !practicing) {
+                    if (currentlevel == 19 && !practicing) {
+                        localStorage.setItem('hasSGEditor', true);
+                        document.getElementById('body').innerHTML =
+                            '<h1 style="color:lime;">Level ' + currentlevel + ' completed!</h1>' +
+                            '<button onclick="levellist(99)" id="contbutton">Next</button>';
+                    } else if (currentlevel == 30) {
+                        let clickStr = '';
+                        let extraStr = '';
+                        let rStats = '';
+                        if (runRando) {
+                            runRando = false;
+                            extraStr = '<br>Big congrats on finishing with the randomizer on! I hope it was moderately worth it :D<br>';
+                            clickStr = 'runRando=true;'
+                            rStats = 'Full randomizer stats:<br>';
+                            if (randoHard) {
+                                rStats += 'Difficulty: Hard';
+                                extraStr = '<br>Big congrats on finishing with the randomizer on <b>hard mode</b>! I hope it was moderately worth it :D<br>';
+                            } else {
+                                rStats += 'Difficulty: Normal';
+                            }
+                            if (eventFreq == 10) {
+                                rStats += '<br>Event frequency: Normal';
+                            } else if (eventFreq == 5) {
+                                rStats += '<br>Event frequency: Fast';
+                            } else if (eventFreq == 2) {
+                                rStats += '<br>Event frequency: Stupid';
+                            } else {
+                                rStats += '<br>Event frequency: Custom (up to ' + eventFreq + ' seconds)';
+                            }
+                            rStats += '<br><br>';
+                        }
+                        localStorage.setItem('hasSGEditor', true);
+                        if (completed > 29) {
+                            document.getElementById('body').innerHTML =
+                                '<h1 style="color:lime;">Game completed!</h1>' +
+                                'Congrats! Thank you so much for playing through this stupid project. ' +
+                                'I hope that the good parts outnumbered the enraging parts :)' +
+                                '<br>' + extraStr + '<br>' +
+                                rStats +
+                                '<button onclick="levellist(99);' + clickStr + '" id="contbutton">Next</button><br><br>' +
+                                '<button onclick="showstats()">Show stats</button>';
+                        } else {
+                            document.getElementById('body').innerHTML =
+                                '<h1>Final level completed!</h1>' +
+                                'How about beating the rest of the levels now? :)<br><br>' +
+                                '<button onclick="runRando=true;levellist();" id="contbutton">Next</button>';
+                        }
+                    } else if (currentlevel != 99) {
+                        document.getElementById('body').innerHTML =
+                            '<h1 style="color:lime;">Level ' + currentlevel + ' completed!</h1>' +
+                            '<button onclick="loadlevel(' + (currentlevel+1) + ')" id="contbutton">Next level!</button><br><br>' +
+                            '<button onclick="loadlevel(' + currentlevel + ')">Play again</button><br><br>' +
+                            '<button onclick="levellist()">Back to Level Selection</button>';
+                    } else {
+                        localStorage.setItem('hasSGEditor', true);
+                        document.getElementById('body').innerHTML =
+                            '<h1 style="color:lime;">Challenge level completed!</h1>' +
+                            '<button id="contbutton" onclick="levellist(99)">Next</button>';
+                    }
+                } else {
+                    if (!practicing) {
+                        document.getElementById('body').innerHTML =
+                            '<h1 style="color:lime;">Level complete!</h1>' +
+                            '<button id="contbutton" onclick="location.reload()">Play again</button>';
+                    } else {
+                        let str = 'Level ' + currentlevel + ' completed!';
+                        if (currentlevel == 99) {
+                            str = 'Challenge level completed!'
+                        }
+                        document.getElementById('body').innerHTML =
+                            '<h1 style="color:lime;">' + str + '</h1>' +
+                            '<button id="contbutton" onclick="loadlevel('+currentlevel+')">Play again</button><br><br>' +
+                            '<button onclick="levellist()">Back to Level Selection</button>' +
+                            '<br><br>' +
+                            '<i>Because you are in practice mode, this completion does not count towards any progress</i>'
+                    }
+                }
+            }
+        }
+    }
+    i = 0;
+    while(i<walls.length) {
+        if (player.x+5 > walls[i].x && player.x-5 < walls[i].x && player.y+10 > walls[i].y && player.y-10 < walls[i].y && usecol && canmove) {
+            damageflash();
+            return true;
+        }
+        i++;
+    }
+    return false;
+}
+function save() {
+    localStorage.setItem('sgcomp', completed);
+    localStorage.setItem('SGcust', compUL.join('-'));
+    if (canEdit) {
+        localStorage.setItem('hasSGEditor', true);
+    }
+    if (!showGO) {
+        localStorage.setItem('nogosg', true);
+    }
+    if (hasEdited) {
+        localStorage.setItem('SGhasEdited', true);
+    }
+    if (isDev) {
+        localStorage.setItem('sgdev', true);
+    }
+}
+let allowMouse = true;
+let mouseint = setTimeout(() => {
+    document.body.style.cursor='none';
+}, 3000);
+window.addEventListener('mousemove', () => {
+    if (allowMouse) {
+        document.body.style.cursor = 'auto';
+        if (mouseint) {
+            clearTimeout(mouseint);
+        }
+        mouseint = setTimeout(() => {
+            document.body.style.cursor = 'none';
+        }, 3000);
+    }
+}, false);
+let showName = true;
+function toggleBanner() {
+    if (showName) {
+        showName = false;
+        document.getElementById('lbanner').outerHTML = '';
+        localStorage.setItem('SGnolbanner', true);
+    } else {
+        showName = true;
+        if (playingUL != false) {
+            addName(currentlevel,true);
+        } else {
+            addName(currentlevel,false);
+        }
+        localStorage.removeItem('SGnolbanner');
+    }
+}
+function toggleNC() {
+    let elem = document.getElementById('ncbutton');
+    if (elem.innerText == 'Enable Noclip') {
+        usecol = false;
+        elem.innerText = 'Disable Noclip';
+    } else {
+        usecol = true;
+        elem.innerText = 'Enable Noclip'
+    }
+}
+// Function for loading level maps; only supports walls, and only in this game
+function loadlevel(id,custom=0,startpos=0,finpos=0) {
+    document.body.style.backgroundColor = 'darkblue';
+    playingUL = false;
+    let canflash;
+    if (document.getElementById('contbutton')) {
+        if (document.getElementById('contbutton').innerText == 'Next level!') {
+            canflash = true;
+        }
+    } else if (document.getElementById('devb')) {
+        canflash = true;
+    } else {
+        canflash = false;
+    }
+    document.body.style.cursor = 'none';
+    prepload();
+    currentlevel = parseInt(id);
+    document.getElementById('body').innerHTML = '';
+    loadmovement();
+    totalAtt++;
+    savestats();
+    if (custom != 0 || id>100) {
+        if (id>100) {
+            id = id-100;
+            playingUL = parseInt(id);
+            custom = custLevels[id].data;
+        }
+        let ldata = custom.split('-');
+        let i = 0;
+        while(i<ldata.length) {
+            let wallData = ldata[i].split('&');
+            walls.push(new Wall(wallData[0], wallData[1]));
+            i++;
+        }
+        if (ldata.includes('^')) {
+            startpos = ldata.split('^');
+            startpos = ldata[1].split('&');
+            player.x = parseInt(startpos[0]);
+            player.y = parseInt(startpos[1]);
+            updateplayer();
+        }
+    } else {
+        if (id != 99) {
+            let ldata;
+            if (levelData[id].includes('^')) {
+                ldata = levelData[id].split('^');
+                startpos = ldata[1];
+                ldata = ldata[0];
+            }
+            if (levelData[id].includes('&')) {
+                ldata = levelData[id].split('-');
+                let i = 0;
+                while(i<ldata.length) {
+                    let wallData = ldata[i].split('&');
+                    walls.push(new Wall(wallData[0], wallData[1]));
+                    i++;
+                }
+            } else {
+                let contAnyway = confirm('Level data missing or corrupted. Continue anyway?')
+                if (!contAnyway) {
+                    levellist();
+                }
+            }
+        } else {
+            let ldata;
+            if (noahsMonstrocity.includes('^')) {
+                ldata = noahsMonstrocity.split('^');
+                startpos = ldata[1];
+                ldata = ldata[0];
+            }
+            if (noahsMonstrocity.includes('&')) {
+                ldata = noahsMonstrocity.split('-');
+                let i = 0;
+                while(i<ldata.length) {
+                    let wallData = ldata[i].split('&');
+                    walls.push(new Wall(wallData[0], wallData[1]));
+                    i++;
+                }
+            } else {
+                let contAnyway = confirm('Level data missing or corrupted. Continue anyway?')
+                if (!contAnyway) {
+                    levellist();
+                }
+            }
+        }
+    }
+    if (startpos == 0) {
+        player.x = 45;
+        player.y = 90;
+    } else {
+        let newStart = startpos.split('&');
+        player.x = parseInt(newStart[0]);
+        player.y = parseInt(newStart[1]);
+    }
+    if (playingUL != false) {
+        let ldata = custLevels[playingUL].data;
+        if (ldata.includes('^')) {
+            let startpos = ldata.split('^');
+            startpos = startpos[1].split('&');
+            player.x = parseInt(startpos[0]);
+            player.y = parseInt(startpos[1]);
+            updateplayer();
+        }
+    }
+    updateplayer();
+    canmove = true;
+    if (!isMaker) {
+        if (practicing) {
+            let str;
+            if (usecol) {
+                str = 'Enable';
+            } else {
+                str = 'Disable';
+            }
+            let ncb = document.createElement('button');
+            ncb.innerText = str+' Noclip';
+            ncb.addEventListener('click', toggleNC);
+            ncb.setAttribute('id', 'ncbutton');
+            ncb.style = 'position:fixed;bottom:0;left:0;';
+            document.getElementById('body').appendChild(ncb);
+        }
+        let leaveb = document.createElement('button');
+        leaveb.innerText = 'Quit';
+        leaveb.style = 'position:fixed;top:0;left:0;'
+        leaveb.setAttribute('id', 'escb');
+        leaveb.addEventListener('click', () => {
+            if (!isFrozen) {
+                let issure = confirm('Quit level?');
+                if (issure) {
+                    canmove = false;
+                    if (playingUL == false) {
+                        levellist();
+                    } else {
+                        openCust();
+                    }
+                }
+            } else {
+                alert('How can you quit a level during this awesome event? :)')
+            }
+        }, false);
+        document.getElementById('body').appendChild(leaveb);
+    }
+    if (playingUL == false && showName) {
+        addName(id,false);
+    }
+    let nb = document.createElement('button');
+    nb.style = 'position:fixed;bottom:0;right:0;';
+    nb.innerText = 'Toggle Level Banner';
+    nb.addEventListener('click', toggleBanner);
+    document.getElementById('body').appendChild(nb);
+    let fl = document.createElement('img');
+    fl.src = 'https://codehs.com/uploads/0f778efadcd65096d3cf6fb96447aeb4';
+    if (finpos == 0) {
+        cfpos = [85,0];
+        fl.style = 'position:fixed;top:0;left:85%;width:15%;height:10%;z-index:9999;border:none;';
+    } else {
+        let fpos = finpos.split('&');
+        fl.style = 'position:fixed;top:' + fpos[1] + '%;left:' + fpos[0] + '%;width:15%;height:10%;z-index:9999;border:none;';
+        cfpos = finpos.split('&');
+    }
+    document.getElementById('body').appendChild(fl);
+    if (document.getElementById('notifbox')) {
+        if (document.getElementById('notifbox').innerText.includes('Invis') && document.getElementById('playerdiv')) {
+            document.getElementById('playerdiv').style.display = 'none';
+        } else {
+            if (document.getElementById('playerdiv')) {
+                document.getElementById('playerdiv').style.display = '';
+            }
+        }
+    } else {
+        if (document.getElementById('playerdiv')) {
+            document.getElementById('playerdiv').style.display = '';
+        }
+    }
+    // Sample wall: 'x&y-'
+    if (currentlevel == 30) {
+        let fp = document.createElement('div');
+        fp.innerHTML = '<span style="background-color:red;color:white;">Final level!</span>';
+        fp.setAttribute('id', 'fp');
+        fp.style = 'position:fixed;top:45%;left:40%;font-size:48px;opacity:1;';
+        document.getElementById('body').appendChild(fp);
+        let opacity = 1;
+        setTimeout(() => {
+            let fadeint = setInterval(() => {
+                if (document.getElementById('fp')) {
+                    opacity = opacity - 0.1;
+                    document.getElementById('fp').style.opacity = opacity;
+                    if (opacity <= 0) {
+                        document.getElementById('fp').outerHTML = '';
+                        clearInterval(fadeint);
+                    }
+                } else {
+                    clearInterval(fadeint);
+                }
+            }, 10);
+        }, 1000);
+    }
+    if (document.getElementById('notifbox')) {
+        if (document.getElementById('notifbox').innerText.includes('Freeze')) {
+            canmove=false;
+        }
+    }
+}
+function makerReset() {
+    canmove = true;
+    if (!location.href.includes('^')) {
+        player.x = 45;
+        player.y = 90;
+    } else {
+        let newStart = location.href.split('^');
+        newStart = newStart[1].split('&');
+        player.x = parseInt(newStart[0]);
+        player.y = parseInt(newStart[1]);
+        updateplayer();
+    }
+    document.getElementById('gameoverdiv').outerHTML = '';
+}
+let showGO = true;
+let canEdit = false;
+window.addEventListener('load', () => {
+    if (localStorage.getItem('SGnolbanner')) {
+        showName = false;
+    }
+    if (localStorage.getItem('SGhasEdited')) {
+        hasEdited = true;
+    }
+    if (localStorage.getItem('SGcust')) {
+        compUL = localStorage.getItem('SGcust').split('-');
+        let i = 0;
+        while(i<compUL.length) {
+            compUL[i] = parseInt(compUL[i]);
+            i++;
+        }
+    }
+    if (localStorage.getItem('sgcomp')) {
+        completed = parseInt(localStorage.getItem('sgcomp'));
+    }
+    if (localStorage.getItem('hasSGEditor')) {
+        canEdit = true;
+    }
+}, false);
+function toggleGO() {
+    if (showGO) {
+        localStorage.setItem('nogosg', true);
+        showGO = false;
+        alert('Game over screen will be skipped');
+        let enGO = document.createElement('button');
+        enGO.style = 'position:fixed;bottom:0;right:0;';
+        enGO.innerText = 'Toggle Game Over Screen';
+        enGO.addEventListener('click', toggleGO);
+        document.getElementById('body').appendChild(enGO);
+    } else {
+        localStorage.removeItem('nogosg');
+        showGO = true;
+        alert('Game over screen will be shown as usual');
+    }
+}
+window.addEventListener('keypress', (event) => {
+    if (event.key == 'Enter' && document.getElementById('contbutton') && document.activeElement.nodeName != 'input' && document.activeElement.nodeName != 'INPUT') {
+        document.getElementById('contbutton').click();
+    }
+    if (event.key == 'Escape') {
+        if (document.getElementById('escb')) {
+            document.getElementById('escb').click();
+        }
+    }
+}, false);
+function addName(ID,isCust=true) {
+    let ts = document.createElement('div');
+    ts.setAttribute('id', 'lbanner')
+    ts.style = 'position:fixed;top:0;left:30%;width:40%;background-color:blue;border-bottom:3px dashed cyan;border-left:3px dashed cyan;border-right:3px dashed cyan;';
+    if (isCust) {
+        ts.innerText = 'Playing "' + custLevels[ID].name + '" (By ' + custLevels[ID].creator + ')';
+    } else {
+        if (ID != 99) {
+            if (ID != 0){
+                ts.innerText = 'Playing Level ' + ID;
+            } else {
+                ts.innerText = 'Playtesting';
+            }
+        } else {
+            ts.innerText = 'Playing Challenge Level';
+        }
+    }
+    document.getElementById('body').appendChild(ts);
+}
+function damageflash(x,y,damage) {
+    if (!document.getElementById('redDiv')) {
+        if (allowDamage) {
+            canmove = false;
+            let go = document.createElement('div');
+            go.style.left = 0;
+            go.style.top = 0;
+            go.style.width = '100%';
+            go.style.height = '100%';
+            go.style.position = 'fixed';
+            go.style.zIndex = 999999;
+            go.style.backgroundColor = 'darkblue';
+            go.setAttribute('id', 'gameoverdiv');
+            failedAtt++;
+            //savestats();
+            let randoSlow = '';
+            if (document.getElementById('notif')) {
+                if (document.getElementById('notif').innerText.includes('slow') || document.getElementById('notif').innerText.includes('Slow')) {
+                    randoSlow = '<small><i>How do you die with a slowing effect...?</i></small>'
+                }
+            }
+            if (playingUL != false) {
+                go.innerHTML =
+                    '<h1 style="color:red;">Game over...</h1>' +
+                    '<button id="contbutton" onclick="loadlevel(' + (playingUL+100) + ');addName('+playingUL+',true)">Play again</button><br><br>' +
+                    '<button onclick="openCust()">Back to User Levels</button>' +
+                    '<br><br>' +
+                    randoSlow;
+                playingUL = false;
+            } else {
+                if (!isMaker) {
+                    go.innerHTML =
+                        '<h1 style="color: red;">Game over...</h1>' +
+                        '<button id="contbutton" onclick="loadlevel(' + parseInt(currentlevel) + ')">Play again</button><br><br>' +
+                        '<button onclick="levellist()">Back to Levels</button>' +
+                        '<br><br>' +
+                        randoSlow;
+                } else {
+                    if (showGO) {
+                        go.innerHTML =
+                            '<h1 style="color: red;">Game over...</h1>' +
+                            '<button id="contbutton" onclick="makerReset()">Play again</button><br><br>' +
+                            '<button onclick="toggleGO()">Toggle Game Over screen</button>';
+                    } else {
+                        makerReset();
+                    }
+                }
+            }
+            document.getElementById('body').innerHTML = go.innerHTML;
+            currentlevel = 0;
+            let reddiv = document.createElement('div');
+            reddiv.style.zIndex = 2.5;
+            reddiv.style.backgroundColor = 'red';
+            reddiv.style.position = 'fixed';
+            reddiv.style.left = 0;
+            reddiv.style.top = 0;
+            reddiv.style.width = '100%';
+            reddiv.style.height = '100%';
+            reddiv.style.opacity = 0.1;
+            reddiv.setAttribute('id', 'redDiv');
+            document.getElementById('body').appendChild(reddiv);
+            let rd = document.getElementById('redDiv');
+            let i = 0.1;
+            let nextflash;
+            let flashint = setInterval(() => {
+                if (i < 0.5) {
+                    i = i + 0.1;
+                    rd.style.opacity = i;
+                } else {
+                    nextflash = setInterval(() => {
+                        if (i > -1) {
+                            i = i - 0.1;
+                            rd.style.opacity = i;
+                        } else {
+                            if (document.getElementById('redDiv')) {
+                                document.getElementById('redDiv').outerHTML = '';
+                            }
+                            clearInterval(nextflash);
+                        }
+                    }, 30);
+                    clearInterval(flashint);
+                }
+            }, 30);
+        }
+    }
+}
+function prepload(clearmap = true) {
+    if (clearmap) {
+        /*let i = 0;
+        while(i<walls.length) {
+            document.getElementById(walls[i].id).outerHTML = '';
+            walls[i] = null;
+            i++;
+        }*/
+        walls = [];
+        document.getElementById('body').innerHTML = '';
+    }
+}
+window.addEventListener('keyup', (event) => {
+    switch(event.key) {
+        case 'ArrowUp':
+        case 'w':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+        case 'ArrowDown':
+        case 's':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+        case 'ArrowLeft':
+        case 'a':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+        case 'ArrowRight':
+        case 'd':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+    }
+}, false);
+let xspeed = 30;
+let yspeed = 20;
+window.addEventListener('keydown', (event) => {
+    if (document.activeElement.nodeName != 'input' && document.activeElement.nodeName != 'INPUT') {
+    switch(event.key) {
+        case 'ArrowUp':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.y--;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.y++;
+                    }
+                    updateplayer();
+                }, yspeed);
+                arrowKeys++;
+                savestats();
+            }
+            break;
+        case 'ArrowDown':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.y++;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.y--;
+                    }
+                    updateplayer();
+                }, yspeed);
+                arrowKeys++;
+                savestats();
+            }
+            break;
+        case 'ArrowLeft':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.x--;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.x++;
+                    }
+                    updateplayer();
+                }, xspeed);
+                arrowKeys++;
+                savestats();
+            }
+            break;
+        case 'ArrowRight':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.x++;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.x--;
+                    }
+                    updateplayer();
+                }, xspeed);
+                arrowKeys++;
+                savestats();
+            }
+            break;
+    }
+    }
+}, false);
+        </script>
+        <style>
+            #editorButton {
+                z-index:99999999999999;
+            }
+            .spacer {
+                color:transparent;
+                cursor:default;
+            }
+            .lbutton {
+                font-size:20px;
+            }
+            .complete {
+                background-color:green;
+            }
+            .current {
+                background-color:white;
+            }
+            .locked {
+                background-color:grey;
+                color:black;
+                cursor:default;
+            }
+            .locked:hover {
+                background-color:grey;
+                color:black;
+                cursor:default;
+            }
+            .locked:focus {
+                background-color:grey;
+                color:black;
+                cursor:default;
+            }
+        </style>
+        <script>
+            let defaulthtml;
+            let allowDamage = true;
+            let canclose = true;
+            let completed = 0;
+            let levellisthtml;
+            let currentlevel = 0;
+            let isMaker = false;
+            let playingUL = false;
+            let beatChallenge = false;
+            let runRando = false;
+            let randInt;
+            let eventFreq = 10;
+            let randoHard = false;
+            function setFreq(freq,elem) {
+                eventFreq = parseInt(freq);
+                document.getElementById('freq1').style.backgroundColor = '';
+                document.getElementById('freq2').style.backgroundColor = '';
+                document.getElementById('freq3').style.backgroundColor = '';
+                document.getElementById('freq1').style.color = '';
+                document.getElementById('freq2').style.color = '';
+                document.getElementById('freq3').style.color = '';
+                elem.style.backgroundColor = 'black';
+                elem.style.color = 'white';
+            }
+            function setDiff(val,elem) {
+                val = parseInt(val);
+                if (val == 1) {
+                    randoHard = true;
+                } else {
+                    randoHard = false;
+                }
+                document.getElementById('diff1').style.backgroundColor = '';
+                document.getElementById('diff1').style.color = '';
+                document.getElementById('diff2').style.backgroundColor = '';
+                document.getElementById('diff2').style.color = '';
+                elem.style.backgroundColor = 'black';
+                elem.style.color = 'white';
+            }
+            function preprando() {
+                popup(
+                    '<button onclick="closepop()" style="float:left;">X Close</button><br>' +
+                    '<h1>Randomizer Setup</h1>' +
+                    'Difficulty' +
+                    '<a href="javascript:alert(\'Some events are only available in the Hard difficulty mode, and Noclip is not. If Normal is too easy, try leveling up to Hard mode!\')">*</a>:<br>' +
+                    '<button style="background-color:black;color:white;" id="diff1" onclick="setDiff(0,this)">Normal</button> <button id="diff2" onclick="setDiff(1,this)">Hard</button>' +
+                    '<br><br>' +
+                    'Event frequency<a href="javascript:alert(\'This only changes when there are no events active; a ten second event will still last ten seconds, and there cannot be multiple events at the same time.\')">*</a>:<br>' +
+                    '<button id="freq1" onclick="setFreq(10,this)" style="background-color:black;color:white;">Normal (up to 10 sec)</button> <button id="freq2" onclick="setFreq(5,this)">Fast (up to 5 sec)</button> <button id="freq3" onclick="setFreq(2,this)">Stupid (up to 2 sec)</button>' +
+                    '<br><br>' +
+                    '<button onclick="startrando()" style="font-size:24px;">Start!</button>' +
+                    '<br><br>' +
+                    '<button onclick="alert(\'Virtually the same as the base game, but this causes a bunch of random events to occur, such as speed changes, color changes, and a variety of others. This is great for if you have already played the base game and want something new; good luck :)\')">About the Randomizer</button>'
+                );
+            }
+            let oldcomp = 0;
+            function startPractice() {
+                popup(
+                    '<button onclick="closepop()" style="float:left;">X Close</button><br>' +
+                    '<h1>Practice mode</h1>' +
+                    'Play any level, and toggle Noclip at any point. No progress can be made in this mode, and it is restricted to main levels and the Challenge level.<br><br>' +
+                    '<button onclick="oldcomp=parseInt(completed);completed=50;practicing=true;levellist()">Continue</button>'
+                );
+            }
+            function loadgame() {
+                if (practicing) {
+                    completed = parseInt(oldcomp);
+                }
+                practicing = false;
+                randoHard = false;
+                if (runRando) {
+                    clearTimeout(randInt);
+                    if (timer) {
+                        clearInterval(timer);
+                    }
+                    if (document.getElementById('notifbox')) {
+                        document.getElementById('notifbox').outerHTML = '';
+                    }
+                    resetSpeed(false);
+                }
+                runRando = false;
+                if (document.getElementById('content')) {
+                    content.innerHTML =
+                        '<br><br>' +
+                        '<button onclick="levellist()" style="font-size:48px;" id="contbutton">Start!</button>' +
+                        '<br><br><button style="font-size:24px;" onclick="preprando()">Start Randomizer</button>' +
+                        '<br><br><button style="font-size:24px;" onclick="startPractice()">Practice</button>' +
+                        //'<button onclick="alert(\'Virtually the same as the base game, but this causes a bunch of random events to occur, such as speed changes, color changes, and a variety of others. This is great for if you have already played the base game and want something new; good luck :)\')">About the Randomizer</button>' +
+                        '<img src="https://codehs.com/uploads/0f778efadcd65096d3cf6fb96447aeb4" style="position:fixed;top:150%;left:150%;">';
+                    if (location.href.includes('?')) {
+                        let loca = location.href.split('?')
+                        loca = loca[1];
+                        if (!loca.includes('&')) {
+                            let issure = confirm('Level data may be missing or corrupted. Continue?');
+                            if (!issure) {
+                                location.replace('about:blank');
+                            }
+                        }
+                        isMaker = true;
+                        if (loca.includes('^')) {
+                            loca = loca.split('^');
+                            newposes = loca[1].split('-');
+                            //newposes[0] = player start
+                            // newposes[1] = fin position
+                            if (newposes[0] != '') {
+                                loadlevel(0,loca[0],newposes[0])
+                            } else {
+                                loadlevel(0,loca[0])
+                            }
+                            // [walldata]^10&10-10&10
+                            if (localStorage.getItem('nogosg')) {
+                                showGO = false;
+                                    let enGO = document.createElement('button');
+                                    enGO.style = 'position:fixed;bottom:0;right:0;';
+                                    enGO.innerText = 'Toggle Game Over Screen';
+                                    enGO.addEventListener('click', toggleGO);
+                                    document.getElementById('body').appendChild(enGO);
+                            }
+                        } else {
+                            loadlevel(0,loca[0])
+                        }
+                    }
+                } else {
+                    document.getElementById('body').innerHTML = defaulthtml;
+                    loadgame();
+                }
+            }
+            let usedRando = false;
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('SGusedRando')) {
+                    usedRando = true;
+                }
+            }, false);
+            function startrando() {
+                if (!usedRando) {
+                    alert('Just so you know...\nIf there are any issues while playing, reload the page. All progress is saved immediately.\n\nAlso, the further you get in the game, the more effects will be available. Good luck!')
+                    usedRando = true;
+                    localStorage.setItem('SGusedRando', true);
+                }
+                runRando = true;
+                let timeVal = Math.floor(Math.random()*1000*eventFreq);
+                randInt = setTimeout(rando,timeVal);
+                levellist();
+            }
+            let eventRunning = false;
+            let timer;
+            let hideTimer;
+            let isFrozen = false;
+            function endEvent() {
+                if (eventRunning) {
+                    if (hideTimer) {
+                        clearTimeout(hideTimer);
+                    }
+                    if (timer) {
+                        clearInterval(timer);
+                    }
+                    if (document.getElementById('notifbox')) {
+                        document.getElementById('notifbox').outerHTML = '';
+                    }
+                    if (document.getElementById('playerdiv') && walls.length > 1) {
+                        canmove = true;
+                    }
+                    if (document.getElementById('playerdiv')) {
+                        document.getElementById('playerdiv').style.display = '';
+                    }
+                    isFrozen = false;
+                    resetSpeed(false);
+                    usecol=true;
+                    allowDamage = true;
+                }
+            }
+            function rando(custIn) {
+                allowMouse = true;
+                let timeVal = Math.floor(Math.random()*10000);
+                randInt = setTimeout(rando,timeVal);
+                if (runRando && !eventRunning) {
+                    isFrozen = false;
+                    if (hideTimer) {
+                        clearTimeout(hideTimer);
+                    }
+                    if (timer) {
+                        clearInterval(timer);
+                    }
+                    if (document.getElementById('playerdiv') && walls.length > 1 && (!document.getElementById('l1') && !document.getElementById('l2'))) {
+                        canmove = true;
+                    }
+                    if (document.getElementById('notifbox')) {
+                        document.getElementById('notifbox').outerHTML = '';
+                    }
+                    let action;
+                    if (completed > 20) {
+                        action = Math.floor(Math.random()*17);
+                    } else if (completed > 10) {
+                        action = Math.floor(Math.random()*12);
+                    } else {
+                        action = Math.floor(Math.random()*8);
+                    }
+                    if (custIn) {
+                        action = parseInt(custIn);
+                    }
+                    let actName;
+                    let id;
+                    let i;
+                    let hasTimer = false;
+                    let timerMax;
+                    switch(action) {
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                            let isTroll = Math.floor(Math.random()*100);
+                            if (isTroll > 50 && randoHard) {
+                                actName = 'Switch colors :)';
+                                document.body.style.backgroundColor = 'lightblue';
+                                i = 0;
+                                while(i<walls.length) {
+                                    document.getElementById(walls[i].id).style.backgroundColor = 'darkblue';
+                                    i++;
+                                }
+                            } else {
+                                actName = 'Randomize colors!';
+                                document.body.style.backgroundColor = getRandoCol();
+                                elemList = document.querySelectorAll('div');
+                                i = 0;
+                                while(i<elemList.length) {
+                                    elemList[i].style.backgroundColor = getRandoCol();
+                                    i++;
+                                }
+                                elemList = document.querySelectorAll('button')
+                                i = 0;
+                                while(i<elemList.length) {
+                                    elemList[i].style.backgroundColor = getRandoCol();
+                                    i++;
+                                }
+                            }
+                            break;
+                        case 5:
+                            actName = 'Return to Menu';
+                            playingUL = false;
+                            levellist();
+                            break;
+                        case 1:
+                            actName = 'Freeze (5 sec)';
+                            isFrozen = true;
+                            canmove = false;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 500;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=500 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    canmove=true;
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    isFrozen = false;
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 500-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        case 6:
+                            let showStats = Math.floor(Math.random()*100);
+                            if (showStats > 50 && randoHard) {
+                                actName = 'Random X (sideways) speed (10 sec)';
+                                xspeed = Math.floor(Math.random()*30)+10;
+                                eventRunning = true;
+                                hasTimer = true;
+                                timerMax = 1000;
+                                i = 0;
+                                timer = setInterval(() => {
+                                    if (i>=1000 || !document.getElementById('eventTimer')) {
+                                        eventRunning = false;
+                                        resetSpeed(false);
+                                        if (document.getElementById('notifbox')) {
+                                            document.getElementById('notifbox').outerHTML = '';
+                                        }
+                                        clearInterval(timer);
+                                    }
+                                    if (document.getElementById('eventTimer')) {
+                                        document.getElementById('eventTimer').value = 1000-i;
+                                    }
+                                    i++;
+                                }, 10);
+                            } else {
+                                actName = 'Have some stats :)';
+                                showstats();
+                            }
+                            break;
+                        case 7:
+                            let showHow = Math.floor(Math.random()*100);
+                            if (showHow > 50 && randoHard) {
+                                actName = 'Random Y (vertical) speed (10 sec)';
+                                yspeed = Math.floor(Math.random()*30);
+                                eventRunning = true;
+                                hasTimer = true;
+                                timerMax = 1000;
+                                i = 0;
+                                timer = setInterval(() => {
+                                    if (i>=1000 || !document.getElementById('eventTimer')) {
+                                        eventRunning = false;
+                                        resetSpeed(false);
+                                        if (document.getElementById('notifbox')) {
+                                            document.getElementById('notifbox').outerHTML = '';
+                                        }
+                                        clearInterval(timer);
+                                    }
+                                    if (document.getElementById('eventTimer')) {
+                                        document.getElementById('eventTimer').value = 1000-i;
+                                    }
+                                    i++;
+                                }, 10);
+                            } else {
+                                actName = 'How does this work again?';
+                                howtoplay();
+                            }
+                            break;
+                        case 8:
+                            actName = 'Speed up (10 sec)';
+                            xspeed = 20;
+                            yspeed = 10;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 1000;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=1000 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    resetSpeed(false);
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 1000-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        case 9:
+                            actName = 'Random position (2 sec i-frames)';
+                            player.x = Math.floor(Math.random()*94);
+                            player.y = Math.floor(Math.random()*89);
+                            updateplayer();
+                            usecol = false;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 200;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=200 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    usecol=true;
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 200-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        case 10:
+                            let openChall = Math.floor(Math.random()*100);
+                            if (openChall > 50 && randoHard && document.getElementById('playerdiv')) {
+                                actName = 'Invisiblity (5 sec)';
+                                document.getElementById('playerdiv').style.display = 'none';
+                                eventRunning = true;
+                                hasTimer = true;
+                                timerMax = 500;
+                                i = 0;
+                                timer = setInterval(() => {
+                                    if (i>=500 || !document.getElementById('eventTimer')) {
+                                        eventRunning = false;
+                                        if (document.getElementById('playerdiv')) {
+                                            document.getElementById('playerdiv').style.display = '';
+                                        }
+                                        if (document.getElementById('notifbox')) {
+                                            document.getElementById('notifbox').outerHTML = '';
+                                        }
+                                        isFrozen = false;
+                                        clearInterval(timer);
+                                    }
+                                    if (document.getElementById('eventTimer')) {
+                                        document.getElementById('eventTimer').value = 500-i;
+                                    }
+                                    i++;
+                                }, 10);
+                            } else {
+                                actName = 'Have a challenge :)';
+                                playingUL = false;
+                                loadlevel(99);
+                            }
+                            break;
+                        case 11:
+                            actName = 'Random Level (no damage 2 sec)';
+                            id = Math.floor((Math.random()*29)+1)
+                            playingUL = false;
+                            loadlevel(id);
+                            allowDamage = false;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 200;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=200 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    allowDamage = true;
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 200-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        case 12:
+                            actName = 'Big speed up (10 sec)';
+                            xspeed = 10;
+                            yspeed = 5;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 1000;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=1000 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    resetSpeed(false);
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 1000-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        case 13:
+                            actName = 'Random user level (no damage 2 sec)';
+                            id = Math.floor((Math.random()*3)+1)
+                            openCustLevel(id);
+                            allowDamage = false;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 200;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=200 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    allowDamage = true;
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 200-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        case 14:
+                            actName = 'Slow down (10 sec)';
+                            xspeed = 40;
+                            yspeed = 30;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 1000;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=1000 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    resetSpeed(false);
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 1000-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        case 15:
+                            actName = 'Big slow down (10 sec)';
+                            xspeed = 55;
+                            yspeed = 45;
+                            eventRunning = true;
+                            hasTimer = true;
+                            timerMax = 1000;
+                            i = 0;
+                            timer = setInterval(() => {
+                                if (i>=1000 || !document.getElementById('eventTimer')) {
+                                    eventRunning = false;
+                                    resetSpeed(false);
+                                    if (document.getElementById('notifbox')) {
+                                        document.getElementById('notifbox').outerHTML = '';
+                                    }
+                                    clearInterval(timer);
+                                }
+                                if (document.getElementById('eventTimer')) {
+                                    document.getElementById('eventTimer').value = 1000-i;
+                                }
+                                i++;
+                            }, 10);
+                            break;
+                        /*case 11:
+                            actName = 'Math time!';
+                            canmove = false;
+                            isFrozen = true;
+                            let problem = Math.floor(Math.random()*mathProblems.length);
+                            problem = mathProblems[problem][0];
+                            popup(
+                                '<h1>Solve: ' + problem + '</h1>' +
+                                '<input id="mathIn" type="number" placeholder="Answer..."><button id="contbutton" onclick="checkAns('+problem+')">Continue</button>'
+                            );
+                            break;*/
+                        default:
+                            if (!randoHard) {
+                                actName = 'Noclip! (5 sec)';
+                                usecol = false;
+                                eventRunning = true;
+                                hasTimer = true;
+                                timerMax = 500;
+                                i = 0;
+                                timer = setInterval(() => {
+                                    if (i>=500 || !document.getElementById('eventTimer')) {
+                                        usecol = true;
+                                        eventRunning = false;
+                                        if (document.getElementById('notifbox')) {
+                                            document.getElementById('notifbox').outerHTML = '';
+                                        }
+                                        clearInterval(timer);
+                                    }
+                                    if (document.getElementById('eventTimer')) {
+                                        document.getElementById('eventTimer').value = 500-i;
+                                    }
+                                    i++;
+                                }, 10);
+                            } else {
+                                actName = 'Have a challenge :)';
+                                playingUL = false;
+                                loadlevel(99);
+                            }
+                            break;
+                    }
+                    let notif = document.createElement('span');
+                    if (!hasTimer) {
+                        notif.innerText = actName;
+                        hideTimer = setTimeout(() => {
+                            if (document.getElementById('notifbox')) {
+                                document.getElementById('notifbox').outerHTML = '';
+                            }
+                        }, 3000);
+                    } else {
+                        notif.innerHTML = actName + ' <progress value="" max="' + timerMax + '" id="eventTimer"></progress>'
+                    }
+                    notif.setAttribute('id', 'notifbox')
+                    notif.style = 'background-color:blue;border-top:3px dashed cyan;border-right:3px dashed cyan;position:fixed;bottom:0;left:0;z-index:99999999999999999999999;';
+                    document.body.appendChild(notif);
+                } else {
+                    if (!document.getElementById('notifbox') && runRando) {
+                        eventRunning = false;
+                    }
+                }
+            }
+            function getRandoCol() {
+                let id = Math.floor(Math.random()*20);
+                switch(id) {
+                    case 0: return 'red';
+                    case 1: return 'orange';
+                    case 2: return 'yellow';
+                    case 3: return 'green';
+                    case 4: return 'blue';
+                    case 5: return 'violet';
+                    case 6: return 'lightblue';
+                    case 7: return 'cyan';
+                    case 8: return 'teal';
+                    case 9: return 'darkblue';
+                    case 10: return 'brown';
+                    case 11: return 'aqua';
+                    case 12: return 'fuchsia';
+                    case 13: return 'gray';
+                    case 14: return 'lime';
+                    case 15: return 'maroon';
+                    case 16: return 'navy';
+                    case 17: return 'olive';
+                    case 19: return 'silver';
+                    default: return 'white';
+                }
+            }
+            function checkAns(id) {
+                if (parseInt(document.getElementById('mathIn').value) == parseInt(mathProblems[id][1])) {
+                    closepop();
+                } else {
+                    alert('Try ' + mathProblems[id][1] + ' next time... :)');
+                    closepop();
+                    levellist();
+                }
+            }
+            let mathProblems = [
+                ['x+15=45', '30'],
+                ['12*7', '84'],
+                ['300+1', '301'],
+                ['62+55', '117'],
+                ['1+1', '2'],
+                ['87-22', '65'],
+                ['562626*0', '0'],
+                ['38-23', '15'],
+                ['39+6', '45'],
+                ['13+84', '97']
+            ];
+            function howtoplay() {
+                let qm = '.';
+                if (document.getElementById('playerdiv')) {
+                    if (document.getElementById('playerdiv').style.backgroundColor != 'blue') {
+                        //qm = '?';
+                    }
+                }
+                popup(
+                    '<button onclick="closepop()" id="escb" style="float:left;">X Close</button>' +
+                    '<h1>How to play</h1>' +
+                    'You are a blue block'+qm+' ' +
+                    'Navigate with arrow keys. ' +
+                    'Don\'t touch the light blue blocks. ' +
+                    'Get to the finish line at the top right. ' +
+                    'This game is designed to be as obnoxious as possible. ' +
+                    'Good luck!'
+                )
+            }
+            let isDev = false;
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('sgdev')) {
+                    isDev = true;
+                }
+            }, false);
+            let hasEdited = false;
+            function openEditor() {
+                if (cheatDetection != 'You filthy cheater...') {
+                    if (canEdit) {
+                        if (hasEdited) {
+                            window.open('https://extra-other-stuff-10439159.codehs.me/sgmaker.html');
+                        } else {
+                            hasEdited = true;
+                            localStorage.setItem('SGhasEdited', true);
+                            popup(
+                                '<h1>Editor Crash Course</h1>' +
+                                'The editor for this game is a little weird, but still straight-forward.<br>' +
+                                'Clicking on any tile places a wall there, shown as light blue ingame and red in the editor.<br>' +
+                                'To change where the player starts, click on the blue Player Spawn Point; then select a new tile for it to be.<br>' +
+                                'See how it plays using the Playtest button in the top right.<br>' +
+                                'When you are finished building, click Show Level Data and copy the text.<br>' +
+                                'You can then Send to Developer, and I will feature your new level ingame under User Levels.<br>' +
+                                'To "save" your level and come back to it later, click "Show Level Data" and copy/paste it to a Google Doc or some other text editor. You can then use the "Load Level Data" button to restore your level and continue working on it.<br>' +
+                                'If you have any questions please let me know through the Send to Developer form.<br>' +
+                                '<br><br>' +
+                                '<button onclick="closepop();window.open(\'https://extra-other-stuff-10439159.codehs.me/sgmaker.html\')">Let\'s go!</button>'
+                            )
+                        }
+                    } else {
+                        alert('You do not have access to this yet')
+                    }
+                } else {
+                    alert('The editor is locked due to cheat detection being triggered. To open it again, use the Restart button in the top right.')
+                }
+            }
+            function openDev(popped) {
+                if (!popped) {
+                    popup(
+                        '<button onclick="closepop()" id="escb" style="float:left;">X Close</button>' +
+                        '<h1>Enter Dev key</h1>' +
+                        '<input type="password" placeholder="Password..." onkeypress="if(event.key==\'Enter\'){openDev(true)}" id="devIn">' +
+                        '<br>' +
+                        '<button onclick="openDev(true)">Continue</button>'
+                    );
+                    location.href = '#devIn';
+                    location.href = '#';
+                } else {
+                    let passIn = document.getElementById('devIn').value;
+                    if (passIn == atob('MTkyMTY4')) {
+                        localStorage.setItem('sgdev', true);
+                        isDev = true;
+                        closepop();
+                        levellist();
+                    }
+                }
+            }
+            function openCust() {
+                if (practicing) {
+                    alert('User levels are not available in practice mode');
+                    return;
+                }
+                let i = 1;
+                let output = '';
+                while(i<custLevels.length) {
+                    if (custLevels[1] == null) {
+                        output = '<i>No user levels available</i>';
+                    } else {
+                        output += '<button onclick="showinfo('+i+')">' + custLevels[i].name + ' (By ' + custLevels[i].creator + ')</button><br><br>';
+                    }
+                    i++;
+                }
+                document.getElementById('body').innerHTML =
+                    '<button onclick="levellist()" style="float:left;">Back</button><br>' +
+                    '<h1>User Levels</h1>' +
+                    output;
+            }
+            function showinfo(id) {
+                let compval;
+                if (compUL.includes(id)) {
+                    compval = '<span style="color:lime;float:right;">Completed! ✅</span>';
+                } else {
+                    compval = '';
+                }
+                let wallCount = custLevels[id].data.split('-');
+                wallCount = wallCount.length-1;
+                popup(
+                    '<button onclick="closepop()" id="escb" style="float:left;">X Close</button>' +
+                    compval +
+                    '<br>' +
+                    '<h1>' + custLevels[id].name + '</h1>' +
+                    'Difficulty: ' + custLevels[id].difficulty + '<br><br>' +
+                    'Description: ' + custLevels[id].descr + '<br><br>' +
+                    'Number of walls: ' + wallCount + '<br><br>' +
+                    'Date uploaded: ' + custLevels[id].uploadDate + '<br><br>' +
+                    '<button id="contbutton" onclick="openCustLevel(' + id + ')">Play</button>'
+                )
+            }
+            function openCustLevel(id) {
+                document.body.style.backgroundColor = 'darkblue';
+                playingUL = parseInt(id);
+                loadlevel(id+100);
+                addName(id);
+            }
+            // Original challenge (by me) [43 stupid clicks]
+            // Noah's monstrocity (I wonder who made it) [66 stupid clicks]
+            function levellist(id=0) {
+                canmove = false;
+                document.body.style.backgroundColor = 'darkblue';
+                currentlevel = 0;
+                let output = '<br>';
+                let i = 0;
+                while(i<31) {
+                    if (i == 0) {
+                        output += '<button onclick="howtoplay()" style="font-size: 24px;">How to play</button><br><br>';
+                    } else {
+                        let starText = '';
+                        let alertText = 'Level locked';
+                        if (i == 19) {
+                            starText = '*';
+                            alertText = 'You may or may not unlock something from beating this level...';
+                        }
+                        if (completed >= i) {
+                            output += '<span class="spacer">---</span><button class="lbutton complete" onclick="loadlevel(' + i + ')" id="l' + i + '">Level ' + i + '' + starText + '</button><span class="spacer">---</span>';
+                        } else if (completed+1 == i) {
+                            output += '<span class="spacer">---</span><button class="lbutton current" onclick="loadlevel(' + i + ')" id="contbutton">Level ' + i + '' + starText + '</button><span class="spacer">---</span>';
+                        } else {
+                            output += '<span class="spacer">---</span><button class="lbutton locked" id="l' + i + '" onclick="alert(\'' + alertText + '\')">Level ' + i + '' + starText + '</button><span class="spacer">---</span>';
+                        }
+                    }
+                    if (i == 10 || i == 20 || i == 30 || i == 40) {
+                        output += '<br><br>';
+                    }
+                    i++;
+                }
+                let editb;
+                if (canEdit) {
+                    editb = '';
+                } else {
+                    editb = 'display:none;';
+                }
+                let challengeStyle;
+                if (beatChallenge) {
+                    // finish styling
+                } else {
+                    // finish styling
+                }
+                document.getElementById('body').innerHTML =
+                    '<img src="https://codehs.com/uploads/0f778efadcd65096d3cf6fb96447aeb4" style="position:fixed;top:150%;left:150%;">' +
+                    '<button onclick="loadgame()" style="position:fixed;top:0;left:0;">Back</button>' +
+                    '<button onclick="resetGame()" style="background-color:red;position:fixed;top:0;right:0;">Restart</button>' +
+                    output +
+                    '<br>' +
+                    '<button onclick="showstats()">Game Stats</button>' +
+                    '<br><br>' +
+                    '<button onclick="loadlevel(99)">Challenge Level</button>' +
+                    '<br><br>' +
+                    '<button onclick="openCust()">User Levels</button>' +
+                    '<br><br>' +
+                    '<button onclick="openEditor()" id="editorButton" style="' + editb + '">Open Editor</button>' +
+                    '<br><br>' +
+                    '<button id="devb" onclick="openDev(false)">Dev tools</button>' +
+                    '<span id="dev" style="display:none;">' +
+                        '<u>Dev tools</u>' +
+                        '<br>' +
+                        'Levels built: ' + (levelData.length-1) +
+                        '<br><br>' +
+                        '<input type="text" placeholder="Command..." onkeypress="if(event.key==\'Enter\'){eval(this.value)}">' +
+                        '<br><br>' +
+                        '<button onclick="resetSpeed()">Reset Speed</button>' +
+                        '<br><br>' +
+                        '<button onclick="localStorage.removeItem(\'sgdev\');isDev=false;levellist()">Close Dev tools</button>' +
+                    '</span>';
+                if (isDev) {
+                    document.getElementById('devb').outerHTML = '';
+                    document.getElementById('dev').style.display = '';
+                }
+                if (id == 99 && !practicing) {
+                    if (!canEdit) {
+                        allowMouse = false;
+                        document.body.style.cursor = 'none';
+                        if (mouseint) {
+                            clearTimeout(mouseint);
+                        }
+                        canEdit = true;
+                        let i = 0;
+                        document.getElementById('editorButton').style.display = '';
+                        document.getElementById('editorButton').style.opacity = 0;
+                        let fadeint = setInterval(() => {
+                            document.getElementById('editorButton').style.opacity = i;
+                            i += 0.01;
+                            if (i >= 1) {
+                                clearInterval(fadeint);
+                                setTimeout(() => {
+                                    allowMouse = true;
+                                    popup(
+                                        '<h1>You unlocked the editor!</h1>' +
+                                        'Make your own obnoxious levels, playtest them, share them with your friends, and get the featured ingame!' +
+                                        '<br><br>' +
+                                        '<button onclick="closepop()">Sweet!</button>'
+                                    );
+                                }, 500);
+                            }
+                        }, 10);
+                    }
+                }
+            }
+            function resetSpeed(showpop=true) {
+                xspeed = 30;
+                yspeed = 20;
+                if (showpop) {
+                    alert('Speed reset');
+                }
+            }
+            let restoreMove = false;
+            window.addEventListener('blur', () => {canmove=false;restoreMove=true;}, false);
+            window.addEventListener('focus', () => {if(restoreMove){restoreMove=false;canmove=true;if(isFrozen&&false){isFrozen=false;alert('Stop tabbing out to escape the freeze you filthy cheater...')}}}, false);
+            let gameInt = setInterval(() => {
+                if (canmove) {
+                    gameTime++;
+                    savestats();
+                }
+            }, 1000);
+            let gameTime = 0;
+            let ULcomps = 0;
+            let totalAtt = 0;
+            let arrowKeys = 0;
+            let failedAtt = 0;
+            function showstats() {
+                let col = 'yellow';
+                let html = '';
+                if (cheatDetection == 'You filthy cheater...') {
+                    col = 'red';
+                    html = 'Cheat detection triggered; stats may not be valid' +
+                    '<br>' +
+                    'To fix this, use the red Restart button in the top right of the level selection screen';
+                }
+                popup(
+                    '<button onclick="closepop()" style="float:left;">X Close</button>' +
+                    '<br>' +
+                    '<h1>Game Stats</h1>' +
+                    '<span style="color:'+col+';">Total time ingame: ' + Math.floor(gameTime/60) + ' minutes and ' + (gameTime%60) + ' seconds<br>' +
+                    //'User levels completed: ' + (ULcomps-1) + '<br>' +
+                    'Total attempts: ' + totalAtt + '<br>' +
+                    'Total arrow key presses: ' + arrowKeys + '<br>' +
+                    'Failed attempts: ' + failedAtt + '<br>' +
+                    'Completed attempts: ' + (totalAtt-failedAtt) + '<br>' +
+                    '</span>' +
+                    '<div style="background-color:red;color:yellow;">' + html + '</div>'
+                )
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('SGScompleted')) {
+                    clearInterval(cheatDetection);
+                    cheatDetection = 'You filthy cheater...';
+                }
+                if (localStorage.getItem('SGSgameTime')) {
+                    gameTime = parseInt(localStorage.getItem('SGSgameTime'));
+                    ULcomps = parseInt(localStorage.getItem('SGSULcomps'));
+                    totalAtt = parseInt(localStorage.getItem('SGStotalAtt'));
+                    arrowKeys = parseInt(localStorage.getItem('SGSarrowKeys'));
+                    failedAtt = parseInt(localStorage.getItem('SGSfailedAtt'));
+                }
+            }, false);
+            function savestats() {
+                localStorage.setItem('SGSgameTime', gameTime);
+                localStorage.setItem('SGSULcomps', ULcomps);
+                localStorage.setItem('SGStotalAtt', totalAtt);
+                localStorage.setItem('SGSarrowKeys', arrowKeys);
+                localStorage.setItem('SGSfailedAtt', failedAtt);
+            }
+            function resetGame() {
+                let issure = confirm('Delete all save data and reset game?\nThis cannot be undone');
+                if (issure) {
+                    if (localStorage.getItem('SGusedRando')) {
+                        localStorage.removeItem('SGusedRando');
+                    }
+                    if (localStorage.getItem('SGSgameTime')) {
+                        localStorage.removeItem('SGSgameTime');
+                        localStorage.removeItem('SGSULcomps');
+                        localStorage.removeItem('SGStotalAtt');
+                        localStorage.removeItem('SGSarrowKeys');
+                        localStorage.removeItem('SGSfailedAtt');
+                    }
+                    if (localStorage.getItem('SGnolbanner')) {
+                        localStorage.removeItem('SGnolbanner');
+                    }
+                    if (localStorage.getItem('SGhasEdited')) {
+                        localStorage.removeItem('SGhasEdited');
+                    }
+                    if (localStorage.getItem('SGcust')) {
+                        localStorage.removeItem('SGcust');
+                    }
+                    if (localStorage.getItem('sgcomp')) {
+                        localStorage.removeItem('sgcomp');
+                    }
+                    if (localStorage.getItem('hasSGEditor')) {
+                        localStorage.removeItem('hasSGEditor');
+                    }
+                    if (localStorage.getItem('nogosg')) {
+                        localStorage.removeItem('nogosg');
+                    }
+                    if (localStorage.getItem('SGScompleted')) {
+                        localStorage.removeItem('SGScompleted');
+                    }
+                    location.reload();
+                }
+            }
+        // Generic popup function; opens popup and takes a parameter for html inside the popup, and uses fancy semi to fade out background. Also makes sure the popup doesn't already exist
+        function popup(html) {
+            if (!document.getElementById('popup')) {
+                let pop = document.createElement('div');
+                pop.style = 'position:fixed;z-index:11;top:10%;left:10%;height:80%;width:80%;background-color:blue;border:3px dashed cyan;';
+                pop.innerHTML = html;
+                pop.setAttribute('id', 'popup');
+                let semi = document.createElement('div');
+                semi.style = 'position:fixed;z-index:10;top:0;left:0;height:100%;width:100%;background-color:black;opacity:0.5;';
+                semi.setAttribute('id', 'semi');
+                document.getElementById('body').appendChild(pop);
+                document.getElementById('body').appendChild(semi);
+            }
+        }
+        // Closes popup opened by popup()
+        function closepop() {
+            if (canclose) {
+                document.getElementById('semi').outerHTML = '';
+                document.getElementById('popup').outerHTML = '';
+            }
+        }
+        </script>
+    </head>
+    <body>
+        <span id="body">
+            <img src="https://codehs.com/uploads/0f778efadcd65096d3cf6fb96447aeb4" style="position:fixed;top:150%;left:150%;">
+            <a href="mainpage.html">Back</a>
+            <h1>Stupid Game</h1>
+            <center>
+                <div id="content">
+                    Loading game...
+                    <br>
+                    <progress id="progbar" max=100 value=0></progress>
+                </div>
+            </center>
+            <small><i>Finish line sprite made by Micah DeRenzo</i></small>
+        </span>
+    </body>
+    <script>
+        defaulthtml = document.body.innerHTML;
+    </script>
+</html>
