@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <title>Game Archive</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            class Game {
+                constructor(name, url) {
+                    this.name = name;
+                    this.url = url;
+                }
+                launch() {
+                    window.open(this.url);
+                }
+            }
+            const games = [
+                new Game("Block Dodger", "blockdodger.html"),
+                new Game("Gambling game", "gambling.html"),
+                new Game("Hangman", "hangman.html"),
+                new Game("Mastermind Online", "mastermind.html"),
+                new Game("Penguin Pong", "pong.html"),
+                new Game("Racing Game", "racinggame.html"),
+                new Game("Stupid Game", "stupidgame.html"),
+                new Game("Tag", "tag.html")
+            ];
+            window.addEventListener('load', init);
+            function init() {
+                let content = document.getElementById('content');
+                let html = '';
+                for (let i = 0;i<games.length;i++) {
+                    html += "<button onclick=games["+i+"].launch()>"+games[i].name+"</button><br><br>";
+                }
+                content.innerHTML = html;
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="location.replace('utilities-8tvg.onrender.com')">Back to Index</button>
+        <br>
+        <h1>Game Archive</h1>
+        <div id="content">
+            Loading...
+        </div>
+    </body>
+</html>
