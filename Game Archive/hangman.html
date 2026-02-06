@@ -1,0 +1,431 @@
+<html>
+    <head>
+        <title>Hangman ~ Penguin Gamez</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script src="load.js"></script>
+        <script>
+            let answer;
+            let stillhidden;
+            let puzzle = [];
+            let attempts;
+            let solidans;
+            let keyboard;
+            let isstarted = false;
+            function getword() {
+                let wordid = Math.floor(Math.random() * 50);
+                switch(wordid) {
+                    case 0:
+                        return 'essential';
+                    case 1:
+                        return 'manage';
+                    case 2:
+                        return 'dialogue';
+                    case 3:
+                        return 'sail';
+                    case 4:
+                        return 'helicopter';
+                    case 5:
+                        return 'slot';
+                    case 6:
+                        return 'flexible';
+                    case 7:
+                        return 'drown';
+                    case 8:
+                        return 'defeat';
+                    case 9:
+                        return 'chart';
+                    case 10:
+                        return 'cast';
+                    case 11:
+                        return 'ambiguous';
+                    case 12:
+                        return 'folklore';
+                    case 13:
+                        return 'star';
+                    case 14:
+                        return 'reliance';
+                    case 15:
+                        return 'agriculture';
+                    case 16:
+                        return 'despair';
+                    case 17:
+                        return 'safe';
+                    case 18:
+                        return 'welcome';
+                    case 19:
+                        return 'blame';
+                    case 20:
+                        return 'insert';
+                    case 21:
+                        return 'short';
+                    case 22:
+                        return 'smart';
+                    case 23:
+                        return 'stretch';
+                    case 24:
+                        return 'jury';
+                    case 25:
+                        return 'tidy';
+                    case 26:
+                        return 'exposure';
+                    case 27:
+                        return 'automatic';
+                    case 28:
+                        return 'action';
+                    case 29:
+                        return 'brain';
+                    case 30:
+                        return 'power';
+                    case 31:
+                        return 'bird';
+                    case 32:
+                        return 'retired';
+                    case 33:
+                        return 'extent';
+                    case 34:
+                        return 'average';
+                    case 35:
+                        return 'double';
+                    case 36:
+                        return 'panic';
+                    case 37:
+                        return 'notice';
+                    case 38:
+                        return 'lift';
+                    case 39:
+                        return 'protect';
+                    case 40:
+                        return 'battle';
+                    case 41:
+                        return 'wander';
+                    case 42:
+                        return 'result';
+                    case 43:
+                        return 'revoke';
+                    case 44:
+                        return 'fade';
+                    case 45:
+                        return 'denial';
+                    case 46:
+                        return 'distort';
+                    case 47:
+                        return 'spy';
+                    case 48:
+                        return 'tumble';
+                    case 49:
+                        return 'devote';
+                    case 50:
+                        return 'job';
+                    default:
+                        return 'default';
+                }
+            }
+            function getdefpuz() {
+                let output = ['<span id="puzspan">'];
+                let i = 0;
+                while(i<answer.length) {
+                    output.push('<span id="i' + i + '">_</span>');
+                    puzzle.push('_');
+                    i++;
+                }
+                output.push('</span>')
+                return output.join(' ');
+            }
+            window.addEventListener('keypress', (event) => {
+                if (isstarted) {
+                    if (event.key == 'Enter' && document.activeElement.id == 'guessin') {
+                        let elem = document.getElementById('guessin');
+                        if (elem.value != '') {
+                            let issure = confirm('Submit guess (' + elem.value + ')?');
+                            if (issure) {
+                                submitguess();
+                            }
+                        }
+                    }
+                    if (event.key.length < 2) {
+                        submitletter(event.key.toLowerCase(), false);
+                    }
+                }
+            }, false);
+            function getletter(i) {
+                switch(i) {
+                    case 0:
+                        return 'q';
+                    case 1:
+                        return 'w';
+                    case 2:
+                        return 'e';
+                    case 3:
+                        return 'r';
+                    case 4:
+                        return 't';
+                    case 5:
+                        return 'y';
+                    case 6:
+                        return 'u';
+                    case 7:
+                        return 'i';
+                    case 8:
+                        return 'o';
+                    case 9:
+                        return 'p';
+                    case 10:
+                        return 'a';
+                    case 11:
+                        return 's';
+                    case 12:
+                        return 'd';
+                    case 13:
+                        return 'f';
+                    case 14:
+                        return 'g';
+                    case 15:
+                        return 'h';
+                    case 16:
+                        return 'j';
+                    case 17:
+                        return 'k';
+                    case 18:
+                        return 'l';
+                    case 19:
+                        return 'z';
+                    case 20:
+                        return 'x';
+                    case 21:
+                        return 'c';
+                    case 22:
+                        return 'v';
+                    case 23:
+                        return 'b';
+                    case 24:
+                        return 'n';
+                    case 25:
+                        return 'm';
+                    case 26:
+                        return 'q';
+                }
+            }
+            function getkeyid(i) {
+                switch(i) {
+                    case 'q':
+                        return 0;
+                    case 'w':
+                        return 1;
+                    case 'e':
+                        return 2;
+                    case 'r':
+                        return 3;
+                    case 't':
+                        return 4;
+                    case 'y':
+                        return 5;
+                    case 'u':
+                        return 6;
+                    case 'i':
+                        return 7;
+                    case 'o':
+                        return 8;
+                    case 'p':
+                        return 9;
+                    case 'a':
+                        return 10;
+                    case 's':
+                        return 11;
+                    case 'd':
+                        return 12;
+                    case 'f':
+                        return 13;
+                    case 'g':
+                        return 14;
+                    case 'h':
+                        return 15;
+                    case 'j':
+                        return 16;
+                    case 'k':
+                        return 17;
+                    case 'l':
+                        return 18;
+                    case 'z':
+                        return 19;
+                    case 'x':
+                        return 20;
+                    case 'c':
+                        return 21;
+                    case 'v':
+                        return 22;
+                    case 'b':
+                        return 23;
+                    case 'n':
+                        return 24;
+                    case 'm':
+                        return 25;
+                    case 'q':
+                        return 26;
+                }
+            }
+            function submitletter(keyid, isvirtual, element) {
+                let key;
+                if (isvirtual) {
+                    key = getletter(keyid);
+                } else {
+                    key = keyid;
+                }
+                if (element == undefined) {
+                    element = document.getElementById(getkeyid(key));
+                }
+                if (element.style.backgroundColor == 'green' || element.style.backgroundColor == 'red' || document.activeElement.id == 'guessin') {
+                    console.log('sub blocked')
+                } else {
+                    if (answer.includes(key)) {
+                        if (element != undefined) {
+                            element.style.backgroundColor = 'green';
+                        }
+                        let isdone = false;
+                        console.log('solidans:', solidans)
+                        while(!isdone) {
+                            console.log('start')
+                            console.log('puzzle:', puzzle);
+                            let index = stillhidden.indexOf(key);
+                            console.log('index:', index)
+                            if (index === -1) {
+                                console.log('passed if')
+                                isdone = true;
+                            } else {
+                                console.log('went to else');
+                                puzzle[index] = answer[index];
+                                stillhidden[index] = '-';
+                                document.getElementById('i' + index).innerText = puzzle[index];
+                            }
+                            console.log('end')
+                        }
+                        if (!document.getElementById('puzspan').innerText.includes('_')) {
+                            isstarted = false;
+                            content.innerHTML =
+                                '<br>' +
+                                '<h1 style="color: lime;">You won!</h1>' +
+                                'The word was indeed ' + solidans + ', congrats!' +
+                                '<br><br>' +
+                                '<button onclick="loadgame()">New game!</button>';
+                        }
+                    } else {
+                        if (element != undefined) {
+                            element.style.backgroundColor = 'red';
+                        }
+                        oopsy();
+                    }
+                }
+            }
+            function getkeyboard() {
+                let i = 0;
+                let output = '';
+                while(i<26) {
+                    output += '<button id="' + i + '" onclick="submitletter(' + i + ', true, this)">' + getletter(i) + '</button>';
+                    if (i == 9 || i == 18) {
+                        output += '<br>';
+                    }
+                    i++;
+                }
+                keyboard = output;
+            }
+            function launch(players) {
+                let word;
+                if (parseInt(players) == 1) {
+                    word = getword();
+                    attempts = 6;
+                } else {
+                    word = document.getElementById('userin').value;
+                    if (word == '') {
+                        alert('Please enter a word');
+                        return false;
+                    }
+                    if (word.includes(' ')) {
+                        alert('Only one word please');
+                        return false;
+                    }
+                    attempts = parseInt(document.getElementById('attemptno').value);
+                    if (isNaN(attempts) || attempts < 1 || attempts == '') {
+                        alert('Please enter a number greater than 1');
+                        return false;
+                    }
+                }
+                answer = word.split('');
+                solidans = '\'' + answer.join('') + '\'';
+                stillhidden = answer;
+                console.log('Answer:', answer.join(''));
+                if (keyboard == undefined) {
+                    getkeyboard();
+                }
+                puzzle.length = answer.length;
+                isstarted = true;
+                content.innerHTML =
+                    '<button onclick="quit()" style="float: left;">Quit</button>' +
+                    '<br>' +
+                    'Attempts left:<span id="adisp">' + attempts + '</span>' +
+                    '<br><br>' +
+                    '<span id="display">' + getdefpuz() + '</span>' +
+                    '<br><br>' +
+                    keyboard +
+                    '<br><br>' +
+                    'Guess the word:' +
+                    '<input type="text" placeholder="Take a stab at it..." id="guessin">' +
+                    '<br>' +
+                    '<button onclick="submitguess()">Submit</button>';
+            }
+            function quit() {
+                let issure = confirm('Are you sure you want to quit? \n You still have ' + attempts + ' attempts left!');
+                if (issure) {
+                    attempts = 0;
+                    oopsy();
+                }
+            }
+            let incorrectno = 0;
+            let incorrectpop = true;
+            let supersure = false;
+            function oopsy() {
+                attempts--;
+                document.getElementById('adisp').innerText = attempts;
+                if (attempts < 0) {
+                    isstarted = false;
+                    content.innerHTML =
+                    '<br>' +
+                    '<h1 style="color: red;">Game over...</h1>' +
+                    '<br>' +
+                    'The word was ' + solidans + '...' +
+                    '<br><br>' +
+                    '<button onclick="loadgame()">New game!</button>'
+                }
+            }
+            function submitguess() {
+                let guessans = solidans.split('\'');
+                console.log('guessans:', guessans)
+                if (document.getElementById('guessin').value == guessans[1]) {
+                    content.innerHTML =
+                        '<br>' +
+                        '<h1>You won!</h1>' +
+                        'The word was indeed ' + solidans + ', congrats!' +
+                        '<br><br>' +
+                        '<button onclick="loadgame()">New game!</button>';
+                } else {
+                    oopsy();
+                }
+            }
+            function loadgame() {
+                content.innerHTML =
+                    '<br><br><button style="cursor: pointer; width: 150px; height: 50px;" onclick="launch(1)">Start [1 player]</button>' +
+                    '<br><br>' +
+                    '<details style="border: 3px solid darkblue;"><br>' +
+                    '<summary style="cursor: pointer;">2 player</summary>' +
+                    'Enter your word here (can only be one word):<br><input style="text-align: center;" type="text" id="userin" placeholder="Enter your word here"><br>' +
+                    '<br><input style="text-align: center;" type="number" id="attemptno" placeholder="# of attempts">' +
+                    '<br><button style="cursor: pointer;" onclick="launch(2)">Start [2 player]</button><br>';
+            }
+        </script>
+    </head>
+    <body>
+        <a href="https://more-penguin-gamez-8742575.codehs.me/mainpage.html">Back</a>
+        <h1>Hangman</h1>
+        <center>
+            <div id="content"></div>
+        </center>
+    </body>
+</html>
