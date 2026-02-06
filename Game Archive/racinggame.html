@@ -1,0 +1,3385 @@
+<html>
+    <head>
+        <title>Racing Game ~ Penguin Gamez</title>
+        <style>
+body {
+    background-color: darkblue;
+    color: yellow;
+    text-align: center;
+    margin: 0;
+    font-family: comic sans ms, helvetica;
+}
+.featured {
+    color: yellow;
+    border: 3px dashed lightblue;
+}
+img#pglogo {
+    border: 3px dashed lightblue;
+}
+.new {
+    color: yellow;
+    border: 3px dashed gold;
+}
+img {
+    border: 3px dashed blue;
+}
+img:hover {
+    zoom: 120%;
+}
+a {
+    color: black;
+}
+a:hover {
+    color: white;
+    background-color: black;
+}
+a.nolight {
+    color: yellow;
+}
+a.nolight:hover {
+    color: yellow;
+    background-color: transparent;
+}
+button {
+    cursor: hand;
+    color: black;
+    background-color: white;
+}
+button:hover {
+    color: white;
+    background-color: black;
+}
+button:focus {
+    color: white;
+    background-color: black;
+}
+div#navigator {
+    background-color: blue;
+    height: 160px;
+    z-index: 1;
+}
+button#hidden {
+    color: darkblue;
+    background-color: darkblue;
+    border: none;
+}
+button#hidden:hover {
+    color: white;
+    background-color: black;
+}
+div#content {
+    font-size: 24px;
+    background-color: blue;
+    border: 3px dashed green;
+    width: 1000px;
+    height: 500px;
+    text-align: center;
+}
+img#meme {
+    width: 400px;
+    height: 200px;
+}
+iframe#content {
+    font-size: 24px;
+    background-color: blue;
+    border: 3px dashed green;
+    width: 1000px;
+    height: 500px;
+    text-align: center;
+}
+img.noani:hover {
+    zoom: 100%;
+}
+        #enemydiv {
+            position: fixed;
+            width: 10%;
+            height: 10%;
+            background-color: orange;
+        }
+		.block {
+                     position: fixed;
+                     width: 10%;
+                     height: 10%;
+                     background-color: lightblue;
+                     vertical-align: center;
+		}
+                #playerdiv {
+                    position: fixed;
+                    width: 10%;
+                    height: 10%;
+                    background-color: blue;
+                    border: 3px dashed lightblue;
+                }
+                #finishbox {
+                    position: fixed;
+                    width: 20%;
+                    height: 10%;
+                    top: 0&;
+                    left: 40%;
+                    background-color: green;
+                }
+            .spacer {
+                color: transparent;
+                cursor: default;
+            }
+            .lbutton {
+                font-size: 20px;
+            }
+            .complete {
+                background-color: green;
+            }
+            button:hover {
+		        background-color: black;
+		        color: white;
+            }
+            .current {
+                background-color: white;
+            }
+            .locked {
+                background-color: grey;
+                color: black;
+                cursor: default;
+            }
+            .locked:hover {
+                background-color: grey;
+                color: black;
+                cursor: default;
+            }
+        </style>
+        <script>
+            let walls = [];
+	    let intervals = [];
+            let player = {
+                x: 0,
+                y: 0
+            }
+            let levellisthtml;
+            let completed = 0;
+            let keylog = [];
+            let enemyobj;
+            let times = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            let currentlevel = 0;
+            let gameplaytimer;
+            let cansave = true;
+            let wins = 0;
+            let losses = 0;
+            let timeperround = 0;
+            let totaltime = 0;
+            let mousetimer;
+            let xylog = [];
+	    let controls = 'arrow';
+            function dev() {
+                eval(document.getElementById('evalbox').value);
+            }
+            window.addEventListener('keypress', (event) => {
+                keylog.push(event.key);
+                if (keylog[0] == 'e' && keylog[1] == 'v' && keylog[2] == 'a' && keylog[3] == 'l') {
+                    let evalbox = document.createElement('input');
+                    evalbox.type = 'text';
+                    evalbox.setAttribute('id', 'evalbox');
+                    evalbox.style = 'position: fixed; top: 0; left: 0; z-index: 9;';
+                    document.body.appendChild(evalbox);
+                    let evalb = document.createElement('button');
+                    evalb.outerHTML = '<button onclick="dev()" style="position: fixed; top: 10px; left: 0; z-index: 9;">Eval</button>';
+                    document.body.appendChild(evalb);
+                    keylog = [];
+                }
+                if (keylog.length > 5 || event.key == 'c') {
+                    keylog = [];
+                }
+                if (keylog[0] == 'm' && keylog[1] == 'a' && keylog[2] == 'k' && keylog[3] == 'e' && keylog[4] == 'r') {
+                    loadlevel0();
+                }
+            }, false);
+            function updateplayer() {
+                document.getElementById('playerdiv').style.top = player.y + '%';
+                document.getElementById('playerdiv').style.left = player.x + '%';
+            }
+            function levelcomp() {
+                loadgame(false);
+                levellist();
+            }
+            window.addEventListener('mousemove', () => {
+                clearTimeout(mousetimer);
+                document.body.style.cursor = 'auto';
+                mousetimer = setTimeout(() => {
+                    document.body.style.cursor = 'none';
+                }, 5000);
+            }, false);
+            window.addEventListener('keydown', (event) => {
+                if (isstarted) {
+                    let iscolliding;
+		    if (controls == 'arrow') {
+                    	switch(event.key) {
+                    	    case '`':
+                    	        xylog.push('<br>{x: ' + player.x + ', y: ' + player.y + '}');
+                    	        break;
+                    	    case '\\':
+                    	        let win2 = open('about:blank', 'win2', 'width=600', 'height=600');
+                    	        win2.document.write(xylog);
+                    	        break;
+                    	    case 'ArrowUp':
+                    	        player.y = player.y - 10;
+                    	        iscolliding = checkcol();
+                    	        if (iscolliding == true) {
+                    	            player.y = player.y + 10;
+                    	        }
+                    	        updateplayer();
+                    	        break;
+                    	    case 'ArrowDown':
+                    	        player.y = player.y + 10;
+                    	        iscolliding = checkcol();
+                    	        if (iscolliding == true) {
+                    	            player.y = player.y - 10;
+                    	        }
+                    	        updateplayer();
+                    	        break;
+                    	    case 'ArrowLeft':
+                    	        player.x = player.x - 10;
+                    	        iscolliding = checkcol();
+                    	        if (iscolliding == true) {
+                    	            player.x = player.x + 10;
+                    	        }
+                    	        updateplayer();
+                    	        break;
+                    	    case 'ArrowRight':
+                    	        player.x = player.x + 10;
+                    	        iscolliding = checkcol();
+                    	        if (iscolliding == true) {
+                    	            player.x = player.x - 10;
+                    	        }
+                    	        updateplayer();
+                    	        break;
+                    	}	
+                } else {
+			
+                    switch(event.key) {
+                        case '`':
+                            xylog.push('<br>{x: ' + player.x + ', y: ' + player.y + '}');
+                            break;
+                        case '\\':
+                            let win2 = open('about:blank', 'win2', 'width=600', 'height=600');
+                            win2.document.write(xylog);
+                            break;
+                        case 'w':
+                            player.y = player.y - 10;
+                            iscolliding = checkcol();
+                            if (iscolliding == true) {
+                                player.y = player.y + 10;
+                            }
+                            updateplayer();
+                            break;
+                        case 's':
+                            player.y = player.y + 10;
+                            iscolliding = checkcol();
+                            if (iscolliding == true) {
+                                player.y = player.y - 10;
+                            }
+                            updateplayer();
+                            break;
+                        case 'a':
+                            player.x = player.x - 10;
+                            iscolliding = checkcol();
+                            if (iscolliding == true) {
+                                player.x = player.x + 10;
+                            }
+                            updateplayer();
+                            break;
+                        case 'd':
+                            player.x = player.x + 10;
+                            iscolliding = checkcol();
+                            if (iscolliding == true) {
+                                player.x = player.x - 10;
+                            }
+                            updateplayer();
+                            break;
+                    }
+		}
+		}
+            }, false);
+            function checkcol() {
+                if (player.x < 0 || player.y < 0 || player.x > 90 || player.y > 90) {
+                    return true;
+                }
+                let isdone = false;
+                if (player.x == 40 && player.y == 0) {
+                    isdone = true;
+                }
+                if (player.x == 50 && player.y == 0) {
+                    isdone = true;
+                }
+                if (isdone) {
+                    clearInterval(enemyobj.inter);
+		    if (intervals.length >= 1) {
+			while(intervals.length > 0) {
+				clearInterval(intervals[0]);
+				intervals.shift();
+			}
+		    }
+                    if (enemyobj.comp == true) {
+                        losses++;
+                        enemyobj = null;
+                        walls = [];
+                        document.body.innerHTML =
+                            '<h1 style="color: red;">You lost...</h1>' +
+                            'Your opponent beat you to the finish line.' +
+                            '<br><br>' +
+                            '<button style="font-size: 24px;" onclick="loadlevel(' + currentlevel + ')">Try again</button>' +
+                            '<br>' +
+                            '<button onclick="loadgame(false); levellist();">Back to Level Selection</button>';
+                        isstarted = false;
+                    } else {
+                        enemyobj = null;
+                        if (currentlevel > completed) {
+                            completed++;
+                        }
+                        wins++;
+                        walls = [];
+                        let nextlevel = currentlevel + 1;
+                        isstarted = false;
+                        let newrec = '';
+                        if (timeperround < times[currentlevel]) {
+                            newrec = '<br><span style="font-size: 20px;">New Record!</span><br>';
+                        }
+                        if (nextlevel == 51) {
+                            loadlevel51();
+                        } else {
+                            document.body.innerHTML =
+                                '<h1 style="color: lime;">You beat level ' + currentlevel + '!</h1>' +
+                                'You beat your opponent to the finish line!<br>Time:' + timeperround + ' seconds.' +
+                                newrec +
+                                '<br><br>' +
+                                '<button style="font-size: 24px;" onclick="loadlevel(' + nextlevel + ')">Next level!</button>' +
+                                '<br>' +
+                                '<button onclick="loadlevel(' + currentlevel + ')">Play again</button>' +
+                                '<br>' +
+                                '<button onclick="loadgame(false); levellist();">Back to Level Selection</button>';
+                        }
+                    }
+                    times[currentlevel] = timeperround;
+                    timeperround = 0;
+                    save();
+                    clearInterval(gameplaytimer);
+                }
+                let i = 0;
+                while(i<walls.length) {
+                    if (walls[i].x == player.x && walls[i].y == player.y) {
+                        return true;
+                    } else {
+                        i++;
+                    }
+                }
+                return false;
+            }
+            function howtoplay() {
+                let win2 = open('about:blank', 'win2', 'width=600', 'height=600');
+                win2.document.write(
+			'<style>body {    background-color: darkblue;    color: yellow;    text-align: center;    margin: 0;    font-family: comic sans ms, helvetica;}.featured {    color: yellow;    border: 3px dashed lightblue;}img#pglogo {    border: 3px dashed lightblue;}.new {    color: yellow;    border: 3px dashed gold;}img {    border: 3px dashed blue;}img:hover {    zoom: 120%;}a {    color: black;}a:hover {    color: white;    background-color: black;}a.nolight {    color: yellow;}a.nolight:hover {    color: yellow;    background-color: transparent;}button {    cursor: hand;    color: black;    background-color: white;}button:hover {    color: white;    background-color: black;}button:focus {    color: white;    background-color: black;}div#navigator {    background-color: blue;    height: 160px;    z-index: 1;}button#hidden {    color: darkblue;    background-color: darkblue;    border: none;}button#hidden:hover {    color: white;    background-color: black;}div#content {    font-size: 24px;    background-color: blue;    border: 3px dashed green;    width: 1000px;    height: 500px;    text-align: center;}img#meme {    width: 400px;    height: 200px;}iframe#content {    font-size: 24px;    background-color: blue;    border: 3px dashed green;    width: 1000px;    height: 500px;    text-align: center;}img.noani:hover {    zoom: 100%;}        #enemydiv {            position: fixed;            width: 10%;            height: 10%;            background-color: orange;        }		.block {                     position: fixed;                     width: 10%;                     height: 10%;                     background-color: lightblue;                     vertical-align: center;		}                #playerdiv {                    position: fixed;                    width: 10%;                    height: 10%;                    background-color: blue;                    border: 3px dashed lightblue;                }                #finishbox {                    position: fixed;                    width: 20%;                    height: 10%;                    top: 0&;                    left: 40%;                    background-color: green;                }            .spacer {                color: transparent;                cursor: default;            }            .lbutton {                font-size: 20px;            }            .complete {                background-color: green;            }            button:hover {		        background-color: black;		        color: white;            }            .current {                background-color: white;            }            .locked {                background-color: grey;                color: black;                cursor: default;            }            .locked:hover {                background-color: grey;                color: black;                cursor: default;            }</style>' +
+                    '<title>How to Play ~ Racing Game ~ Penguin Gamez</title>' +
+                    '<h1>How to Play</h1>' +
+                    'This game is quite simple-for each level, you (as the blue block) need to beat your opponent (the orange block) to the finish line (the green block).<br><b>Good luck!</b>'
+                );
+            }
+            function levellist(playerno = 1) {
+                    let output = '<br>';
+                    let i = 0;
+                    while(i<51) {
+                        if (i == 0) {
+                            output += '<button onclick="howtoplay()" style="font-size: 24px;">How to play</button><br><br>';
+                        } else {
+                            if (completed >= i) {
+                                output += '<span class="spacer">---</span><button title="Best Time: ' + times[i] + ' seconds" class="lbutton complete" onclick="loadlevel(' + i + ', ' + playerno + ')" id="l' + i + '">Level ' + i + '</button><span class="spacer">---</span>';
+                            } else if (completed+1 == i) {
+                                output += '<span class="spacer">---</span><button class="lbutton current" onclick="loadlevel(' + i + ', ' + playerno + ')" id="l' + i + '">Level ' + i + '</button><span class="spacer">---</span>';
+                            } else {
+                                output += '<span class="spacer">---</span><button class="lbutton locked" id="l' + i + '">Level ' + i + '</button><span class="spacer">---</span>';
+                            }
+                        }
+                        if (i == 10 || i == 20 || i == 30 || i == 40) {
+                            output += '<br><br>';
+                        }
+                        i++;
+                    levellisthtml = output;
+                }
+                let smalltext = '';
+                if (cansave) {
+                    smalltext = 'Progress is saved automatically';
+                }
+		let wintext = '';
+		if (completed >= 50) {
+			wintext = '<h1 style="color: lime;">Congratulations!</h1>' +
+                    'You beat Racing Game! Keep playing to get higher high scores!';
+		}
+                document.body.innerHTML = 
+                    '<button onclick="loadgame(false)" style="float: left;">Back</button>' +
+                    '<button onclick="deldata()" style="background-color: red; float: right;">Delete Save Data</button>' +
+                    '<br>' +
+                    levellisthtml +
+                    '<br><br>' +
+                    '<button onclick="showstats()">Show Statistics</button>' +
+                    '<br><br>' +
+                    '<small><i>' + smalltext + '</i></small>' +
+		    wintext;
+            }
+            function deldata() {
+                let issure = confirm('Delete all saved data? \n Cannot be undone');
+                if (issure) {
+                    localStorage.clear();
+                    location.replace('');
+                }
+            }
+            function save() {
+                if (cansave) {
+                    localStorage.setItem('completed', completed);
+                    localStorage.setItem('wins', wins);
+                    localStorage.setItem('losses', losses);
+                    localStorage.setItem('totaltime', totaltime);
+                    localStorage.setItem('times', times);
+                }
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('completed')) {
+                    completed = parseInt(localStorage.getItem('completed'));
+                    wins = parseInt(localStorage.getItem('wins'));
+                    losses = parseInt(localStorage.getItem('losses'));
+                    totaltime = parseInt(localStorage.getItem('totaltime'));
+                    times = localStorage.getItem('times');
+                    times = times.split(',');
+		    if (localStorage.getItem('controls')) {
+			controls = localStorage.getItem('controls');
+		    }
+                }
+            }, false);
+            function gettimes() {
+                let i = 1;
+                let output = '';
+                while (i != times.length-1) {
+                    output += 'Level ' + i + ': ' + times[i] + ' seconds<br>';
+                    i++;
+                }
+                return output;
+            }
+            function showstats() {
+                let win2 = open('about:blank', 'win2', 'width=600', 'height=600');
+                win2.document.write(
+			'<style>body {    background-color: darkblue;    color: yellow;    text-align: center;    margin: 0;    font-family: comic sans ms, helvetica;}.featured {    color: yellow;    border: 3px dashed lightblue;}img#pglogo {    border: 3px dashed lightblue;}.new {    color: yellow;    border: 3px dashed gold;}img {    border: 3px dashed blue;}img:hover {    zoom: 120%;}a {    color: black;}a:hover {    color: white;    background-color: black;}a.nolight {    color: yellow;}a.nolight:hover {    color: yellow;    background-color: transparent;}button {    cursor: hand;    color: black;    background-color: white;}button:hover {    color: white;    background-color: black;}button:focus {    color: white;    background-color: black;}div#navigator {    background-color: blue;    height: 160px;    z-index: 1;}button#hidden {    color: darkblue;    background-color: darkblue;    border: none;}button#hidden:hover {    color: white;    background-color: black;}div#content {    font-size: 24px;    background-color: blue;    border: 3px dashed green;    width: 1000px;    height: 500px;    text-align: center;}img#meme {    width: 400px;    height: 200px;}iframe#content {    font-size: 24px;    background-color: blue;    border: 3px dashed green;    width: 1000px;    height: 500px;    text-align: center;}img.noani:hover {    zoom: 100%;}        #enemydiv {            position: fixed;            width: 10%;            height: 10%;            background-color: orange;        }		.block {                     position: fixed;                     width: 10%;                     height: 10%;                     background-color: lightblue;                     vertical-align: center;		}                #playerdiv {                    position: fixed;                    width: 10%;                    height: 10%;                    background-color: blue;                    border: 3px dashed lightblue;                }                #finishbox {                    position: fixed;                    width: 20%;                    height: 10%;                    top: 0&;                    left: 40%;                    background-color: green;                }            .spacer {                color: transparent;                cursor: default;            }            .lbutton {                font-size: 20px;            }            .complete {                background-color: green;            }            button:hover {		        background-color: black;		        color: white;            }            .current {                background-color: white;            }            .locked {                background-color: grey;                color: black;                cursor: default;            }            .locked:hover {                background-color: grey;                color: black;                cursor: default;            }</style>' +
+                    '<title>Statistics ~ Racing Game ~ Penguin Gamez</title>' +
+                    '<h1>Statistics</h1>' +
+                    'Total time ingame: ' + totaltime + ' seconds<br>' +
+                    'Levels completed: ' + completed + '/50<br>' +
+                    'Wins: ' + wins + '<br>' +
+                    'Losses: ' + losses + '<br><br>' +
+                    '<details>' +
+                        '<summary>Level Times</summary>' +
+                        gettimes() +
+                    '</details>' +
+                    '<br><br><br><br>'
+                );
+            }
+            function loadlevel(levelid, playerno) {
+                document.body.style.cursor = 'none';
+                currentlevel = parseInt(levelid);
+                player.x = 40;
+                player.y = 90;
+                isstarted = true;
+                document.body.innerHTML = '<span style="position: fixed; top: 0; left: 0; z-index: 5; border-bottom: 3px dashed cyan; border-right: 3px dashed cyan; background-color: blue;">Level ' + levelid + '</span><span id="wallspan"></span><div id="playerdiv" style="top: 90%; left: 40%;"></div><div id="finishbox"></div>';
+                eval('loadlevel' + levelid + '(' + playerno + ')');
+                gameplaytimer = setInterval(() => {timeperround++; totaltime++;}, 1000);
+            }
+            function loadgame(hasbody = true) {
+                if (hasbody) {
+                    content.innerHTML =
+                        '<br><br><br><br>' +
+                        '<button onclick="levellist()" style="font-size: 48px;">Start!</button>' +
+                        '<br>' +
+                        '<small>This game uses local storage unless disabled using the button below</small>';
+                } else {
+                    let sbhtml;
+                    if (cansave) {
+                        sbhtml = '<button onclick="disablesaving()" id="savebutton">Disable Saving</button>';
+                    } else {
+                        sbhtml = '<button onclick="disablesaving()" id="savebutton">Enable Saving</button>';
+                    }
+                    document.body.innerHTML =
+                        '<a href="mainpage.html">Back</a>' +
+                        '<h1>Racing Game</h1>' +
+                        '<center>' +
+                            '<div id="content"></div>' +
+                        '</center>' +
+			'<button onclick="restoreprev()">Restore level completion from preview</button>' +
+			'~' +
+                        sbhtml +
+			'~' +
+			'<button onclick="togglecontrols()">Swap controls (default is arrow keys)</button>';
+                    loadgame();
+                }
+            }
+            function placeblock(elem) {
+                if (elem.innerText == '') {
+                    elem.style.backgroundColor = 'red';
+                    elem.innerHTML = 'Top: ' + elem.style.top + '<br>Left: ' + elem.style.left;
+                } else {
+                    elem.style.backgroundColor = 'white';
+                    elem.innerHTML = '';
+                }
+            }
+            class Wall {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.id = 'wall' + walls.length;
+                    let newwall = document.createElement('div');
+                    newwall.setAttribute('class', 'block');
+                    newwall.setAttribute('id', 'wall' + walls.length);
+                    newwall.style.top = y + '%';
+                    newwall.style.left = x + '%';
+                    document.getElementById('wallspan').appendChild(newwall);
+                }
+            }
+            class Enemy {
+                constructor(path, int, x = 50, y = 90) {
+                    this.x = x;
+                    this.y = y;
+                    this.path = path;
+                    this.progress = -1;
+                    this.comp = false;
+                    let newen = document.createElement('div');
+                    newen.setAttribute('id', 'enemydiv');
+                    newen.style = 'top: ' + this.y + '%; left: ' + this.x + '%;';
+                    this.inter = setInterval(() => {this.move()}, int);
+                    document.body.appendChild(newen);
+                }
+                update() {
+                    document.getElementById('enemydiv').style.left = this.x + '%';
+                    document.getElementById('enemydiv').style.top = this.y + '%';
+                }
+                move() {
+                    this.progress++;
+                    if (this.progress >= this.path.length) {
+                        this.update();
+                        this.comp = true;
+                        clearInterval(this.inter);
+                        document.getElementById('enemydiv').outerHTML = '';
+                    } else {
+                        this.x = this.path[this.progress].x;
+                        this.y = this.path[this.progress].y;
+                        this.update();
+                    }
+                }
+            }
+            function disablesaving() {
+                if (cansave) {
+                    let issure = confirm('Disable saving mechanisms? \n Progress will not be saved, and will be lost when this page is closed.');
+                    if (issure) {
+                        cansave = false;
+                        savebutton.innerText = 'Enable Saving';
+                    }
+                } else {
+                    cansave = true;
+                    savebutton.innerText = 'Disable Saving';
+                }
+            }
+		function loadlevel1() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 60, y: 90},
+                        {x: 70, y: 90},
+                        {x: 80, y: 90},
+                        {x: 80, y: 80},
+                        {x: 80, y: 70},
+                        {x: 80, y: 60},
+                        {x: 80, y: 50},
+                        {x: 80, y: 40},
+                        {x: 80, y: 30},
+                        {x: 80, y: 20},
+                        {x: 80, y: 10},
+                        {x: 70, y: 10},
+                        {x: 60, y: 10},
+                        {x: 50, y: 10}
+                    ],
+                1000);
+                walls.push(new Wall(20, 20));
+                walls.push(new Wall(30, 20));
+                walls.push(new Wall(40, 20));
+                walls.push(new Wall(50, 20));
+                walls.push(new Wall(60, 20));
+                walls.push(new Wall(70, 20));
+                walls.push(new Wall(20, 30));
+                walls.push(new Wall(30, 30));
+                walls.push(new Wall(40, 30));
+                walls.push(new Wall(50, 30));
+                walls.push(new Wall(60, 30));
+                walls.push(new Wall(70, 30));
+                walls.push(new Wall(20, 40));
+                walls.push(new Wall(30, 40));
+                walls.push(new Wall(40, 40));
+                walls.push(new Wall(50, 40));
+                walls.push(new Wall(60, 40));
+                walls.push(new Wall(70, 40));
+                walls.push(new Wall(20, 50));
+                walls.push(new Wall(30, 50));
+                walls.push(new Wall(40, 50));
+                walls.push(new Wall(50, 50));
+                walls.push(new Wall(60, 50));
+                walls.push(new Wall(70, 50));
+                walls.push(new Wall(20, 60));
+                walls.push(new Wall(30, 60));
+                walls.push(new Wall(40, 60));
+                walls.push(new Wall(50, 60));
+                walls.push(new Wall(60, 60));
+                walls.push(new Wall(70, 60));
+                walls.push(new Wall(20, 70));
+                walls.push(new Wall(30, 70));
+                walls.push(new Wall(40, 70));
+                walls.push(new Wall(50, 70));
+                walls.push(new Wall(60, 70));
+                walls.push(new Wall(70, 70));
+            }
+            function loadlevel2() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 60, y: 90},
+                        {x: 70, y: 90},
+                        {x: 80, y: 90},
+                        {x: 80, y: 80},
+                        {x: 80, y: 70},
+                        {x: 80, y: 60},
+                        {x: 70, y: 50},
+                        {x: 60, y: 40},
+                        {x: 50, y: 40},
+                        {x: 50, y: 30},
+                        {x: 50, y: 20},
+                        {x: 60, y: 20},
+                        {x: 60, y: 10},
+                        {x: 60, y: 0}
+                    ],
+                500);
+                walls.push(new Wall(20, 70));
+                walls.push(new Wall(30, 70));
+                walls.push(new Wall(40, 70));
+                walls.push(new Wall(50, 70));
+                walls.push(new Wall(60, 70));
+                walls.push(new Wall(70, 70));
+                walls.push(new Wall(0, 30));
+                walls.push(new Wall(10, 30));
+                walls.push(new Wall(20, 30));
+                walls.push(new Wall(30, 30));
+                walls.push(new Wall(60, 30));
+                walls.push(new Wall(70, 30));
+                walls.push(new Wall(80, 30));
+                walls.push(new Wall(90, 30));
+                walls.push(new Wall(40, 10));
+                walls.push(new Wall(50, 10));
+            }
+            function loadlevel3() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 60, y: 90},
+                        {x: 70, y: 90},
+                        {x: 80, y: 90},
+                        {x: 90, y: 90},
+                        {x: 90, y: 80},
+                        {x: 90, y: 70},
+                        {x: 90, y: 60},
+                        {x: 80, y: 60},
+                        {x: 70, y: 60},
+                        {x: 60, y: 60},
+                        {x: 50, y: 60},
+                        {x: 50, y: 50},
+                        {x: 50, y: 40},
+                        {x: 40, y: 40},
+                        {x: 40, y: 30},
+                        {x: 40, y: 20},
+                        {x: 30, y: 20},
+                        {x: 20, y: 20},
+                        {x: 10, y: 20},
+                        {x: 10, y: 10},
+                        {x: 10, y: 0},
+                        {x: 20, y: 0},
+                        {x: 30, y: 0}
+                    ],
+                300);
+                walls.push(new Wall(20, 10));
+                walls.push(new Wall(30, 10));
+                walls.push(new Wall(40, 10));
+                walls.push(new Wall(50, 10));
+                walls.push(new Wall(60, 10));
+                walls.push(new Wall(70, 10));
+                walls.push(new Wall(0, 40));
+                walls.push(new Wall(10, 40));
+                walls.push(new Wall(20, 40));
+                walls.push(new Wall(30, 40));
+                walls.push(new Wall(60, 40));
+                walls.push(new Wall(70, 40));
+                walls.push(new Wall(80, 40));
+                walls.push(new Wall(90, 40));
+                walls.push(new Wall(10, 70));
+                walls.push(new Wall(20, 70));
+                walls.push(new Wall(30, 70));
+                walls.push(new Wall(40, 70));
+                walls.push(new Wall(50, 70));
+                walls.push(new Wall(60, 70));
+                walls.push(new Wall(70, 70));
+                walls.push(new Wall(80, 70));
+            }
+            function loadlevel4() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 60, y: 90},
+                        {x: 70, y: 90},
+                        {x: 70, y: 80},
+                        {x: 70, y: 70},
+                        {x: 70, y: 60},
+                        {x: 60, y: 60},
+                        {x: 50, y: 60},
+                        {x: 40, y: 60},
+                        {x: 30, y: 60},
+                        {x: 20, y: 60},
+                        {x: 10, y: 60},
+                        {x: 10, y: 50},
+                        {x: 10, y: 40},
+                        {x: 20, y: 40},
+                        {x: 30, y: 40},
+                        {x: 40, y: 40},
+                        {x: 50, y: 40},
+                        {x: 60, y: 40},
+                        {x: 70, y: 40},
+                        {x: 80, y: 40},
+                        {x: 80, y: 30},
+                        {x: 80, y: 20},
+                        {x: 70, y: 20},
+                        {x: 60, y: 20},
+                        {x: 50, y: 20},
+                        {x: 40, y: 20},
+                        {x: 30, y: 20},
+                        {x: 20, y: 20},
+                        {x: 10, y: 20},
+                        {x: 0, y: 20},
+                        {x: 0, y: 10},
+                        {x: 0, y: 0},
+                        {x: 10, y: 0},
+                        {x: 20, y: 0},
+                        {x: 30, y: 0}
+                    ],
+                400);
+                walls.push(new Wall(10, 10));
+                walls.push(new Wall(20, 10));
+                walls.push(new Wall(30, 10));
+                walls.push(new Wall(40, 10));
+                walls.push(new Wall(50, 10));
+                walls.push(new Wall(60, 10));
+                walls.push(new Wall(70, 10));
+                walls.push(new Wall(80, 10));
+                walls.push(new Wall(90, 10));
+                walls.push(new Wall(0, 30));
+                walls.push(new Wall(10, 30));
+                walls.push(new Wall(20, 30));
+                walls.push(new Wall(30, 30));
+                walls.push(new Wall(40, 30));
+                walls.push(new Wall(50, 30));
+                walls.push(new Wall(60, 30));
+                walls.push(new Wall(70, 30));
+                walls.push(new Wall(20, 50));
+                walls.push(new Wall(30, 50));
+                walls.push(new Wall(40, 50));
+                walls.push(new Wall(50, 50));
+                walls.push(new Wall(60, 50));
+                walls.push(new Wall(70, 50));
+                walls.push(new Wall(80, 50));
+                walls.push(new Wall(90, 50));
+                walls.push(new Wall(0, 70));
+                walls.push(new Wall(10, 70));
+                walls.push(new Wall(20, 70));
+                walls.push(new Wall(30, 70));
+                walls.push(new Wall(40, 70));
+                walls.push(new Wall(50, 70));
+                walls.push(new Wall(60, 70));
+            }
+            function loadlevel5() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 60, y: 90},
+                        {x: 70, y: 90},
+                        {x: 80, y: 90},
+                        {x: 80, y: 80},
+                        {x: 80, y: 70},
+                        {x: 80, y: 60},
+                        {x: 70, y: 50},
+                        {x: 60, y: 50},
+                        {x: 50, y: 50},
+                        {x: 50, y: 40},
+                        {x: 50, y: 30},
+                        {x: 60, y: 30},
+                        {x: 70, y: 30},
+                        {x: 80, y: 30},
+                        {x: 80, y: 20},
+                        {x: 80, y: 10},
+                        {x: 70, y: 10},
+                        {x: 60, y: 10},
+                        {x: 50, y: 10}
+                    ],
+                200);
+walls.push(new Wall(0,0));
+walls.push(new Wall(10,0));
+walls.push(new Wall(20,0));
+walls.push(new Wall(30,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(0,40));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(20,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(70,70));
+            }function loadlevel6() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 50, y: 80},
+                        {x: 50, y: 70},
+                        {x: 50, y: 60},
+                        {x: 60, y: 60},
+                        {x: 70, y: 60},
+                        {x: 70, y: 70},
+                        {x: 70, y: 80},
+                        {x: 70, y: 90},
+                        {x: 80, y: 90},
+                        {x: 90, y: 90},
+                        {x: 90, y: 80},
+                        {x: 90, y: 70},
+                        {x: 90, y: 60},
+                        {x: 90, y: 50},
+                        {x: 90, y: 40},
+                        {x: 80, y: 40},
+                        {x: 70, y: 40},
+                        {x: 60, y: 40},
+                        {x: 60, y: 30},
+                        {x: 60, y: 20},
+                        {x: 70, y: 20},
+                        {x: 80, y: 20},
+                        {x: 90, y: 20},
+                        {x: 90, y: 10},
+                        {x: 90, y: 0},
+                        {x: 80, y: 0},
+                        {x: 70, y: 0},
+                        {x: 60, y: 0}
+                    ],
+                450);
+walls.push(new Wall(10,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(0,30));
+walls.push(new Wall(10,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(90,30));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(20,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(60,90));
+            }
+            function loadlevel7() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 50, y: 80},
+                        {x: 50, y: 70},
+                        {x: 60, y: 70},
+                        {x: 70, y: 70},
+                        {x: 80, y: 70},
+                        {x: 80, y: 60},
+                        {x: 80, y: 50},
+                        {x: 80, y: 40},
+                        {x: 80, y: 30},
+                        {x: 90, y: 30},
+                        {x: 90, y: 20},
+                        {x: 90, y: 10},
+                        {x: 80, y: 10},
+                        {x: 70, y: 10},
+                        {x: 60, y: 10},
+                        {x: 60, y: 20},
+                        {x: 50, y: 20},
+                        {x: 40, y: 20},
+                        {x: 40, y: 30},
+                        {x: 30, y: 30},
+                        {x: 20, y: 30},
+                        {x: 10, y: 30},
+                        {x: 0, y: 30},
+                        {x: 0, y: 20},
+                        {x: 0, y: 10},
+                        {x: 10, y: 10},
+                        {x: 20, y: 10},
+                        {x: 20, y: 0},
+                        {x: 30, y: 0}
+                    ],
+                200);
+walls.push(new Wall(0,0));
+walls.push(new Wall(10,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(50,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(0,40));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(90,50));
+walls.push(new Wall(30,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(0,80));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(90,80));
+            }
+            function loadlevel8() {
+                enemyobj = new Enemy(
+                    [
+                        {x: 60, y: 90},
+                        {x: 70, y: 90},
+                        {x: 70, y: 80},
+                        {x: 70, y: 70},
+                        {x: 70, y: 60},
+                        {x: 80, y: 60},
+                        {x: 80, y: 50},
+                        {x: 80, y: 40},
+                        {x: 90, y: 40},
+                        {x: 90, y: 30},
+                        {x: 90, y: 20},
+                        {x: 90, y: 10},
+                        {x: 90, y: 0},
+                        {x: 80, y: 0},
+                        {x: 70, y: 0},
+                        {x: 60, y: 0}
+                    ],
+                200);
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(50,20));
+walls.push(new Wall(0,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(90,50));
+walls.push(new Wall(40,60));
+walls.push(new Wall(0,70));
+walls.push(new Wall(20,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(80,70));
+            }
+function loadlevel9() {
+enemyobj = new Enemy(
+	[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 70, y: 80},
+{x: 70, y: 70},
+{x: 70, y: 60},
+{x: 60, y: 60},
+{x: 50, y: 60},
+{x: 40, y: 60},
+{x: 30, y: 60},
+{x: 20, y: 60},
+{x: 20, y: 70},
+{x: 20, y: 80},
+{x: 20, y: 90},
+{x: 10, y: 90},
+{x: 0, y: 90},
+{x: 0, y: 80},
+{x: 0, y: 70},
+{x: 0, y: 60},
+{x: 0, y: 50},
+{x: 0, y: 40},
+{x: 0, y: 30},
+{x: 10, y: 30},
+{x: 20, y: 30},
+{x: 30, y: 30},
+{x: 40, y: 30},
+{x: 50, y: 30},
+{x: 60, y: 30},
+{x: 70, y: 30},
+{x: 80, y: 30},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 90, y: 0},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+160);
+walls.push(new Wall(30,0));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(30,90));
+}function loadlevel10() {
+                enemyobj = new Enemy(
+                    [
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 60, y: 70},
+{x: 70, y: 70},
+{x: 70, y: 80},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 80, y: 50},
+{x: 70, y: 50},
+{x: 60, y: 50},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 60, y: 30},
+{x: 70, y: 30},
+{x: 80, y: 30},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 90, y: 0},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+                    ],
+                150);
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(0,40));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(10,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(60,90));
+            }
+            function loadlevel11() {
+                enemyobj = new Enemy(
+                    [
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 80, y: 50},
+{x: 70, y: 40},
+{x: 60, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+                    ],
+                150);
+walls.push(new Wall(30,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+            }
+            function loadlevel12() {
+walls.push(new Wall(60,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(40,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(0,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(20,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(20,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+enemyobj = new Enemy(
+    [
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 90, y: 0},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 70, y: 10},
+{x: 60, y: 10},
+{x: 60, y: 20},
+{x: 60, y: 30},
+{x: 60, y: 40},
+{x: 60, y: 50},
+{x: 60, y: 60},
+{x: 60, y: 70},
+{x: 50, y: 70},
+{x: 40, y: 70},
+{x: 30, y: 70},
+{x: 30, y: 60},
+{x: 30, y: 50},
+{x: 30, y: 40},
+{x: 30, y: 30},
+{x: 30, y: 20},
+{x: 20, y: 20},
+{x: 10, y: 20},
+{x: 0, y: 20},
+{x: 0, y: 10},
+{x: 0, y: 0},
+{x: 10, y: 0},
+{x: 20, y: 0},
+{x: 30, y: 0}
+    ],
+160);
+            }
+            function loadlevel13() {
+                enemyobj = new Enemy(
+                    [
+{x: 40, y: 90},
+{x: 30, y: 90},
+{x: 20, y: 90},
+{x: 10, y: 90},
+{x: 0, y: 90},
+{x: 0, y: 80},
+{x: 0, y: 70},
+{x: 10, y: 70},
+{x: 20, y: 70},
+{x: 30, y: 70},
+{x: 40, y: 70},
+{x: 40, y: 60},
+{x: 40, y: 50},
+{x: 50, y: 40},
+{x: 60, y: 30},
+{x: 70, y: 20},
+{x: 70, y: 10},
+{x: 70, y: 0},
+{x: 60, y: 0}
+                    ],
+                200);
+walls.push(new Wall(10,0));
+walls.push(new Wall(30,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(20,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(90,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(20,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(90,80));
+            }
+            function loadlevel14() {
+enemyobj = new Enemy(
+	[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 80, y: 70},
+{x: 70, y: 70},
+{x: 60, y: 70},
+{x: 50, y: 70},
+{x: 40, y: 70},
+{x: 30, y: 70},
+{x: 20, y: 70},
+{x: 20, y: 80},
+{x: 20, y: 90},
+{x: 10, y: 90},
+{x: 0, y: 90},
+{x: 0, y: 80},
+{x: 0, y: 70},
+{x: 0, y: 60},
+{x: 0, y: 50},
+{x: 10, y: 50},
+{x: 20, y: 50},
+{x: 30, y: 50},
+{x: 40, y: 50},
+{x: 50, y: 50},
+{x: 60, y: 50},
+{x: 70, y: 50},
+{x: 80, y: 50},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 90, y: 0},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 70, y: 10},
+{x: 70, y: 20},
+{x: 60, y: 20},
+{x: 50, y: 20},
+{x: 40, y: 20},
+{x: 40, y: 30},
+{x: 30, y: 30},
+{x: 20, y: 30},
+{x: 20, y: 20},
+{x: 10, y: 20},
+{x: 0, y: 20},
+{x: 0, y: 10},
+{x: 0, y: 0},
+{x: 10, y: 0},
+{x: 20, y: 0},
+{x: 30, y: 0}
+	],
+160);
+walls.push(new Wall(60,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(30,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(0,40));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(30,90));
+            }
+            function loadlevel15() {
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 60, y: 50},
+{x: 70, y: 40},
+{x: 80, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 90, y: 0},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(10,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(20,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+            }
+            function loadlevel16() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(30,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(30,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+            }
+            function loadlevel17() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 80},
+{x: 70, y: 70},
+{x: 80, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 80, y: 30},
+{x: 70, y: 20},
+{x: 60, y: 10},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(0,0));
+walls.push(new Wall(20,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(0,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(90,20));
+walls.push(new Wall(10,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(20,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(0,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(90,70));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(0,90));
+walls.push(new Wall(20,90));
+walls.push(new Wall(70,90));
+walls.push(new Wall(90,90));
+            }
+            function loadlevel18() {
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 60, y: 70},
+{x: 60, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 60, y: 20},
+{x: 50, y: 10}
+],
+200);
+walls.push(new Wall(30,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+            }
+            function loadlevel19() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 80, y: 70},
+{x: 70, y: 60},
+{x: 60, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+180);
+walls.push(new Wall(10,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(20,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+            }
+            function loadlevel20() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+150);
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(20,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+            }
+	function loadlevel21() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 80},
+{x: 70, y: 70},
+{x: 70, y: 60},
+{x: 70, y: 50},
+{x: 60, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+200);
+walls.push(new Wall(0,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(20,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(20,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(0,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(90,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(0,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(90,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(0,90));
+walls.push(new Wall(20,90));
+walls.push(new Wall(70,90));
+walls.push(new Wall(90,90));
+            }
+            function loadlevel22() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 60, y: 10},
+{x: 60, y: 0}
+],
+180);
+walls.push(new Wall(0,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(90,10));
+walls.push(new Wall(20,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(20,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(0,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(90,80));
+            }
+            function loadlevel23() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+180);
+walls.push(new Wall(10,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(20,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(30,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(20,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(80,80));
+            }
+            function loadlevel24() {
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 60, y: 10},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(20,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(20,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(20,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+            }
+            function loadlevel25() {
+enemyobj = new Enemy(
+[
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+2000, 90, 0);
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(90,10));
+walls.push(new Wall(0,30));
+walls.push(new Wall(10,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,50));
+walls.push(new Wall(20,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(90,50));
+walls.push(new Wall(10,70));
+walls.push(new Wall(20,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(0,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(10,90));
+walls.push(new Wall(30,90));
+walls.push(new Wall(70,90));
+walls.push(new Wall(90,90));
+            }
+            function loadlevel26() {
+                enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+100);
+            }
+            function loadlevel27() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 80},
+{x: 70, y: 70},
+{x: 60, y: 70},
+{x: 50, y: 70},
+{x: 40, y: 70},
+{x: 30, y: 70},
+{x: 20, y: 60},
+{x: 20, y: 50},
+{x: 20, y: 40},
+{x: 10, y: 30},
+{x: 20, y: 20},
+{x: 30, y: 30},
+{x: 40, y: 30},
+{x: 50, y: 30},
+{x: 60, y: 20},
+{x: 70, y: 30},
+{x: 80, y: 30},
+{x: 90, y: 20},
+{x: 80, y: 10},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+210);
+walls.push(new Wall(30,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(0,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(20,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(70,60));
+walls.push(new Wall(20,70));
+walls.push(new Wall(90,70));
+walls.push(new Wall(0,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(90,90));
+            }
+            function loadlevel28() {
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 60, y: 50},
+{x: 70, y: 40},
+{x: 80, y: 30},
+{x: 90, y: 20},
+{x: 80, y: 10},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(10,0));
+walls.push(new Wall(30,0));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(30,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(30,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(60,90));
+            }
+            function loadlevel29() {
+enemyobj = new Enemy(
+[
+{x: 40, y: 80},
+{x: 30, y: 80},
+{x: 20, y: 80},
+{x: 10, y: 70},
+{x: 0, y: 60},
+{x: 10, y: 50},
+{x: 10, y: 40},
+{x: 0, y: 30},
+{x: 0, y: 20},
+{x: 10, y: 10},
+{x: 20, y: 20},
+{x: 30, y: 20},
+{x: 40, y: 30},
+{x: 30, y: 40},
+{x: 30, y: 50},
+{x: 40, y: 60},
+{x: 50, y: 50},
+{x: 60, y: 40},
+{x: 70, y: 30},
+{x: 80, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+225);
+walls.push(new Wall(0,0));
+walls.push(new Wall(30,0));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(20,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(0,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(20,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(20,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(0,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(90,80));
+walls.push(new Wall(0,90));
+walls.push(new Wall(10,90));
+walls.push(new Wall(20,90));
+walls.push(new Wall(60,90));
+            }
+            function loadlevel30() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 80, y: 70},
+{x: 80, y: 60},
+{x: 70, y: 50},
+{x: 70, y: 40},
+{x: 60, y: 30},
+{x: 60, y: 20},
+{x: 50, y: 10}
+],
+150);
+walls.push(new Wall(0,0));
+walls.push(new Wall(10,0));
+walls.push(new Wall(20,0));
+walls.push(new Wall(30,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(0,20));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(90,20));
+walls.push(new Wall(0,40));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(0,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+            }
+	    function loadlevel31() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 80, y: 40},
+{x: 80, y: 30},
+{x: 80, y: 20},
+{x: 80, y: 10},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(0,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(0,20));
+walls.push(new Wall(90,20));
+walls.push(new Wall(0,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(90,30));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+            }
+            function loadlevel32() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 80, y: 60},
+{x: 70, y: 60},
+{x: 60, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 60, y: 30},
+{x: 70, y: 30},
+{x: 80, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(0,40));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(0,50));
+walls.push(new Wall(10,50));
+walls.push(new Wall(20,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(90,50));
+walls.push(new Wall(10,70));
+walls.push(new Wall(20,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+            }
+            function loadlevel33() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 80},
+{x: 70, y: 70},
+{x: 80, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 80, y: 30},
+{x: 70, y: 20},
+{x: 60, y: 10}
+],
+250);
+walls.push(new Wall(60,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(20,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(70,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(20,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(70,60));
+walls.push(new Wall(20,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(50,80));
+            }
+            function loadlevel34() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 30},
+{x: 60, y: 40},
+{x: 60, y: 50},
+{x: 60, y: 60},
+{x: 60, y: 70},
+{x: 60, y: 80},
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 10},
+{x: 70, y: 10},
+{x: 60, y: 10},
+{x: 50, y: 10}
+],
+175);
+walls.push(new Wall(0,0));
+walls.push(new Wall(20,0));
+walls.push(new Wall(30,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(0,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(0,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(70,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(50,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(0,60));
+walls.push(new Wall(10,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(50,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(50,90));
+            }
+            function loadlevel35() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 80, y: 70},
+{x: 70, y: 70},
+{x: 60, y: 60},
+{x: 70, y: 50},
+{x: 80, y: 50},
+{x: 90, y: 40},
+{x: 80, y: 30},
+{x: 70, y: 20},
+{x: 60, y: 10},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(30,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(50,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(90,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(0,60));
+walls.push(new Wall(10,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(0,70));
+walls.push(new Wall(10,70));
+walls.push(new Wall(20,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(0,80));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(80,80));
+            }
+            function loadlevel36() {
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 60, y: 70},
+{x: 70, y: 60},
+{x: 70, y: 50},
+{x: 70, y: 40},
+{x: 80, y: 30},
+{x: 80, y: 20},
+{x: 70, y: 10},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(40,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(90,10));
+walls.push(new Wall(30,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(20,30));
+walls.push(new Wall(90,30));
+walls.push(new Wall(30,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(20,50));
+walls.push(new Wall(90,50));
+walls.push(new Wall(30,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(20,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(20,90));
+walls.push(new Wall(70,90));
+            }
+            function loadlevel37() {
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 60, y: 70},
+{x: 70, y: 70},
+{x: 80, y: 70},
+{x: 90, y: 60},
+{x: 80, y: 50},
+{x: 70, y: 40},
+{x: 60, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+200);
+walls.push(new Wall(20,0));
+walls.push(new Wall(70,0));
+walls.push(new Wall(30,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(40,20));
+walls.push(new Wall(90,20));
+walls.push(new Wall(30,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(40,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(30,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(20,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(30,70));
+walls.push(new Wall(20,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(60,90));
+            }
+            function loadlevel38() {
+enemyobj = new Enemy(
+[
+{x: 60, y: 90},
+{x: 70, y: 90},
+{x: 80, y: 80},
+{x: 80, y: 70},
+{x: 80, y: 60},
+{x: 80, y: 50},
+{x: 80, y: 40},
+{x: 80, y: 30},
+{x: 80, y: 20},
+{x: 70, y: 10},
+{x: 60, y: 0}
+],
+200);
+walls.push(new Wall(30,0));
+walls.push(new Wall(90,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(90,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(90,80));
+            }
+            function loadlevel39() {
+enemyobj = new Enemy(
+[
+{x: 40, y: 90},
+{x: 30, y: 90},
+{x: 20, y: 90},
+{x: 10, y: 90},
+{x: 0, y: 80},
+{x: 0, y: 70},
+{x: 0, y: 60},
+{x: 0, y: 50},
+{x: 0, y: 40},
+{x: 0, y: 30},
+{x: 10, y: 20},
+{x: 20, y: 30},
+{x: 30, y: 30},
+{x: 40, y: 30},
+{x: 50, y: 30},
+{x: 60, y: 30},
+{x: 70, y: 40},
+{x: 70, y: 50},
+{x: 70, y: 60},
+{x: 70, y: 70},
+{x: 70, y: 80},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+150);
+walls.push(new Wall(0,10));
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(70,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(60,90));
+            }
+            function loadlevel40() {
+walls.push(new Wall(30,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(30,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(30,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(30,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(30,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(30,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(60,90));
+
+walls[20] = new Wall(40,10);
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById(walls[20].id).outerHTML = '';
+		walls[20] = new Wall(50, 10);
+		wallstate = 1;
+	} else {
+		document.getElementById(walls[20].id).outerHTML = '';
+		walls[20] = new Wall(40, 10);
+		wallstate = 0;
+	}
+}, 1000);
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+200);
+            }
+	    function loadlevel41() {
+walls.push(new Wall(60,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(20,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(0, 0));
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById(walls[36].id).outerHTML = '';
+		walls[36] = new Wall(0, 10);
+		wallstate = 1;
+	} else {
+		document.getElementById(walls[36].id).outerHTML = '';
+		walls[36] = new Wall(0, 0);
+		wallstate = 0;
+	}
+}, 1000);
+enemyobj = new Enemy(
+[
+{x: 60, y: 80},
+{x: 70, y: 70},
+{x: 80, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 80, y: 30},
+{x: 70, y: 30},
+{x: 60, y: 30},
+{x: 50, y: 30},
+{x: 40, y: 30},
+{x: 30, y: 30},
+{x: 20, y: 40},
+{x: 20, y: 50},
+{x: 20, y: 60},
+{x: 20, y: 70},
+{x: 20, y: 80},
+{x: 10, y: 90},
+{x: 0, y: 80},
+{x: 0, y: 70},
+{x: 0, y: 60},
+{x: 0, y: 50},
+{x: 0, y: 40},
+{x: 0, y: 30},
+{x: 0, y: 20},
+{x: 10, y: 10},
+{x: 20, y: 0},
+{x: 30, y: 0}
+],
+170);
+            }
+            function loadlevel42() {
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(10,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(80,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(60,90));
+walls.push(new Wall(30,40));
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById(walls[30].id).outerHTML = '';
+		walls[30] = new Wall(60, 40);
+		wallstate = 1;
+	} else {
+		document.getElementById(walls[30].id).outerHTML = '';
+		walls[30] = new Wall(30, 40);
+		wallstate = 0;
+	}
+}, 1000);
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 60, y: 40},
+{x: 70, y: 50},
+{x: 70, y: 60},
+{x: 70, y: 70},
+{x: 70, y: 80},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 80, y: 20},
+{x: 70, y: 10},
+{x: 60, y: 0}
+],
+150);
+            }
+            function loadlevel43() {
+walls.push(new Wall(10,0));
+walls.push(new Wall(30,0));
+walls.push(new Wall(60,0));
+walls.push(new Wall(80,0));
+walls.push(new Wall(0,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(90,20));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(0,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById(walls[22].id).outerHTML = '';
+		document.getElementById(walls[23].id).outerHTML = '';
+		walls[22] = new Wall(40, 10);
+		walls[23] = new Wall(50, 10);
+		wallstate = 1;
+	} else {
+		document.getElementById(walls[22].id).outerHTML = '';
+		document.getElementById(walls[23].id).outerHTML = '';
+		walls[22] = new Wall(40, 20);
+		walls[23] = new Wall(50, 20);
+		wallstate = 0;
+	}
+}, 500);
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 60, y: 70},
+{x: 60, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 60, y: 30},
+{x: 60, y: 20},
+{x: 50, y: 10}
+],
+200);
+            }
+            function loadlevel44() {
+walls.push(new Wall(10,10));
+walls.push(new Wall(20,10));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(90,10));
+walls.push(new Wall(0,30));
+walls.push(new Wall(10,30));
+walls.push(new Wall(20,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(50,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(80,40));
+walls.push(new Wall(80,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(60,70));
+walls.push(new Wall(80,70));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+walls.push(new Wall(60,90));
+
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById(walls[32].id).outerHTML = '';
+		document.getElementById(walls[33].id).outerHTML = '';
+		document.getElementById(walls[34].id).outerHTML = '';
+		walls[32] = new Wall(10, 50);
+		walls[33] = new Wall(30, 50);
+		walls[34] = new Wall(50, 50);
+		wallstate = 1;
+	} else {
+		document.getElementById(walls[32].id).outerHTML = '';
+		document.getElementById(walls[33].id).outerHTML = '';
+		document.getElementById(walls[34].id).outerHTML = '';
+		walls[32] = new Wall(20, 50);
+		walls[33] = new Wall(40, 50);
+		walls[34] = new Wall(60, 50);
+		wallstate = 0;
+	}
+}, 500);
+walls.push(new Wall(10,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(50,50));
+enemyobj = new Enemy(
+[
+{x: 40, y: 80},
+{x: 30, y: 70},
+{x: 20, y: 70},
+{x: 10, y: 70},
+{x: 0, y: 60},
+{x: 10, y: 50},
+{x: 20, y: 40},
+{x: 30, y: 40},
+{x: 40, y: 40},
+{x: 50, y: 40},
+{x: 60, y: 40},
+{x: 70, y: 50},
+{x: 70, y: 60},
+{x: 70, y: 70},
+{x: 70, y: 80},
+{x: 80, y: 90},
+{x: 90, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 90, y: 50},
+{x: 90, y: 40},
+{x: 90, y: 30},
+{x: 80, y: 20},
+{x: 70, y: 20},
+{x: 60, y: 20},
+{x: 50, y: 20},
+{x: 40, y: 20},
+{x: 30, y: 20},
+{x: 20, y: 20},
+{x: 10, y: 20},
+{x: 0, y: 10},
+{x: 10, y: 0},
+{x: 20, y: 0},
+{x: 30, y: 0}
+],
+160);
+            }
+function loadlevel45() {
+walls.push(new Wall(60,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(30,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(10,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(10,50));
+walls.push(new Wall(30,50));
+walls.push(new Wall(60,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(10,70));
+walls.push(new Wall(30,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(30,90));
+walls.push(new Wall(60,90));
+
+walls.push(new Wall(40,40));
+
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById(walls[28].id).outerHTML = '';
+		walls[28] = new Wall(40, 40);
+		wallstate = 1;
+	} else {
+		document.getElementById(walls[28].id).outerHTML = '';
+		walls[28] = new Wall(50, 40);
+		wallstate = 0;
+	}
+}, 300);
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+200);
+            }
+            function loadlevel46() {
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		//alert(0)
+		document.getElementById('wallspan').innerHTML = '';
+		walls = [new Wall(0,40),new Wall(20,40),new Wall(40,40),new Wall(60,40),new Wall(80,40)];
+		wallstate = 1;
+	} else {
+		//alert(1)
+		document.getElementById('wallspan').innerHTML = '';
+		walls = [new Wall(10,40),new Wall(30,40),new Wall(50,40),new Wall(70,40),new Wall(90,40)];
+		wallstate = 0;
+	}
+}, 500);
+walls.push(new Wall(0,40));
+walls.push(new Wall(20,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+125);
+            }
+            function loadlevel47() {
+enemyobj = new Enemy(
+[
+{x: 40, y: 80},
+{x: 40, y: 70},
+{x: 50, y: 60},
+{x: 60, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+140);
+walls.push(new Wall(30,0));
+walls.push(new Wall(30,10));
+walls.push(new Wall(40,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(90,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(10,30));
+walls.push(new Wall(40,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(80,30));
+walls.push(new Wall(90,30));
+walls.push(new Wall(0,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(50,50));
+walls.push(new Wall(70,50));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(90,60));
+walls.push(new Wall(30,70));
+walls.push(new Wall(50,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(20,80));
+walls.push(new Wall(90,80));
+walls.push(new Wall(70,90));
+            }
+            function loadlevel48() {
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById('wallspan').innerHTML = '';
+		walls = [];
+walls.push(new Wall(10,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(20,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(20,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(80,80));
+		wallstate = 1;
+	} else {
+		document.getElementById('wallspan').innerHTML = '';
+		walls = [];
+walls.push(new Wall(30,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(40,50));
+walls.push(new Wall(50,50));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+		wallstate = 0;
+	}
+}, 200);
+walls.push(new Wall(10,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(20,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(20,70));
+walls.push(new Wall(70,70));
+walls.push(new Wall(10,80));
+walls.push(new Wall(80,80));
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+120);
+            }
+            function loadlevel49() {
+walls.push(new Wall(30,0));
+walls.push(new Wall(10,10));
+walls.push(new Wall(50,10));
+walls.push(new Wall(60,10));
+walls.push(new Wall(70,10));
+walls.push(new Wall(80,10));
+walls.push(new Wall(10,20));
+walls.push(new Wall(20,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(20,30));
+walls.push(new Wall(60,30));
+walls.push(new Wall(70,30));
+walls.push(new Wall(90,30));
+walls.push(new Wall(0,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(90,40));
+walls.push(new Wall(0,50));
+walls.push(new Wall(20,50));
+walls.push(new Wall(40,50));
+walls.push(new Wall(0,60));
+walls.push(new Wall(20,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(0,70));
+walls.push(new Wall(20,70));
+walls.push(new Wall(40,70));
+walls.push(new Wall(60,70));
+walls.push(new Wall(0,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(70,80));
+walls.push(new Wall(90,80));
+walls.push(new Wall(10,90));
+walls.push(new Wall(50,90));
+walls.push(new Wall(90,90));
+walls.push(new Wall(50,80));
+enemyobj = new Enemy(
+[
+{x: 70, y: 90},
+{x: 80, y: 80},
+{x: 90, y: 70},
+{x: 90, y: 60},
+{x: 80, y: 50},
+{x: 80, y: 40},
+{x: 80, y: 30},
+{x: 90, y: 20},
+{x: 90, y: 10},
+{x: 80, y: 0},
+{x: 70, y: 0},
+{x: 60, y: 0}
+],
+185, 60, 90);
+            }
+            function loadlevel50() {
+let wallstate = 0;
+intervals[0] = setInterval(() => {
+	if (wallstate == 0) {
+		document.getElementById('wallspan').innerHTML = '';
+		walls = [];
+walls.push(new Wall(20,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(20,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+		wallstate = 1;
+	} else {
+		document.getElementById('wallspan').innerHTML = '';
+		walls = [];
+walls.push(new Wall(10,20));
+walls.push(new Wall(30,20));
+walls.push(new Wall(60,20));
+walls.push(new Wall(80,20));
+walls.push(new Wall(20,40));
+walls.push(new Wall(40,40));
+walls.push(new Wall(50,40));
+walls.push(new Wall(70,40));
+walls.push(new Wall(10,60));
+walls.push(new Wall(30,60));
+walls.push(new Wall(60,60));
+walls.push(new Wall(80,60));
+walls.push(new Wall(20,80));
+walls.push(new Wall(40,80));
+walls.push(new Wall(50,80));
+walls.push(new Wall(70,80));
+		wallstate = 0;
+	}
+}, 500);
+walls.push(new Wall(20,20));
+walls.push(new Wall(40,20));
+walls.push(new Wall(50,20));
+walls.push(new Wall(70,20));
+walls.push(new Wall(10,40));
+walls.push(new Wall(30,40));
+walls.push(new Wall(60,40));
+walls.push(new Wall(80,40));
+walls.push(new Wall(20,60));
+walls.push(new Wall(40,60));
+walls.push(new Wall(50,60));
+walls.push(new Wall(70,60));
+walls.push(new Wall(10,80));
+walls.push(new Wall(30,80));
+walls.push(new Wall(60,80));
+walls.push(new Wall(80,80));
+enemyobj = new Enemy(
+[
+{x: 50, y: 80},
+{x: 50, y: 70},
+{x: 50, y: 60},
+{x: 50, y: 50},
+{x: 50, y: 40},
+{x: 50, y: 30},
+{x: 50, y: 20},
+{x: 50, y: 10}
+],
+200);
+            }
+            function loadlevel51() {
+                document.body.innerHTML =
+                    '<h1 style="color: lime;">Congratulations!</h1>' +
+                    'You beat Racing Game! Keep playing to get higher high scores!' +
+                    '<br><br>' +
+                    '<button onclick="loadgame(false); levellist();">Back to Level Selection</button>';
+            }
+prog = 0;
+function loadbar() {
+    if (prog > 100) {
+        clearInterval(inter);
+        document.getElementById('content').style = '';
+        loadgame();
+    } else {
+        prog++;
+        document.getElementById('progbar').value = prog;
+    }
+}
+let inter;
+window.addEventListener('load', () => {
+    document.getElementById('content').innerHTML = 'Loading game...<br><progress max=100 value=0 id="progbar"></progress>';
+    document.getElementById('content').style = 'cursor: wait';
+    inter = setInterval(() => {loadbar();}, 10);
+}, false);
+function togglecontrols() {
+	if (controls == 'arrow') {
+		controls = 'wasd';
+		alert('Controls changed to WASD');
+	} else {
+		controls = 'arrow';
+		alert('Controls changed to arrow keys');
+	}
+	if (cansave) {
+		localStorage.setItem('controls', controls);
+	}
+}
+function restoreprev() {
+	let passkey = prompt('Enter the continue code you got when you completed the 10th level in the preview version. \n Notice: This will overwrite the currect level completion data.');
+	if (passkey == atob('cHJldmlld2NvbnRpbnVlNjk=')) {
+		completed = 10;
+		alert('Success! Restored to level 10.');
+	} else {
+		alert('Invalid code');
+	}
+}
+</script>
+    </head>
+    <body>
+        <a href="mainpage.html">Back</a>
+        <h1>Racing Game</h1>
+        <center>
+            <div id="content"></div>
+        </center>
+	<button onclick="restoreprev()">Restore level completion from preview</button>
+	~
+        <button onclick="disablesaving()" id="savebutton">Disable Saving</button>
+	~
+	<button onclick="togglecontrols()">Swap controls (default is arrow keys)</button>
+    </body>
+</html>
