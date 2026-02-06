@@ -1,0 +1,107 @@
+body {
+    background-color: darkblue;
+    color: yellow;
+    text-align: center;
+    margin: 0;
+    font-family: comic sans ms, helvetica;
+    z-index: 1;
+}
+.featured {
+	background-color: lightblue;
+}
+.featured:hover {
+	color: blue;
+	background-color: lightblue;
+}
+.featured:focus {
+	color: blue;
+	background-color: lightblue;
+}
+img#pglogo {
+    border: 3px dashed lightblue;
+}
+.new {
+	background-color: gold;
+}
+.new:hover {
+	color: blue;
+	background-color: gold;
+}
+.new:focus {
+	color: blue;
+	background-color: gold;
+}
+.thm:hover {
+	box-shadow: none;
+}
+img {
+    border: 3px dashed blue;
+}
+img:hover {
+    box-shadow: 3px 3px black;
+}
+a {
+    color: black;
+}
+a:hover {
+    color: white;
+    background-color: black;
+}
+a.nolight {
+    color: yellow;
+}
+a.nolight:hover {
+    color: yellow;
+    background-color: transparent;
+}
+button {
+    cursor: hand;
+    color: black;
+    background-color: white;
+}
+button:hover {
+    color: white;
+    background-color: black;
+}
+button:focus {
+    color: white;
+    background-color: black;
+}
+div#navigator {
+    background-color: blue;
+    height: 160px;
+    z-index: 1;
+}
+button#hidden {
+    color: darkblue;
+    background-color: darkblue;
+    border: none;
+}
+button#hidden:hover {
+    color: white;
+    background-color: black;
+}
+div#content {
+    font-size: 24px;
+    background-color: blue;
+    border: 3px dashed green;
+    width: 1000px;
+    height: 500px;
+    text-align: center;
+}
+img#meme {
+    width: 400px;
+    height: 200px;
+}
+iframe#content {
+    font-size: 24px;
+    background-color: blue;
+    border: 3px dashed green;
+    width: 1000px;
+    height: 500px;
+    text-align: center;
+}
+img.noani:hover {
+    zoom: 100%;
+    box-shadow: none;
+}
