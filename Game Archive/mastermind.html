@@ -1,0 +1,469 @@
+<html>
+    <head>
+        <title>Mastermind Online ~ Penguin Gamez</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script src="load.js"></script>
+        <script src="checklocal.js"></script>
+        <!--<script src="https://more-other-stuff-6082740.codehs.me/block.js"></script>-->
+        <style>
+            summary {
+                cursor:hand;
+            }
+            button {
+                border-radius: 50%;
+                height: 50px;
+                width: 50px;
+                text-align: center;
+            }
+            button.guess {
+                border-radius: 100%;
+                cursor: default;
+                border: 2px solid black;
+                width: 100px;
+                height: 100px;
+                background-color: grey;
+            }
+            div.infobox {
+                text-align: center;
+                background-color: blue;
+                border: 3px dashed green;
+            }
+        </style>
+        <script>
+            //let block = blocked();
+            let answer = null;
+            let attempts = null;
+            let infoin = '';
+            let guess = [];
+            let rawans = [];
+            let lastcode = null;
+            let colset1 = false;
+            let colset2 = false;
+            let colset3 = false;
+            let colset4 = false;
+            let gamerunning = false;
+            let submitshort = false;
+            document.addEventListener('keydown', (event) => {
+                if (gamerunning) {
+                    var keyname = parseInt(event.key);
+                    switch(keyname) {
+                        case 1:
+                            addred();
+                            break;
+                        case 2:
+                            addyellow();
+                            break;
+                        case 3:
+                            addblack();
+                            break;
+                        case 4:
+                            addwhite();
+                            break;
+                        case 5:
+                            addgreen();
+                            break;
+                        case 6:
+                            addblue();
+                            break;
+                        default:
+                            switch(event.key) {
+                                case 'Backspace':
+                                    removeitem();
+                                    break;
+                                case 's':
+                                    if (gamerunning) {
+                                        if (submitshort) {
+                                            submit()
+                                        } else {
+                                            let issure = confirm('Submit guess?');
+                                            if (issure) {
+                                                submit();
+                                                submitshort = true;
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case 'c':
+                                    if (gamerunning) {
+                                        clearguess();
+                                    }
+                                    break;
+                            }
+                    }
+                }
+            }, false);
+            function removeitem() {
+                guess.pop();
+                document.getElementById('in1').style = 'background-color: ' + guess[0] + ';';
+                document.getElementById('in2').style = 'background-color: ' + guess[1] + ';';
+                document.getElementById('in3').style = 'background-color: ' + guess[2] + ';';
+                document.getElementById('in4').style = 'background-color: ' + guess[3] + ';';
+            }
+            function loadgame() {
+                //if (block == false) {
+                document.getElementById('content').innerHTML =
+                    '<br><br><button style="cursor: pointer; width: 150px; height: 50px;" onclick="launchb()">Start [1 player]</button>' +
+                    '<br><br>' +
+                    '<details style="border: 3px solid darkblue;">' +
+                    '<summary style="cursor: pointer;">2 player</summary>' +
+                    'Use the small buttons to enter a code. The large circles show the current input.<br>' +
+                    '<button id="in1" class="guess"></button>' +
+                    '<button id="in2" class="guess"></button>' +
+                    '<button id="in3" class="guess"></button>' +
+                    '<button id="in4" class="guess"></button>' +
+                    '<br>' +
+                    '<button onclick="addredb()" style="background-color: red;"></button>' +
+                    '<button onclick="addyellowb()" style="background-color: yellow;"></button>' +
+                    '<button onclick="addblackb()" style="background-color: black;"></button>' +
+                    '<button onclick="addwhiteb()" style="background-color: white;"></button>' +
+                    '<button onclick="addgreenb()" style="background-color: green;"></button>' +
+                    '<button onclick="addblueb()" style="background-color: blue;"></button>' +
+                    '<br>' +
+                    '<br><input style="text-align: center;" type="number" id="attemptno" placeholder="# of attempts">' +
+                    '<br><button style="cursor: pointer; width: 100px;" onclick="launch()">Start<br>[2 player]</button>' +
+                    '<button style="width: 100px;" onclick="clearguessb()">Clear</button>';
+                document.getElementById('content').style = 'cursor: auto;';
+                //} else {
+                    //document.getElementById('content').innerHTML = 'This game has been blocked due to excessive gameplay during school hours. I apologize. These may be up eventually, but for now, please focus on schoolwork.';
+                //}
+            }
+            function checkguess() {
+                if (guess[0] == rawans[0]) {
+                    if (guess[1] == rawans[1]) {
+                        if (guess[2] == rawans[2]) {
+                            if (guess[3] == rawans[3]) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            function checkcol(colid) {
+                if (guess.includes(colid)) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+            function validatecode() {
+                if (guess.length < 4) {
+                    return true;
+                } else {
+                    guess.length = 4;
+                    return false;
+                }
+            }
+            function returninfo() {
+                let noexist = 0;
+                let existwrong = 0;
+                let existright = 0;
+                if (rawans.indexOf(guess[0]) == -1) {
+                    noexist++;
+                } else if (rawans[0] == guess[0]) {
+                    existright++;
+                } else {
+                    existwrong++;
+                }
+                if (rawans.indexOf(guess[1]) == -1) {
+                    noexist++;
+                } else if (rawans[1] == guess[1]) {
+                    existright++;
+                } else {
+                    existwrong++;
+                }
+                if (rawans.indexOf(guess[2]) == -1) {
+                    noexist++;
+                } else if (rawans[2] == guess[2]) {
+                    existright++;
+                } else {
+                    existwrong++;
+                }
+                if (rawans.indexOf(guess[3]) == -1) {
+                    noexist++;
+                } else if (rawans[3] == guess[3]) {
+                    existright++;
+                } else {
+                    existwrong++;
+                }
+                let id = Math.floor(Math.random()*10000000);
+                infoin += '<hr>' +
+                            '<details><br>' +
+                            '<summary id="sum'+id+'" onclick="document.getElementById(\'exall\').style.display=\'none\';">Your guess:</summary><br>' +
+                            '<button class="guess" style="background-color: ' + guess[0] + '"></button>' +
+                            '<button class="guess" style="background-color: ' + guess[1] + '"></button>' +
+                            '<button class="guess" style="background-color: ' + guess[2] + '"></button>' +
+                            '<button class="guess" style="background-color: ' + guess[3] + '"></button>' +
+                            '<br>' +
+                            '# with correct location and correct color: ' + existright + '<br>' +
+                            '# with incorrect location and correct color: ' + existwrong + '<br>' +
+                            '# with incorrect location and incorrect color: ' + noexist + '</details>';
+                document.getElementById('guessinfo').innerHTML = infoin;
+                document.getElementById('sum'+id).click();
+            }
+            function submit() {
+                if (guess == lastcode) {
+                    alert('Please change your code before submitting it again');
+                } else {
+                    isincomp = validatecode();
+                    var iscorrect = checkguess();
+                    if (isincomp == false) {
+                        //clearguess(true);
+                        if (iscorrect == true) {
+                            gamerunning = false;
+                            document.getElementById('attemptsleft').innerHTML = 'You won! <button onclick="reset()">Play again</button>';
+                            document.getElementById('cont').innerHTML = '<i>Congrats!</i>';
+                            returninfo();
+                        } else if (iscorrect == null) {
+                            console.log('did nothing XD')
+                        } else {
+                            lastcode = guess;
+                            returninfo();
+                            oopsy();
+                        }
+                    } else {
+                        alert('Please fill all code slots');
+                    }
+                }
+            }
+            function reset() {
+                document.getElementById('content').innerHTML = '<h1>Loading...</h1>'
+                answer = null;
+                attempts = null;
+                infoin = '';
+                guess = [];
+                rawans = [];
+                lastcode = null;
+                colset1 = false;
+                colset2 = false;
+                colset3 = false;
+                colset4 = false;
+                loadgame();
+                gamerunning = false;
+            }
+            function getanswer() {
+                let i = 0;
+                let output = '';
+                while(i<rawans.length) {
+                    output += '<button class="guess" style="background-color: ' + rawans[i] + ';"></button>';
+                    i++;
+                }
+                return output;
+            }
+            function oopsy() {
+                attempts = attempts - 1;
+                document.getElementById('attemptsleft').innerText = 'Attempts left: ' + attempts;
+                if (attempts < 1) {
+                    var actualans = getanswer();
+                    document.getElementById('attemptsleft').innerHTML = 'You ran out of attempts...<br>The code was:<br>' + actualans + '<br><br><button onclick="reset()">Play again</button><br><br>';
+                    document.getElementById('cont').innerHTML = '<i>Game over...</i>';
+                    gamerunning = false;
+                }
+            }
+            function checkstuff() {
+                if (rawans.length < 4) {
+                    return false;
+                }
+                if (attempts == '') {
+                    return false;
+                }
+                if (attempts < 1) {
+                    return false;
+                }
+            }
+            function randomcol() {
+                var colid = Math.floor(Math.random() * 6);
+                switch(colid) {
+                    case 1:
+                        return 'red';
+                        break;
+                    case 2:
+                        return 'yellow';
+                        break;
+                    case 3:
+                        return 'black';
+                        break;
+                    case 4:
+                        return 'white';
+                        break;
+                    case 5:
+                        return 'green';
+                        break;
+                    default:
+                        return 'blue';
+                        break;
+                }
+            }
+            function launchb() {
+                gamerunning = true;
+                rawans = [randomcol(), randomcol(), randomcol(), randomcol()];
+                attempts = 10;
+                var verif = checkstuff();
+                if (verif != false) {
+                    document.getElementById('content').innerHTML =
+                    '<output id="attemptsleft">Attempts left: ' + attempts + '</output>' +
+                    '<div id="cont">' +
+                    '<div>' +
+                        '<button id="in1" class="guess"></button>' +
+                        '<button id="in2" class="guess"></button>' +
+                        '<button id="in3" class="guess"></button>' +
+                        '<button id="in4" class="guess"></button>' +
+                    '</div>' +
+                    '<br><br>' +
+                    '<button style="background-color: red;" onclick="addred()"></button>' +
+                    '<button style="background-color: yellow;" onclick="addyellow()"></button>' +
+                    '<button style="background-color: black;" onclick="addblack()"></button>' +
+                    '<button style="background-color: white;" onclick="addwhite()"></button>' +
+                    '<button style="background-color: green;" onclick="addgreen()"></button>' +
+                    '<button style="background-color: blue;" onclick="addblue()"></button>' +
+                    '<br>' +
+                    '<button onclick="submit()">Submit Guess</button>' +
+                    '<button onclick="clearguess()">Clear Guess</button>' +
+                    '<button onclick="removeitem()">Back<br>Space</button>' +
+                    '</div>' +
+                    '<button hidden id="exall">[Dev]</button>' +
+                    '<center><div class="infobox">' +
+                        '<b><u>Info from previous guesses</u></b>' +
+                        '<div id="guessinfo"><i>No information right now</i></div>' +
+                    '</div></center>';
+                } else {
+                    alert('Please complete every field and/or input a value greater than one');
+                }
+            }
+            function addred() {
+                guess.push('red');
+                document.getElementById('in' + guess.length).style = 'background-color: red;';
+            }
+            function addyellow() {
+                guess.push('yellow');
+                document.getElementById('in' + guess.length).style = 'background-color: yellow;';
+            }
+            function addblack() {
+                guess.push('black');
+                document.getElementById('in' + guess.length).style = 'background-color: black;';
+            }
+            function addwhite() {
+                guess.push('white');
+                document.getElementById('in' + guess.length).style = 'background-color: white;';
+            }
+            function addgreen() {
+                guess.push('green');
+                document.getElementById('in' + guess.length).style = 'background-color: green;';
+            }
+            function addblue() {
+                guess.push('blue');
+                document.getElementById('in' + guess.length).style = 'background-color: blue;';
+            }
+            function clearguess(bypass=false) {
+                //let clearstuff;
+                //if (bypass) {
+                    //clearstuff = true;
+                //} else {
+                    var clearstuff = confirm('Clear guess?');
+                //}
+                if (clearstuff == true) {
+                    guess = [];
+                    document.getElementById('in1').style = '';
+                    document.getElementById('in2').style = '';
+                    document.getElementById('in3').style = '';
+                    document.getElementById('in4').style = '';
+                }
+            }
+            function addredb() {
+                rawans.push('red');
+                document.getElementById('in' + rawans.length).style = 'background-color: red;';
+            }
+            function addyellowb() {
+                rawans.push('yellow');
+                document.getElementById('in' + rawans.length).style = 'background-color: yellow;';
+            }
+            function addblackb() {
+                rawans.push('black');
+                document.getElementById('in' + rawans.length).style = 'background-color: black;';
+            }
+            function addwhiteb() {
+                rawans.push('white');
+                document.getElementById('in' + rawans.length).style = 'background-color: white;';
+            }
+            function addgreenb() {
+                rawans.push('green');
+                document.getElementById('in' + rawans.length).style = 'background-color: green;';
+            }
+            function addblueb() {
+                rawans.push('blue');
+                document.getElementById('in' + rawans.length).style = 'background-color: blue;';
+            }
+            function clearguessb() {
+                var clearstuff = confirm('Clear code?');
+                if (clearstuff == true) {
+                    rawans = [];
+                    document.getElementById('in1').style = '';
+                    document.getElementById('in2').style = '';
+                    document.getElementById('in3').style = '';
+                    document.getElementById('in4').style = '';
+                }
+            }
+            function checkvalid() {
+                if (rawans.length < 4) {
+                    return false;
+                } else {
+                    rawans.length = 4;
+                    return true;
+                }
+            }
+            function launch() {
+                gamerunning = true;
+                isvalid = checkvalid();
+                if (isvalid == true) {
+                    attempts = Math.floor(document.getElementById('attemptno').value);
+                    var verif = checkstuff();
+                    if (verif != false) {
+                        document.getElementById('content').innerHTML =
+                        '<output id="attemptsleft">Attempts left: ' + attempts + '</output>' +
+                        '<div id="cont">' +
+                        '<div>' +
+                            '<button id="in1" class="guess"></button>' +
+                            '<button id="in2" class="guess"></button>' +
+                            '<button id="in3" class="guess"></button>' +
+                            '<button id="in4" class="guess"></button>' +
+                        '</div>' +
+                        '<br><br>' +
+                        '<button style="background-color: red;" onclick="addred()"></button>' +
+                        '<button style="background-color: yellow;" onclick="addyellow()"></button>' +
+                        '<button style="background-color: black;" onclick="addblack()"></button>' +
+                        '<button style="background-color: white;" onclick="addwhite()"></button>' +
+                        '<button style="background-color: green;" onclick="addgreen()"></button>' +
+                        '<button style="background-color: blue;" onclick="addblue()"></button>' +
+                        '<br>' +
+                        '<button onclick="submit()">Submit Guess</button>' +
+                        '<button onclick="clearguess()">Clear Guess</button>' +
+                        '<button onclick="removeitem()">Back<br>Space</button>' +
+                        '</div>' +
+                        '<center><div class="infobox">' +
+                            '<b><u>Info from previous guesses</u></b>' +
+                            '<div id="guessinfo"><i>No information right now</i></div>' +
+                        '</div></center>';
+                    } else {
+                        alert('Please complete every field and/or input a value greater than one');
+                    }
+                } else {
+                    alert('Please fill all color slots');
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <a href="https://more-penguin-gamez-8742575.codehs.me/mainpage.html">Back</a>
+        <h1>Mastermind Online</h1>
+        <center>
+            <div style="cursor: wait;" id="content">Loading game...<br><progress value="0" max="100" id="progbar"></progress></div>
+        </center>
+    </body>
+</html>
