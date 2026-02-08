@@ -67,6 +67,67 @@
         </style>
         <script>
             let allowScreensaver = true;
+            class BallotBox {
+                constructor(question,opt1,opt2) {
+                    this.question = question;
+                    this.opt1 = opt1;
+                    this.opt2 = opt2;
+                    this.count1 = 0;
+                    this.count2 = 0;
+                }
+                saveCounts() {
+                    localStorage.setItem("count1", this.count1);
+                    localStorage.setItem('count2', this.count2);
+                    localStorage.setItem("question", this.question);
+                }
+                increment1() {
+                    this.count1++;
+                    if (document.getElementById("bb1")) {
+                        document.getElementById('bb1').innerText = this.count1;
+                    }
+                    this.saveCounts();
+                }
+                decrement1() {
+                    this.count1--;
+                    if (this.count1 < 0) {
+                        this.count1 = 0;
+                    }
+                    if (document.getElementById("bb1")) {
+                        document.getElementById('bb1').innerText = this.count1;
+                    }
+                    this.saveCounts();
+                }
+                increment2() {
+                    this.count2++;
+                    if (document.getElementById("bb2")) {
+                        document.getElementById('bb2').innerText = this.count2;
+                    }
+                    this.saveCounts();
+                }
+                decrement2() {
+                    this.count2--;
+                    if (this.count2 < 0) {
+                        this.count2 = 0;
+                    }
+                    if (document.getElementById("bb2")) {
+                        document.getElementById('bb2').innerText = this.count2;
+                    }
+                    this.saveCounts();
+                }
+            }
+            let qotd = new BallotBox("Is a hot dog a sandwich?", "Yes", "No");
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('question') && qotd != null) {
+                    if (localStorage.getItem('question') == qotd.question) {
+                        qotd.count1 = localStorage.getItem('count1');
+                        qotd.count2 = localStorage.getItem('count2');
+                    } else {
+                        localStorage.removeItem('count1');
+                        localStorage.removeItem('count2');
+                        localStorage.removeItem('question');
+                    }
+                }
+            }, false);
             class Person {
                 constructor(fName, lName, grade, addedDate=0, defaultVisits=true) {
                     this.fName = fName;
@@ -250,6 +311,7 @@
             function personPopup() {
                 // Called from startCheckIn screen
                 popup(
+                    "<button onclick='closepop()' style='float:left;'>X Close</button>" +
                     "<br><h1>Add Person</h1>" +
                     "First name: <input id='fn' type='text'><br>" +
                     "Last name: <input id='ln' type='text'><br>" +
@@ -286,6 +348,18 @@
                 savePeoples();
                 alert(peoples[index].getFullName()+" saved!");
             }
+            window.addEventListener('keydown', (event) => {
+                if (document.getElementById('tEndB')) {
+                    // If in check-in session
+                    // w duckduckgo ai for the alphanumeric test RegEx; I'll learn it eventually...
+                    if (!document.getElementById("popup") && ((/^[a-zA-Z0-9]+$/.test(event.key) && event.key.length == 1) || event.key == "Backspace")) {
+                        // If value is alphanumeric and is only one character, or is backspace
+                        // AND no popup is open (i.e. add new person popup)
+                        // Prevents this from triggering for things not meant to be typed
+                        document.getElementById('nameIn').focus();
+                    }
+                }
+            }, false);
             function startCheckIn() {
                 // Called from main
                 document.getElementById('content').innerHTML =
@@ -296,7 +370,18 @@
                     "<button id='tAddB' onclick='personPopup()'>Add New Person</button> ~ " +
                     "<button id='tTodayB' onclick='todayPeople()'>View/Edit Checked-In people from today</button>" +
                     "<br><br><hr><br>" +
-                    "<button id='tEndB' onclick='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>"
+                    "<button id='tEndB' onclick='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>" +
+                    "<br><br>" +
+                    "<div id='questionBox'>Loading...</div>";
+                if (qotd != null) {
+                    document.getElementById("questionBox").innerHTML =
+                        '<hr>' +
+                        qotd.question+"<br><br>" +
+                        qotd.opt1+": <button onclick='qotd.increment1()'>+</button> <span id='bb1'>"+qotd.count1+"</span> <button onclick='qotd.decrement1()'>-</button><br>" +
+                        qotd.opt2+": <button onclick='qotd.increment2()'>+</button> <span id='bb2'>"+qotd.count2+"</span> <button onclick='qotd.decrement2()'>-</button>"
+                } else {
+                    document.getElementById('questionBox').innerHTML = '';
+                }
                 document.getElementById('nameIn').focus();
             }
             function lookupPerson(elem) {
@@ -801,5 +886,7 @@
             <button onclick="tutorial(0)">Tutorial</button>
         </div>
     </body>
-    <script>const mainHTML = document.getElementById('content').innerHTML;</script>
+    <script>
+        const mainHTML = document.getElementById('content').innerHTML;
+    </script>
 </html>
