@@ -68,64 +68,72 @@
         <script>
             let allowScreensaver = true;
             class BallotBox {
-                constructor(question,opt1,opt2) {
+                constructor(question,opts,counts=[]) {
                     this.question = question;
-                    this.opt1 = opt1;
-                    this.opt2 = opt2;
-                    this.count1 = 0;
-                    this.count2 = 0;
+                    this.opts = opts;
+                    this.counts = counts;
+                    for (let i = 0;i<this.opts.length;i++) {
+                        this.counts.push(0);
+                    }
                 }
                 saveCounts() {
-                    localStorage.setItem("count1", this.count1);
-                    localStorage.setItem('count2', this.count2);
+                    localStorage.setItem("counts", this.counts.join(","));
+                    localStorage.setItem("opts", this.opts.join(","));
                     localStorage.setItem("question", this.question);
                 }
-                increment1() {
-                    this.count1++;
-                    if (document.getElementById("bb1")) {
-                        document.getElementById('bb1').innerText = this.count1;
+                increment(opt) {
+                    this.counts[opt]++;
+                    if (document.getElementById("bb"+opt)) {
+                        document.getElementById('bb'+opt).innerText = this.counts[opt];
                     }
                     this.saveCounts();
                 }
-                decrement1() {
-                    this.count1--;
-                    if (this.count1 < 0) {
-                        this.count1 = 0;
+                decrement(opt) {
+                    this.counts[opt]--;
+                    if (this.counts[opt] < 0) {
+                        this.counts[opt] = 0;
                     }
-                    if (document.getElementById("bb1")) {
-                        document.getElementById('bb1').innerText = this.count1;
-                    }
-                    this.saveCounts();
-                }
-                increment2() {
-                    this.count2++;
-                    if (document.getElementById("bb2")) {
-                        document.getElementById('bb2').innerText = this.count2;
+                    if (document.getElementById("bb"+opt)) {
+                        document.getElementById('bb'+opt).innerText = this.counts[opt];
                     }
                     this.saveCounts();
                 }
-                decrement2() {
-                    this.count2--;
-                    if (this.count2 < 0) {
-                        this.count2 = 0;
+                endPoll() {
+                    let isSure = confirm("End this poll? All data will be removed, do not do this unless the results have been written down or aren't needed any more.");
+                    if (!isSure) {
+                        return;
                     }
-                    if (document.getElementById("bb2")) {
-                        document.getElementById('bb2').innerText = this.count2;
+                    if (localStorage.getItem('question')) {
+                        localStorage.removeItem('question')
                     }
-                    this.saveCounts();
+                    if (localStorage.getItem('opts')) {
+                        localStorage.removeItem('opts');
+                    }
+                    if (localStorage.getItem('counts')) {
+                        localStorage.removeItem('counts');
+                    }
+                    document.getElementById('questionBox').innerHTML = '<hr><br><br><button onclick="initBBpop()">Start Poll</button>';
+                    qotd = null;
+                }
+                loadIntoElem(id) {
+                    let html = '';
+                    for (let i = 0;i<this.opts.length;i++) {
+                        html += this.opts[i]+": <button onclick='qotd.increment("+i+")'>+</button> <span id='bb"+i+"'>"+this.counts[i]+"</span> <button onclick='qotd.decrement("+i+")'>-</button><br>";
+                    }
+                    document.getElementById(id).innerHTML =
+                        "<hr>"+
+                        this.question+"<br><br>" +
+                        html +
+                        "<br><br>" +
+                        "<button onclick='qotd.endPoll()'>End Poll</button>"
                 }
             }
-            let qotd = new BallotBox("Is a hot dog a sandwich?", "Yes", "No");
+            // let qotd = new BallotBox("Is a hot dog a sandwich?", ["Yes", "No"]);
+            let qotd = null;
             window.addEventListener('load', () => {
-                if (localStorage.getItem('question') && qotd != null) {
-                    if (localStorage.getItem('question') == qotd.question) {
-                        qotd.count1 = localStorage.getItem('count1');
-                        qotd.count2 = localStorage.getItem('count2');
-                    } else {
-                        localStorage.removeItem('count1');
-                        localStorage.removeItem('count2');
-                        localStorage.removeItem('question');
-                    }
+                // Load poll
+                if (localStorage.getItem('question')) {
+                    qotd = new BallotBox(localStorage.getItem('question'), localStorage.getItem('opts').split(","), localStorage.getItem('counts').split(","));
                 }
             }, false);
             class Person {
@@ -374,15 +382,51 @@
                     "<br><br>" +
                     "<div id='questionBox'>Loading...</div>";
                 if (qotd != null) {
-                    document.getElementById("questionBox").innerHTML =
-                        '<hr>' +
-                        qotd.question+"<br><br>" +
-                        qotd.opt1+": <button onclick='qotd.increment1()'>+</button> <span id='bb1'>"+qotd.count1+"</span> <button onclick='qotd.decrement1()'>-</button><br>" +
-                        qotd.opt2+": <button onclick='qotd.increment2()'>+</button> <span id='bb2'>"+qotd.count2+"</span> <button onclick='qotd.decrement2()'>-</button>"
+                    qotd.loadIntoElem('questionBox');
                 } else {
-                    document.getElementById('questionBox').innerHTML = '';
+                    document.getElementById('questionBox').innerHTML = '<hr><br><br><button onclick="initBBpop()">Start Poll</button>';
                 }
                 document.getElementById('nameIn').focus();
+            }
+            function initBBpop() {
+                // Called from startCheckIn() screen
+                popup(
+                    "<button onclick='closepop()' style='float:left;'>X Close</button>" +
+                    "<br><h1>Poll Setup</h1>" +
+                    "Question: <input type='text' id='qIn' placeholder='Is a hot dog a sandwich?'><br><br>" +
+                    "Answers (separate each with a comma): <input type='text' id='optsIn' placeholder='Yes,No'><br><br>" +
+                    "<button onclick='initBB()'>Continue</button>"
+                )
+            }
+            function initBB() {
+                try{
+                if (qotd != null) {
+                    let isSure = confirm("This will overwrite the existing poll. Continue?");
+                    if (!isSure) {
+                        return;
+                    }
+                }
+                let opts = document.getElementById('optsIn').value.split(",");
+                // Removed until it can be fixed
+                /*for (let i = 0;i<opts.length;i++) {
+                    // Remove any trailing spaces
+                    if (opts[i].split("").indexOf(" ") != 0) {
+                        let opt = opts[i].split("");
+                        if (opt[opt.length-1] == " ") {
+                            opt.pop();
+                        }
+                        opts[i] = opt;
+                    }
+                }*/
+                if (opts.length == 0) {
+                    alert("Please add options first");
+                    return;
+                }
+                qotd = new BallotBox(document.getElementById('qIn').value, opts);
+                qotd.saveCounts();
+                closepop();
+                qotd.loadIntoElem('questionBox');
+                }catch(e){alert(e.stack)}
             }
             function lookupPerson(elem) {
                 // Called from startCheckIn() screen
