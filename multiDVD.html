@@ -265,6 +265,10 @@
                 }
             }
             function addDVD() {
+                dvdCount++;
+                if (document.getElementById('countDisp')) {
+                    document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
+                }
                 let elem = document.createElement("img");
                 elem.setAttribute('id', "dvd"+positions.length);
                 elem.setAttribute('class', 'dvd');
@@ -272,10 +276,6 @@
                 document.body.appendChild(elem);
                 positions.push({x:Math.floor(Math.random()*86),y:Math.floor(Math.random()*92)})
                 slopes.push({rise:0.1,run:0.1})
-                dvdCount++;
-                if (document.getElementById('countDisp')) {
-                    document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
-                }
             }
             function randomSpin() {
                 if (spinInt) {
