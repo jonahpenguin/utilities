@@ -26,14 +26,15 @@
                 new Game("Penguin Clicker", "penguinClicker.html"),
                 new Game("CPS Test", "cps.html"),
                 new Game("Zamboni", "zamboni.html"),
-                new Game("Smartboard Calibration", "smartboard.html")
+                new Game("Smartboard Calibration", "smartboard.html"),
+                new Game("Wordle Remake", "wordle.html")
             ];
             window.addEventListener('load', init);
             function init() {
-                let content = document.getElementById('linkList');
+                let content = document.getElementById('content');
                 let html = '<br>';
                 for (let i = 0;i<games.length;i++) {
-                    html += "<button onclick=games["+i+"].launch()>"+games[i].name+"</button><br><br>";
+                    html += "<button onclick=games["+i+"].launch()>"+games[i].name+"</button> - ";
                 }
                 content.innerHTML = html;
             }
@@ -44,7 +45,7 @@
         <br>
         <h1>Game Archive</h1>
         <center>
-            <div id="linkList">
+            <div id="content">
                 Loading...
             </div>
         </center>
