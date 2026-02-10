@@ -1,0 +1,279 @@
+<html>
+    <head>
+        <title>Zamboni</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            let cantime = false;
+            let lagval = 0;
+            let distime = 10000;
+            let player = {
+                x: 0,
+                y: 50
+            }
+            let dropice = true;
+            let moveinterval;
+            let ismoving = false;
+            function checkcol() {
+                if (player.x > 95 || player.x < 0 || player.y > 90 || player.y < 0) {
+                    return true;
+                }
+                return false;
+            }
+            function updateplayer() {
+                z.style.top = player.y + '%';
+                z.style.left = player.x + '%';
+                if (document.getElementById('cmd')) {
+                    document.getElementById('cmd').value = player.x + ',' + player.y;
+                }
+            }
+window.addEventListener('keyup', (event) => {
+    switch(event.key) {
+        case 'ArrowUp':
+        case 'w':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+        case 'ArrowDown':
+        case 's':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+        case 'ArrowLeft':
+        case 'a':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+        case 'ArrowRight':
+        case 'd':
+            if (ismoving) {
+                ismoving = false;
+                clearInterval(moveinterval);
+                updateplayer();
+            }
+            break;
+        case 'C':
+            if (!document.getElementById('cmd')) {
+                let c = document.createElement('input');
+                c.style = 'position:fixed;top:0;left:45%;width:10%;height:3%;text-align:center;z-index:9999999;';
+                c.value = player.x + ',' + player.y;
+                c.setAttribute('id', 'cmd');
+                c.addEventListener('change', () => {
+                    let coor = document.getElementById('cmd').value.split(',');
+                    player.x = parseInt(coor[0]);
+                    player.y = parseInt(coor[1]);
+                    updateplayer();
+                }, false);
+                document.body.appendChild(c);
+            }
+            break;
+    }
+}, false);
+window.addEventListener('keyup', (event) => {
+    if (event.code == 'Space') {
+        toggleb();
+    }
+}, false);
+let knowshud = false;
+function toggleb() {
+    let hud = document.getElementById('hud');
+    if (hud.style.display == 'none') {
+        hud.style.display = '';
+    } else {
+        hud.style.display = 'none';
+        if (!knowshud) {
+            alert('Use the spacebar to show the HUD again');
+            knowshud = true;
+        }
+    }
+}
+            /*window.addEventListener('load', () => {
+                setInterval(() => {
+                    icedrop();
+                    setInterval(() => {
+                        icedrop();
+                        setInterval(() => {
+                            icedrop();
+                        }, 1);
+                    }, 1);
+                }, 1);
+            }, false);*/
+function icedrop() {
+    if (dropice) {
+        lagval++;
+        if (lagval == 2500 || lagval == 3000 || lagval == 5000 || lagval == 10000) {
+            ismoving = false;
+            clearInterval(moveinterval);
+            updateplayer();
+            alert('That\'s a lot of ice! Maybe consider clearing it so the game does not get laggy. Use the button in the bottom right!');
+        }
+        document.getElementById('lagspan').innerText = 'Ice spawned: ' + lagval;
+        let icediv = document.createElement('div');
+        icediv.setAttribute('id', lagval);
+        icediv.style = 'width: 5%; z-index: 1; height: 10%; position: fixed; top: ' + player.y + '%; left: ' + player.x + '%; background-color: ' + document.getElementById('icecol').value + ';';
+        document.getElementById('icespan').appendChild(icediv);
+        let id = parseInt(lagval);
+        if (cantime) {
+            setTimeout(() => {
+                lagval--;
+                document.getElementById('lagspan').innerText = 'Ice spawned: ' + lagval;
+                document.getElementById(id).outerHTML = '';
+            }, distime);
+        }
+    }
+}
+window.addEventListener('keydown', (event) => {
+    switch(event.key) {
+        case 'ArrowUp':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.y--;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.y++;
+                    } else {
+                        icedrop();
+                    }
+                    updateplayer();
+                }, 5);
+            }
+            break;
+        case 'ArrowDown':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.y++;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.y--;
+                    } else {
+                        icedrop();
+                    }
+                    updateplayer();
+                }, 5);
+            }
+            break;
+        case 'ArrowLeft':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.x--;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.x++;
+                    } else {
+                        icedrop();
+                    }
+                    updateplayer();
+                }, 10);
+            }
+            break;
+        case 'ArrowRight':
+            if (!ismoving) {
+                ismoving = true;
+                moveinterval = setInterval(() => {
+                    player.x++;
+                    let iscol = checkcol();
+                    if (iscol) {
+                        player.x--;
+                    } else {
+                        icedrop();
+                    }
+                    updateplayer();
+                }, 10);
+            }
+            break;
+    }
+}, false);
+function toggleice(elem) {
+    if (dropice) {
+        dropice = false;
+        elem.innerText = 'Enable Ice';
+    } else {
+        dropice = true;
+        elem.innerText = 'Disable Ice';
+    }
+}
+function clearrink() {
+    let issure = confirm('Clear ice?');
+    if (issure) {
+        lagval = 0;
+        document.getElementById('lagspan').innerText = 'Ice spawned: ' + lagval;
+        document.getElementById('icespan').innerHTML = '';
+    } 
+}
+function disopt() {
+    document.getElementById('dodiv').style.left = 0;
+    document.getElementById('dodiv').style.top = 0;
+}
+function hidedisopt() {
+    document.getElementById('dodiv').style.left = 101 + '%';
+    document.getElementById('dodiv').style.top = 101 + '%';
+}
+function toggledis(elem) {
+    lagval = 0;
+    document.getElementById('lagspan').innerText = 'Ice spawned: ' + lagval;
+    document.getElementById('icespan').innerHTML = '';
+    if (cantime) {
+        cantime = false;
+        elem.innerText = 'Enable Ice Disappearing';
+        elem.parentElement.children.moreopt.style.display = 'none';
+    } else {
+        cantime = true;
+        elem.innerText = 'Disable Ice Disappearing';
+        elem.parentElement.children.moreopt.style.display = '';
+    }
+}
+function updatedis(elem) {
+    distime = parseInt(elem.value);
+}
+        </script>
+        <style>
+            #z {
+                top: 50%;
+                left: 0;
+                position: fixed;
+                background-color: blue;
+                width: 5%;
+                height: 10%;
+                z-index: 2;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="dodiv" style="background-color: darkblue; position: fixed; top: 101%; left: 101%; width: 100%; height: 100%; z-index: 10;">
+            <button onclick="hidedisopt()" style="float: left;">X Close</button>
+            <br>
+            <h1>Disappear options</h1>
+            <button onclick="toggledis(this)">Enable Ice Disappearing</button>
+            <br>
+            Changing this setting will clear the ice
+            <div style="display: none;" id="moreopt">
+                Time until disappear (milliseconds):
+                <input onchange="updatedis(this)" type="number" value=10000 placeholder="Type here..." id="disspeed">
+                <br><br>
+                <i>1000 milliseconds = 1 second</i>
+            </div>
+        </div>
+        <span id="hud">
+            <span style="position: fixed; left: 0; top: 0; text-align: left; z-index: 5;"><a href="https://more-penguin-gamez-8742575.codehs.me/mainpage.html">Back</a><br><span id="lagspan" style="background-color: darkblue;">Ice spawned: 0</span><br><button onclick="disopt()">Disappear options</button></span>
+            <span style="position: fixed; left: 0; bottom: 0; text-align: left; z-index: 5;"><span style="background-color: darkblue;">Current Ice color:</span><br><input type="color" value="#ADD8E6" id="icecol"></span>
+            <button style="position: fixed; top: 0; right: 0; z-index: 5;" onclick="toggleice(this)">Disable Ice</button>
+            <button style="position: fixed; bottom: 0; right: 0; z-index: 5;" onclick="clearrink()">Clear Ice</button>
+            <span style="position: fixed; text-align: center; z-index: 4; bottom: 3%; left: 0; width: 100%; height: 3%;"><span style="background-color: darkblue;">Made a work of art? Use the spacebar to hide the HUD so you can screenshot it!</span></span>
+        </span>
+        <span id="icespan"></span>
+        <div id="z">
+            <img style="width: 100%; height: 100%;" src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Surfaceuse.jpg">
+        </div>
+    </body>
+</html>
