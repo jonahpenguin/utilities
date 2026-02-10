@@ -1,0 +1,143 @@
+<html>
+    <head>
+        <title>SmartBoard Calibration</title>
+        <style>
+            img#bg {
+                position: fixed;
+                z-index: 1;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+            img#icon {
+                position: fixed;
+                z-index: 2;
+                width: 10%;
+                height: 20%;
+                top: 6%;
+                left: 0%;
+            }
+            div#start {
+                position: fixed;
+                top: 10%;
+                left: 10%;
+                width: 80%;
+                height: 80%;
+                background-color: blue;
+                border: 3px dashed cyan;
+                text-align: center;
+                color: yellow;
+                font-family: comic sans ms, helvetica;
+                z-index: 4;
+            }
+            div#semi {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+                opacity: 0.5;
+                z-index: 3;
+            }
+        </style>
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            window.addEventListener('keydown', (event) => {
+                if (event.code == 'Space' && start.style.display == 'none') {
+                    let issure = confirm('Return to title screen?');
+                    if (issure) {
+                        reset();
+                    }
+                }
+            }, false);
+            let timer;
+            let clicks = 0;
+            let isspeedy = false;
+            let timeleft = 60;
+            const positions = [
+                [0,6],
+                [0,45],
+                [0,84],
+                [40,6],
+                [40,45],
+                [40,84],
+                [80,6],
+                [80,45],
+                [80,84]
+            ];
+            function newpos() {
+                clicks++;
+                clickdisp.innerText = clicks;
+                let posid = Math.floor(Math.random() * positions.length);
+                icon.style.top = positions[posid][0] + '%';
+                icon.style.left = positions[posid][1] + '%';
+            }
+            function speedmode() {
+                let isready = confirm('In Speed Mode, you have 1 minute to click as many as you can. Try for the highest score! Ready to start?');
+                if (isready) {
+                    document.getElementById('timewrap').style.display = '';
+                    timeleft = 60;
+                    isspeedy = true;
+                    start.style.display = 'none';
+                    semi.style.display = 'none';
+                    timer = setInterval(() => {
+                        timeleft--;
+                        if (timeleft == 0) {
+                            timedisp.innerText = 60;
+                            document.getElementById('timewrap').style.display = 'none';
+                            semi.style.display = '';
+                            start.style.display = '';
+                            start.innerHTML =
+                                '<h1>Good job!</h1>' +
+                                'You got ' + clicks + ' clicks!' +
+                                '<br><br>' +
+                                '<button onclick="speedmode()">Play again!</button><br>' +
+                                '<button onclick="reset()">Return to title screen</button>';
+                            clearInterval(timer);
+                            isspeedy = false;
+                        } else {
+                            timedisp.innerText = timeleft;
+                        }
+                    }, 1000);
+                }
+            }
+            function reset() {
+                start.innerHTML =
+                    '<h1>Welcome!</h1>' +
+                    'During gameplay, hit the Space bar to exit.<br><br>' +
+                    '<button onclick="speedmode()">Speed Mode</button>' +
+                    '<br>' +
+                    '<button onclick="semi.style.display = \'none\'; start.style.display = \'none\';">Infinity Mode</button>';
+                start.style.display = '';
+                semi.style.display = '';
+                clicks = 0;
+                icon.style.top = positions[0][0] + '%';
+                icon.style.left = positions[0][1] + '%';
+                isspeedy = false;
+                clickdisp.innerText = 0;
+                timeleft = 60;
+                timedisp.innerText = 60;
+                document.getElementById('timewrap').style.display = 'none';
+                clearInterval(timer);
+            }
+        </script>
+    </head>
+    <body>
+        <span id="timewrap" style="display: none; z-index: 2; top: 0; right: 0; position: fixed; background-color: blue; border-left: 3px dashed cyan; border-bottom: 3px dashed cyan;">Time: <span id="timedisp">60</span></span>
+        <span style="position: fixed; z-index: 2; font-family: comic sans ms, helvetica; color: yellow; top: 0; left: 0; background-color: blue; border-bottom: 3px dashed cyan; border-right: 3px dashed cyan;">Clicks: <span id="clickdisp">0</span></span>
+        <script>const clickdisp = document.getElementById('clickdisp'); const timedisp = document.getElementById('timedisp');</script>
+        <div id="start">
+            <h1>Welcome!</h1>
+            During gameplay, hit the Space bar to exit.
+            <br><br>
+            <button onclick="speedmode()">Speed Mode</button>
+            <br>
+            <button onclick="semi.style.display = 'none'; start.style.display = 'none';">Infinity Mode</button>
+        </div>
+        <div id="semi"></div>
+        <img src="smartboard.png" id="bg">
+        <img onclick="newpos()" src="sbicon.png" id="icon" style="top: 0%; left: 6%;">
+    </body>
+</html>
