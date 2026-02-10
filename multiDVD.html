@@ -28,6 +28,7 @@
         </style>
         <script>
             let canMove = true;
+            let spinInt;
             
             window.addEventListener("mousemove", actionHandler);
 
@@ -85,7 +86,10 @@
                     "<button onclick='init(1)'>Increase speed on collision</button><br><br>" +
                     "<button onclick='init(2)'>Add logo on collision</button><br><br>" +
                     "<button onclick='init(3)'>Set random slope on collision</button><br><br>" +
-                    "<button onclick='init(4)'>Do all three above on collision (will crash soon after starting)</button><br><br>"
+                    "<button onclick='init(4)'>Do all three above on collision (will crash soon after starting)</button><br><br>" +
+                    "<button onclick='init(5)'>Set random spin on collision</button><br><br>" +
+                    "<button onclick='init(6)'>Set both random spin and random slope on collision</button><br><br>" +
+                    "<button onclick='init(100)'>All. Of. Them. (will crash soon after starting)</button>"
                 )
             }, false);
 
@@ -95,11 +99,23 @@
             let slopes = [
                 {rise:0.1,run:0.1}
             ]
-            let int = setInterval(moveDVD, 5)
+            let int = setInterval(moveDVD, 5);
             let selectedAction = 0;
-            function init(id) {
+            function init(id, close=true) {
                 selectedAction = parseInt(id);
-                closepop();
+                if (id == 5 || id == 6 || id == 100) {
+                    for (let i = 0;i<positions.length;i++) {
+                        document.getElementById('dvd'+i).style.rotate = "0deg";
+                        spinInt = setInterval(() => {
+                            let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
+                            rotVal++;
+                            document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
+                        }, 10);
+                    }
+                }
+                if (close) {
+                    closepop();
+                }
             }
             function handleAction() {
                 switch(selectedAction) {
@@ -116,6 +132,19 @@
                         increaseSpeed();
                         addDVD();
                         randomSpeed();
+                        break;
+                    case 5:
+                        randomSpin();
+                        break;
+                    case 6:
+                        randomSpin();
+                        randomSpeed();
+                        break;
+                    case 100:
+                        increaseSpeed();
+                        addDVD();
+                        randomSpeed();
+                        randomSpin();
                         break;
                 }
             }
@@ -237,9 +266,117 @@
                 positions.push({x:Math.floor(Math.random()*86),y:Math.floor(Math.random()*92)})
                 slopes.push({rise:0.1,run:0.1})
             }
+            function randomSpin() {
+                if (spinInt) {
+                    clearInterval(spinInt);
+                }
+                let stepVal = Math.floor(Math.random()*180);
+                let intVal = Math.floor(Math.random()*20)+10;
+                spinInt = setInterval(() => {
+                    for (let i = 0;i<positions.length;i++) {
+                        let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
+                        rotVal+=stepVal;
+                        document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
+                    }
+                }, 10);
+            }
+            function catMode() {
+                if (document.getElementById('popup')) {
+                    alert("Cat mode enabled!");
+                    init(6);
+                    setInterval(() => {
+                        changeCol();
+                        init(6,false);
+                    }, 20);
+                }
+            }
+            let lastCol = -1;
+            let currentCol = -1;
+            function setCol(col,update=true) {
+                lastCol = parseInt(currentCol);
+                currentCol = parseInt(col);
+                if (update) {
+                    for (let i = 0;i<positions.length;i++) {
+                        document.getElementById('dvd'+i).style.filter = 'hue-rotate('+currentCol+'deg)';
+                    }
+                }
+            }
+            function toHue(colId) {
+                switch(colId) {
+                    case 1:return 50;
+                    case 2:return 100;
+                    case 3:return 150;
+                    case 4:return 200;
+                    case 5:return 250;
+                    case 6:return 300;
+                    case 7:return 350;
+                    case 8:return 400;
+                    case 9:return 450;
+                    default:return 0;
+                }
+            }
+            function changeCol() {
+                let randoCol = Math.floor(Math.random()*9)+1;
+                if (toHue(randoCol) == lastCol) {
+                    if (randoCol <=9) {
+                        randoCol++;
+                    } else {
+                        randoCol--;
+                    }
+                }
+                switch(randoCol) {
+                    case 1:
+                        setCol(50);
+                        break;
+                    case 2:
+                        setCol(100);
+                        break;
+                    case 3:
+                        setCol(150);
+                        break;
+                    case 4:
+                        setCol(200);
+                        break;
+                    case 5:
+                        setCol(250);
+                        break;
+                    case 6:
+                        setCol(300,false);
+                        document.getElementById('dvd0').style.filter = 'invert()';
+                        break;
+                    case 7:
+                        setCol(350,false);
+                        document.getElementById('dvd0').style.filter = 'brightness(999)';
+                        break;
+                    case 8:
+                        setCol(400,false);
+                        document.getElementById('dvd0').style.filter = 'brightness(60%)';
+                        break;
+                    case 9:
+                        setCol(450,false);
+                        document.getElementById('dvd0').style.filter = 'sepia(100%)';
+                        break;
+                    default:
+                        setCol(0);
+                        break;
+                }
+            }
+            let catVal = 0;
             window.addEventListener("keydown", (event) => {
                 if (event.key == "+") {
                     addDVD();
+                }
+                if (event.key == "c") {
+                    catVal++;
+                } else if (event.key == "a") {
+                    catVal++;
+                } else if (event.key == "t") {
+                    catVal++;
+                    if (catVal == 3) {
+                        catMode();
+                    }
+                } else {
+                    catVal = 0;
                 }
             }, false);
         </script>
