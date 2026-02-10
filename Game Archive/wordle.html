@@ -1,0 +1,185 @@
+<html>
+    <head>
+        <title>Wordle Remake</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            function colorred(ident) {
+                document.getElementById(ident).style = 'background-color: red'
+            }
+            function coloryellow(ident) {
+                document.getElementById(ident).style = 'background-color: yellow'
+            }
+            function colorgreen(ident) {
+                document.getElementById(ident).style = 'background-color: green'
+            }
+            function dev() {
+                var letterone = document.getElementById('letterone').value;
+                var lettertwo = document.getElementById('lettertwo').value;
+                var letterthree = document.getElementById('letterthree').value;
+                var letterfour = document.getElementById('letterfour').value;
+                var letterfive = document.getElementById('letterfive').value;
+                var inputcode = letterfive + letterfour + letterthree + lettertwo + letterone;
+                var devcode = btoa(inputcode);
+                if (devcode == 'aW5kZXg=') {
+                    location.replace('index.html')
+                } else {
+                    alert('Access denied')
+                }
+            }
+            function checkword() {
+                var norm = document.getElementById('norm').value;
+                if (norm == 'normal') {
+                var letterone = document.getElementById('letterone').value;
+                var lettertwo = document.getElementById('lettertwo').value;
+                var letterthree = document.getElementById('letterthree').value;
+                var letterfour = document.getElementById('letterfour').value;
+                var letterfive = document.getElementById('letterfive').value;
+                if (letterone == 'e') {
+                    colorgreen('letterone')
+                } else if (letterone != 'e') {
+                    colorred('letterone');
+                }
+                 if (lettertwo == 'n') {
+                    colorgreen('lettertwo')
+                } else if (lettertwo != 'n') {
+                    colorred('lettertwo');
+                }
+                 if (letterthree == 't') {
+                    colorgreen('letterthree')
+                } else if (letterthree != 't') {
+                    colorred('letterthree');
+                }
+                 if (letterfour == 'e') {
+                    colorgreen('letterfour')
+                } else if (letterfour != 'e') {
+                    colorred('letterfour');
+                }
+                 if (letterfive == 'r') {
+                    colorgreen('letterfive')
+                } else if (letterfive != 'r') {
+                    colorred('letterfive');
+                }
+                var total = letterone + lettertwo + letterthree + letterfour + letterfive;
+                if (total == 'enter') {
+                    setTimeout(() => {alert('Congrats! Thanks for playing')}, 250);
+                }
+                } else {
+                var letterone = document.getElementById('letterone').value;
+                var lettertwo = document.getElementById('lettertwo').value;
+                var letterthree = document.getElementById('letterthree').value;
+                var letterfour = document.getElementById('letterfour').value;
+                var letterfive = document.getElementById('letterfive').value;
+                var l1 = document.getElementById('l1').value;
+                var l2 = document.getElementById('l2').value;
+                var l3 = document.getElementById('l3').value;
+                var l4 = document.getElementById('l4').value;
+                var l5 = document.getElementById('l5').value;
+                if (letterone == l1) {
+                    colorgreen('letterone')
+                } else if (letterone != l1) {
+                    colorred('letterone');
+                }
+                 if (lettertwo == l2) {
+                    colorgreen('lettertwo')
+                } else if (lettertwo != l2) {
+                    colorred('lettertwo');
+                }
+                 if (letterthree == l3) {
+                    colorgreen('letterthree')
+                } else if (letterthree != l3) {
+                    colorred('letterthree');
+                }
+                 if (letterfour == l4) {
+                    colorgreen('letterfour')
+                } else if (letterfour != l4) {
+                    colorred('letterfour');
+                }
+                 if (letterfive == l5) {
+                    colorgreen('letterfive')
+                } else if (letterfive != l5) {
+                    colorred('letterfive');
+                }
+                var total = letterone + lettertwo + letterthree + letterfour + letterfive;
+                var customword = l1 + l2 + l3 + l4 + l5;
+                if (total == customword) {
+                    setTimeout(() => {alert('Congrats! Thanks for playing')}, 250);
+                }
+                }
+            }
+            function second() {
+                location.href('#lettertwo')
+            }
+            function third() {
+                location.href('#letterthree')
+            }
+            function fourth() {
+                location.href('#letterfourth')
+            }
+            function fifth() {
+                location.href('#letterfive')
+            }
+            function sixth() {
+                location.href('#checkbutton')
+            }
+            function shareword() {
+                var norm = document.getElementById('norm').value;
+                if (norm == 'custom') {
+                    var l1 = btoa(document.getElementById('l1').value);
+                    var l2 = bota(document.getElementById('l2').value);
+                    var l3 = btoa(document.getElementById('l3').value);
+                    var l4 = btoa(document.getElementById('l4').value);
+                    var l5 = btoa(document.getElementById('l5').value);
+                    alert('Copy this code and send it to a friend. Tell them to put each line in the separate box')
+                } else {
+                    alert('')
+                }
+            }
+            function startnorm() {
+                document.write('<html>    <head>        <title>Wordle Remake</title>        <link rel="stylesheet" href="Style1.css">    </head>    <body>     <a href="">Exit Puzzle</a><h1>Wordle Remake</h1>   <input type="text" id="letterone" size="1">        <input size="1" type="text" onchange="third()" id="lettertwo">        <input onchange="fourth()" size="1" type="text" id="letterthree">        <input size="1" type="text" id="letterfour" onchange="fifth()">        <input size="1" type="text" id="letterfive" onchange="sixth()">        <br><br>        <button id="checkbutton" onclick="checkword()">Check</button><br><br><button onclick="shareword()">Share this word</button>    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><a style="color: darkblue" onclick="dev()">dev</a><br><input type="hidden" value="normal" id="norm"><input type="hidden" id="l1"><input type="hidden" id="l2"><input type="hidden" id="l3"><input type="hidden" id="l4"><input type="hidden" id="l5"></body></html>')
+            }
+            function startcustom() {
+                var l1 = document.getElementById('l1').value;
+                var l2 = document.getElementById('l2').value;
+                var l3 = document.getElementById('l3').value;
+                var l4 = document.getElementById('l4').value;
+                var l5 = document.getElementById('l5').value;
+                startnorm();
+                document.getElementById('l1').value = l1;
+                document.getElementById('l2').value = l2;
+                document.getElementById('l3').value = l3;
+                document.getElementById('l4').value = l4;
+                document.getElementById('l5').value = l5;
+                document.getElementById('norm').value = 'custom';
+            }
+            function startshared() {
+                var l1 = atob(document.getElementById('l1').value);
+                var l2 = atob(document.getElementById('l2').value);
+                var l3 = atob(document.getElementById('l3').value);
+                var l4 = atob(document.getElementById('l4').value);
+                var l5 = atob(document.getElementById('l5').value);
+                startnorm();
+                document.getElementById('l1').value = l1;
+                document.getElementById('l2').value = l2;
+                document.getElementById('l3').value = l3;
+                document.getElementById('l4').value = l4;
+                document.getElementById('l5').value = l5;
+                document.getElementById('norm').value = 'custom';
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Wordle Remake</h1>
+        <button onclick="startnorm()">Start Normal Version (12/13/22)</button>
+        <br><br>
+        Set the word yourself:<br>
+        <input type="text" id="l1" size="1">
+        <input type="text" id="l2" size="1">
+        <input type="text" id="l3" size="1">
+        <input type="text" id="l4" size="1">
+        <input type="text" id="l5" size="1">
+        <br>
+        <button onclick="startcustom()">Start Custom Version</button>
+        <br>
+        <button onclick="startshared()">Start with Shared Word</button>
+    </body>
+</html>
