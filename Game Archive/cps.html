@@ -1,0 +1,118 @@
+<html>
+    <head>
+        <title>Click Speed Test ~ Penguin Gamez</title>
+        <link rel="stylesheet" href="Style1.css">
+        <script src="load.js"></script>
+        <script>
+            function loadgame() {
+                content.innerHTML =
+                    '<br><br>' +
+                    '<button style="font-size:48px;" onclick="start()">Start!</button>' +
+                    '<br><br>' +
+                    '<details>' +
+                        '<summary style="cursor:hand;">How to play</summary>' +
+                        '<p>' +
+                            'This game is very simple-when you click \'start\', you can start clicking anywhere on the screen until the timer runs out. You will then get info on how fast you clicked. Good luck!' +
+                        '</p>' +
+                    '</details>';
+            }
+            let downcount;
+            let cansave = true;
+            let isrunning = false;
+            let clicks = 0;
+            let savedclicks = 0;
+            window.addEventListener('click', () => {
+                if (isrunning) {
+                    clicks++;
+                    document.getElementById('clickdisp').innerText = 'Clicks: ' + clicks;
+                }
+            }, false);
+            function leave() {
+                let issure = confirm('Leave page?');
+                if (issure) {
+                    location.replace('index.html');
+                }
+            }
+            function start() {
+                backlink.href = 'javascript:leave();';
+                content.innerHTML =
+                    '<br><br>' +
+                    '<span id="countdown" style="font-size:48px;">Ready?</span>';
+                downcount = setInterval(count, 1000);
+            }
+            function count() {
+                let elem = document.getElementById('countdown');
+                if (elem.innerText == 'Ready?') {
+                    elem.innerText = '3';
+                } else if (elem.innerText == '3') {
+                    elem.innerText = '2';
+                } else if (elem.innerText == '2') {
+                    elem.innerText = '1';
+                } else if (elem.innerText == '1') {
+                    elem.innerHTML = 'Start clicking!<br><small id="clickdisp">Anywhere counts</small>';
+                    isrunning = true;
+                    setTimeout(() => {
+                        endgame();
+                    }, 10000);
+                    clearInterval(downcount);
+                }
+            }
+            function endgame() {
+                backlink.href = 'index.html';
+                isrunning = false;
+                content.innerHTML =
+                    '<br><br>' +
+                    '<h1>Time!</h1>' +
+                    'You got ' + clicks + ' clicks, which is approximately ' + parseInt(clicks/10) + ' clicks per second!' +
+                    '<br>' +
+                    '<div id="hs">' +
+                    '</div>' +
+                    '<div style="display:none;" id="contdiv"><button onclick="start()" style="font-size:48px;">Play again!</button><br><br>' +
+                    '<button onclick="loadgame()">Back</button></div>';
+                let newhs = false;
+                if (clicks>savedclicks) {
+                    newhs = true;
+                    savedclicks = parseInt(clicks);
+                    document.getElementById('hsdisp').innerText = 'Highscore: ' + savedclicks;
+                    document.getElementById('hs').innerText = 'New highscore!';
+                    if (cansave) {
+                        localStorage.setItem('savedclicks', savedclicks);
+                    }
+                }
+                setTimeout(() => {
+                    document.getElementById('contdiv').style.display = '';
+                }, 2000);
+                clicks = 0;
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('savedclicks')) {
+                    savedclicks = parseInt(localStorage.getItem('savedclicks'));
+                    document.getElementById('hsdisp').innerText = 'Highscore: ' + savedclicks;
+                }
+            }, false);
+            function disablesaving() {
+                if (cansave) {
+                    let issure = confirm('Disable saving? High scores will not be saved.');
+                    if (issure) {
+                        cansave = false;
+                    }
+                } else {
+                    cansave = true;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <a id="backlink" href="index.html">Back</a>
+        <span id="hsdisp" style="position: fixed; top: 0; right: 0;"></span>
+        <h1>Click Speed Test</h1>
+        <center>
+            <div id="content">
+                Loading game...
+                <br>
+                <progress id="progbar" value=0 max=100></progress>
+            </div>
+            <button onclick="disablesaving()">Toggle saving (default is on)</button>
+        </center>
+    </body>
+</html>
