@@ -266,7 +266,7 @@
             }
             function addDVD() {
                 dvdCount++;
-                if (!document.getElementById('countDisp')) {
+                if (document.getElementById('countDisp')) {
                     document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
                 } else {
                     let elem = document.createElement('span');
