@@ -1,0 +1,864 @@
+<html>
+    <head>
+        <title>Penguin Clicker ~ Penguin Gamez</title>
+        <link rel="stylesheet" href="Style1.css">
+        <style>
+            span#peng {
+                zoom: 500%;
+                cursor: hand;
+            }
+            .fallingpeng {
+                position: fixed;
+                z-index: 0;
+            }
+		div#clickup {
+                    z-index: 3;
+                    position: fixed;
+                    top: 10%;
+                    left: 10%;
+                    width: 80%;
+                    height: 80%;
+                    background-color: blue;
+                    border: 3px dotted lightblue;
+                    color: black;
+		}
+            div#conf {
+                z-index: 3;
+                position: fixed;
+                top: 0;
+                left: -300;
+                width: 250px;
+                height: 25px;
+                background-color: blue;
+                border: 3px dashed green;
+            }
+                div#upgrades {
+                    z-index: 3;
+                    position: fixed;
+                    top: 10%;
+                    left: 10%;
+                    width: 80%;
+                    height: 80%;
+                    background-color: blue;
+                    border: 3px dotted lightblue;
+                    color: black;
+                }
+                div#eximopt {
+                    position: fixed;
+                    top: 10%;
+                    left: 10%;
+                    width: 80%;
+                    height: 80%;
+                    background-color: blue;
+                    border: 3px dashed cyan;
+                    z-index: 3;
+                }
+                div#semi {
+                    z-index: 2;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: black;
+                    opacity: 0.5;
+                }
+                body {
+                    z-index: 1;
+                }
+            </style>
+        <script src="load.js"></script>
+        <!--<script src="https://more-other-stuff-6082740.codehs.me/block.js"></script>-->
+        <style>
+            .fallpeng {
+                display: none;
+                position: fixed;
+                z-index: -1;
+                width: 1px;
+                height: 1px;
+            }
+            .cp {
+                border:none;
+            }
+            .cp:hover {
+                box-shadow:none;
+            }
+        </style>
+        <script>
+        function cpp() {
+	  hideclickdown();
+          hidedown();
+          closeexim();
+            if (usekey) {
+                togglekey(document.getElementById('quickkeybutton'));
+            }
+            semi.style.display = '';
+            semi.style.opacity = '0.9';
+            document.getElementById('cpa').style.top = '45%';
+            document.getElementById('cpa').style.left = '42.5%';
+            document.getElementById('cpts').style.top = '48.5%';
+            document.getElementById('cpts').style.left = '37%';
+            document.getElementById('cpts').innerHTML = '86736<br><br><br><i style="font-family:comic sans ms;color:grey;">Looks pretty important...<br>Maybe write this down somewhere</i>';
+            setTimeout(() => {
+                document.getElementById('cpts').innerHTML = document.getElementById('cpts').innerHTML + '<br><br><button onclick="location.replace(\'https://even-more-penguin-gamez-9951575.codehs.me/something.html?pc\')" style="font-size:20px;">Got it!</button>';
+            }, 3000);
+        }
+        window.addEventListener('load', () => {
+            let loca = location.href;
+            if (loca.includes('?')) {
+                loca = loca.split('?');
+                loca = loca[1];
+                if (loca == 'something') {
+                    let codepiece = document.createElement('a');
+                    codepiece.setAttribute('class', 'cp');
+                    codepiece.setAttribute('id', 'cpa');
+                    codepiece.href = 'javascript:cpp()';
+                    codepiece.innerHTML = '<img src="codepiece.png" style="background-color:transparent;border:none;box-shadow:none;width:100%;height:100%;">';
+                    codepiece.style = 'z-index:99;border:none;box-shadow:none;position:fixed;top:0;left:0;width:15%;height:10%;background-color:transparent;';
+                    let cpt = document.createElement('span');
+                    cpt.style = 'position:fixed;z-index:100;left:5%;top:3.5%;color:black;font-family:brush script mt;font-size:24px;';
+                    cpt.innerText = atob('ODY3MzY=');
+                    cpt.setAttribute('id', 'cpts');
+                    document.body.appendChild(cpt);
+                    document.body.appendChild(codepiece);
+                    document.getElementById('bb').outerHTML = '<br>';
+                }
+            }
+        }, false);
+            let fallint = [];
+            let blocks = [];
+            let pengque = 0;
+            let usekey = true;
+            function blockdrop() {
+                return true;
+                let nbid = 'b' + blocks.length;
+                let bx = Math.floor(Math.random() * 10) * 10;
+                let i = 0;
+                while(i<blocks.length) {
+                    blocks[i].blocky = blocks[i].blocky + 10;
+                    document.getElementById(blocks[i].blockid).style = 'top: ' + blocks[i].blocky + '%; left: ' + blocks[i].blockx + '%;';
+                    i++;
+                }
+                if (pengque > 0 && lagred == false) {
+                    pengque--;
+                    let newblock = document.createElement('div');
+                    newblock.setAttribute('class', 'fallpeng');
+                    newblock.setAttribute('id', 'b' + blocks.length);
+                    newblock.style = 'top: 0%; left: ' + bx + '%;';
+                    newblock.innerText = '🐧';
+                    document.getElementById('pengbox').appendChild(newblock);
+                    blocks.push(
+                        {
+                            blockid: nbid,
+                            blocky: 0,
+                            blockx: bx
+                        }
+                    );
+                    blockdrop();
+                }
+                if (lagred) {
+                    pengque = 0;
+                }
+            }
+            function blockunload() {
+                // unload a few blocks using .shift()
+            }
+        window.addEventListener('load', () => {
+            //fallint.push(setInterval(blockdrop, 95));
+        }, false);
+        let lagred = false;
+        if (document.addEventListener) {
+ document.addEventListener('fullscreenchange', exitHandler, false);
+ document.addEventListener('mozfullscreenchange', exitHandler, false);
+ document.addEventListener('MSFullscreenChange', exitHandler, false);
+ document.addEventListener('webkitfullscreenchange', exitHandler, false);
+}
+function handleexit() {
+    var innercont = document.getElementById('body').innerHTML.split('<div onclick="closeFullscreen()" style="position: fixed; top: 0; right: 0; width: 100px; height: 10px; text-align: right;"><i>Hit Esc to exit fullscreen</i></div>');
+    document.getElementById('body').innerHTML = 
+        '<button style="position: fixed; top: 0; right: 0;" onclick="openFullscreen()">Fullscreen</button>' +
+        '<div id="conf">Auto clicker added</div>' +
+        '<a href="index.html">Back</a>' +
+        '<h1>Penguin Clicker</h1>' +
+        '<center>' +
+            '<div id="content">' + innercont[0] + '</div>' +
+            '<br>' +
+            '<button onclick="save()">Save (uses local storage)</button> ~ <button onclick="load()">Load</button> ~ <button onclick="delsave()">Delete</button><br>' +
+            '<button onclick="enableautostart()" id="autosavebutton">Turn on automatic saving (same as save but automatic)</button>' +
+        '</center>';
+    document.getElementById('body').style = '';
+}
+function exitHandler(){
+ if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement)
+ {
+  handleexit();
+ }
+}
+function updatepeng(output) {
+    document.getElementById(output).innerText = penguins.toLocaleString() + ' penguins';
+}
+        const elem = document.documentElement;
+            function openFullscreen() {
+    handlefull();
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
+function handlefull() {
+    var innercont = document.getElementById('content').innerHTML;
+    document.getElementById('body').style = 'zoom: 400%; background-color: blue';
+    document.getElementById('body').innerHTML = innercont + '<div onclick="closeFullscreen()" style="position: fixed; top: 0; right: 0; width: 100px; height: 10px; text-align: right;"><i>Hit Esc to exit fullscreen</i></div>';
+}
+document.addEventListener('keydown', (event) => {
+  var name = event.key;
+  var code = event.code;
+  switch(code) {
+      case 'Escape':
+          if (usekey) {
+	  hideclickdown();
+          hidedown();
+          closeexim();
+          }
+          break;
+    case 'KeyU':
+        if (usekey) {
+	        hideclickdown();
+	        closeexim();
+            openup();
+        }
+        break;
+    case 'KeyC':
+        if (usekey) {
+	        closeexim();
+	        hidedown();
+	        openclickup();
+        }
+	break;
+  }
+}, false);
+</script>
+<script>
+            //var block = blocked();
+	    var clickval = 1;
+            var confx = -200;
+            var peng1y = Math.random() * 40;
+            var peng2y = Math.random() * 40;
+            var peng3y = Math.random() * 40;
+            var peng4y = Math.random() * 40;
+            var peng5y = Math.random() * 40;
+            var peng6y = Math.random() * 40;
+            var peng7y = Math.random() * 40;
+            var peng8y = Math.random() * 40;
+            var peng9y = Math.random() * 40;
+            var peng10y = Math.random() * 40;
+            var automaticno = 0;
+            var saveint = null;
+            var penguinfarm = false;
+            var doubleclickenabled = false;
+            var penguins = 0;
+            var multiplyby = 1;
+            var autosave = false;
+            var penguinsps = 0;
+            let progressval = 0;
+            /*document.getElementById('penguin1').style = 'left: ' + peng1y;
+            document.getElementById('penguin2').style = 'left: ' + peng2y;
+            document.getElementById('penguin3').style = 'left: ' + peng3y;
+            document.getElementById('penguin4').style = 'left: ' + peng4y;
+            document.getElementById('penguin5').style = 'left: ' + peng5y;
+            document.getElementById('penguin6').style = 'left: ' + peng6y;
+            document.getElementById('penguin7').style = 'left: ' + peng7y;
+            document.getElementById('penguin8').style = 'left: ' + peng8y;
+            document.getElementById('penguin9').style = 'left: ' + peng9y;
+            document.getElementById('penguin10').style = 'left: ' + peng10y;*/
+            </script>
+            <script>
+document.addEventListener('keyup', (event) => {
+    if (document.getElementById('content').style.cursor != 'wait') {
+        pengclick();
+        pengbig();
+    }
+}, false);
+            function save(bypass) {
+                if (bypass == true) {
+                    if (usekey) {
+                        localStorage.setItem('usekey', true);
+                    } else {
+                        localStorage.setItem('usekey', false);
+                    }
+                    localStorage.setItem('progressval', progressval);
+		            localStorage.setItem('clickval', clickval);
+                    localStorage.setItem('penguins', penguins);
+                    localStorage.setItem('penguinsps', penguinsps);
+                    if (lagred) {
+                        localStorage.setItem('lagred', true);
+                    } else {
+                        localStorage.removeItem('lagred');
+                    }
+                    autoclickconf('Saved');
+                } else if (localStorage.getItem('penguins')) {
+                    var saveconf = confirm('Overwrite previous save?');
+                    if (saveconf) {
+		                localStorage.setItem('clickval', clickval);
+                        localStorage.setItem('penguins', penguins);
+                        localStorage.setItem('progressval', progressval);
+                        localStorage.setItem('penguinsps', penguinsps);
+                        if (lagred) {
+                            localStorage.setItem('lagred', true);
+                        } else {
+                            localStorage.removeItem('lagred');
+                        }
+                        autoclickconf('Saved');
+                    }
+                } else {
+                    localStorage.setItem('penguins', penguins);
+                    localStorage.setItem('penguinsps', penguinsps);
+                    localStorage.setItem('progressval', progressval);
+		            localStorage.setItem('clickval', clickval);
+                    if (lagred) {
+                        localStorage.setItem('lagred', true);
+                    } else {
+                        localStorage.removeItem('lagred');
+                    }
+                    autoclickconf('Saved');
+                }
+            }
+            function load() {
+                if (penguins < 20) {
+                    runload();
+                } else {
+                    let issure = confirm('Load saved data?');
+                    if (issure) {
+                        runload();
+                    }
+                }
+            }
+            function runload() {
+                if (document.getElementById('content').style.cursor != 'wait') {
+                if (localStorage.getItem('usekey')) {
+                    if (localStorage.getItem('usekey') == false) {
+                        usekey = true;
+                        togglekey(document.getElementById('quickkeybutton'));
+                    }
+                }
+                if (parseInt(localStorage.getItem('penguins')) != NaN) {
+                if (localStorage.getItem('penguins')) {
+                    if (localStorage.getItem('clickval')) {
+		                if (parseInt(localStorage.getItem('clickval')) != NaN) {
+		                 clickval = parseInt(localStorage.getItem('clickval'));
+		                }
+                    }
+                    penguins = parseInt(localStorage.getItem('penguins'));
+                    if (localStorage.getItem('progressval')) {
+                        progressval = parseInt(localStorage.getItem('progressval'));
+                        openup();
+                        if (progressval > 0) {
+                            document.getElementById('up2').style = '';
+                        }
+                        if (progressval == 2) {
+                            document.getElementById('up3').style = '';
+                            document.getElementById('up1').innerText = '';
+                        }
+                        hidedown();
+                    }
+                    if (localStorage.getItem('penguinsps')) {
+                        penguinsps = parseInt(localStorage.getItem('penguinsps'));
+                        setInterval(() => {penguins = penguins + penguinsps; updatepeng('pengout');}, 1000);
+                    }
+                    updatepeng('pengout');
+                    if (localStorage.getItem('autosave')) {
+                        saveint = setInterval(() => {
+                    localStorage.setItem('penguins', penguins);
+                    localStorage.setItem('penguinsps', penguinsps);
+                    if (lagred) {
+                        localStorage.setItem('lagred', true);
+                    } else {
+                        localStorage.removeItem('lagred');
+                    }
+                    autoclickconf('Saved');
+                        }, 30000);
+                        document.getElementById('autosavebutton').innerText = 'Turn off automatic saving';
+                        autosave = true;
+                    }
+                    autoclickconf('Loaded');
+                } else {
+                    alert('No data saved. Click the "Save" button to save your game data!')
+                }
+                if (localStorage.getItem('lagred')) {
+                    lagred = true;
+                    document.getElementById('lrbutton').innerText = 'Disable Lag Reduction';
+                }
+                } else {
+                    alert('Invalid save data');
+                }
+            }
+            }
+            </script>
+            <script>
+            function addpeng() {
+                penguins++;
+                pengque++;
+                if (!lagred) {
+                    updatepeng('pengout');
+                }
+            }
+            let moveout;
+            let movein;
+            let cctimeout;
+            function clearconf() {
+                if (isrunning) {
+                    moveout = setInterval(() => {
+                        confx = confx - 1;
+                        document.getElementById('conf').style = 'left: ' + confx;
+                        if (confx < -300) {
+                            isrunning = false;
+                            clearInterval(moveout);
+                        }
+                    }, 1);
+                } else {
+                    clearInterval(moveout);
+                    clearInterval(movein);
+                    clearTimeout(cctimeout);
+                    confx = 0;
+                    moveout = setInterval(() => {
+                        confx = confx - 1;
+                        document.getElementById('conf').style = 'left: ' + confx;
+                        if (confx < -300) {
+                            isrunning = false;
+                            clearInterval(moveout);
+                        }
+                    }, 1);
+                }
+            }
+            let isrunning = false;
+            function autoclickconf(notiftext) {
+                if (!isrunning) {
+                    isrunning = true;
+                    document.getElementById('conf').innerText = notiftext;
+                    movein = setInterval(() => {
+                        confx++;
+                        document.getElementById('conf').style = 'left: ' + confx;
+                        if (confx > 0) {
+                            clearInterval(movein);
+                            cctimeout = setTimeout(() => {clearconf();}, 2000);
+                        }
+                    }, 1);
+                } else {
+                    document.getElementById('conf').innerText = notiftext;
+                    clearInterval(movein);
+                    clearInterval(moveout);
+                    clearTimeout(cctimeout);
+                    confx = 0;
+                    document.getElementById('conf').style = 'left: 0';
+                    cctimeout = setTimeout(() => {clearconf();}, 2000);
+                }
+            }
+            function autoclick() {
+                if (penguins > 499) {
+                    penguins = penguins - 501;
+                    autoclickconf('Auto clicker added');
+                    automaticno = automaticno + 1;
+                    document.getElementById('auto').value = ' ~ Automatic Clickers: ' + automaticno;
+                    addpeng();
+                    setInterval(() => {addpeng();}, 1000);
+                } else {
+                    alert("You don't have enough penguins yet...");
+                }
+            }
+            function setclicks() {
+                var numberin = parseInt(document.getElementById('numin').value);
+                penguins = numberin - 1;
+                addpeng();
+            }
+            function pengbig() {
+                document.getElementById('pengstyling').style = 'zoom: 110%;'
+                setTimeout(() => {document.getElementById('pengstyling').style = '';}, 10);
+            }
+            function doubleclick() {
+                if (penguins > 299) {
+                    if (doubleclickenabled == false) {
+                        penguins = penguins - 302;
+                        doubleclickenabled = true;
+                        document.getElementById('doubleclickbutton').outerHTML = '';
+                        addpeng();
+                        autoclickconf('Clicking rate doubled');
+                    } else {
+                        alert('You can only use this upgrade once');
+                    }
+                }
+            }
+            function levelup() {
+                if (penguins > 999) {
+                    multiplyby++;
+                    penguins = penguins - 1000;
+                    autoclickconf('Multiplier upgraded');
+                } else {
+                    autoclickconf("You don't have enough penguins yet...")
+                }
+            }
+	    function openclickup() {
+                if (document.getElementById('content').style.cursor != 'wait') {
+	    		document.getElementById('semi').style = '';
+			document.getElementById('clickup').style = '';
+			document.getElementById('clicktrack').innerText = clickval.toLocaleString();
+		}
+	    }
+	    function hideclickdown() {
+	    	document.getElementById('semi').style = 'display: none;';
+		document.getElementById('clickup').style = 'display: none;';
+	    }
+            function openup() {
+                if (document.getElementById('content').style.cursor != 'wait') {
+                    document.getElementById('semi').style = '';
+                    document.getElementById('upgrades').style = '';
+                    document.getElementById('pps').innerText = penguinsps.toLocaleString();
+                }
+            }
+            function hidedown() {
+                document.getElementById('semi').style = 'display: none;';
+                document.getElementById('upgrades').style = 'display: none;';
+            }
+            </script>
+            <script>
+            function addclicker(val, price) {
+                var cost = price - 1;
+                if (penguins > cost) {
+                    setInterval(() => {addcustom(val)}, 1000);
+                    penguins = penguins - price;
+                    autoclickconf('Successfully added');
+                    if (val == 15) {
+                        if (progressval == 0) {
+                            progressval = 1;
+                        }
+                        document.getElementById('up2').style = '';
+                    }
+                    if (val == 500) {
+                        if (progressval == 1&&progressval == 0) {
+                            progressval = 2;
+                        }
+                        document.getElementById('up3').style = '';
+                        document.getElementById('up1').innerText = '';
+                    }
+                    penguinsps = penguinsps + val;
+                    document.getElementById('pps').innerText = penguinsps.toLocaleString();
+                } else {
+                    autoclickconf("You don't have enough penguins...");
+                }
+            }
+            function closecon() {
+                document.getElementById('finishdiv').outerHTML = '';
+                semi.style = 'display: none;';
+            }
+            function addcustom(num) {
+                pengque = pengque + num;
+                penguins = penguins + num;
+                if (!lagred) {
+                    updatepeng('pengout');
+                }
+            }
+            function endgame() {
+                        semi.style = '';
+                        let popdiv = document.createElement('div');
+                        popdiv.style = 'z-index: 4; top: 10%; left: 10%; width: 80%; height: 80%; background-color: blue; border: 3px dashed cyan;';
+                        popdiv.setAttibute('id', 'finishdiv');
+                        popdiv.innerHTML = 
+                            '<h1>Congratulations!</h1>' +
+                            'You beat Penguin Clicker! Thank you so much for playing to the end!' +
+                            '<br><br>' +
+                            '<button onclick="closecon()">Keep playing! (Game may be broken now though due to large numbers :/)</button><br>' +
+                            '<button onclick="save(); location.replace(\'index.html\');">Save and Exit</button>';
+                        document.body.appendChild(popdiv);
+            }
+            function togglelagred() {
+                let lr = document.getElementById('lrbutton');
+                if (lagred) {
+                    lagred = false;
+                    lr.innerText = 'Enable Lag Reduction';
+                    clearInterval(lagredint);
+                } else {
+                    lagred = true;
+                    lr.innerText = 'Disable Lag Reduction';
+                    var lagredint = setInterval(() => {
+                        updatepeng('pengout');
+                    }, 500);
+                }
+            }
+				setInterval(() => {updatepeng('pengalt'); updatepeng('pengalt2')}, 500);
+				function updatepengalt() {
+					document.getElementById('pengalt').innerText = penguins + ' penguins';
+				}
+	    function upclick(addval, cost) {
+	    	if (penguins > cost) {
+			penguins = penguins - cost;
+			clickval = clickval + addval;
+			document.getElementById('clicktrack').innerText = clickval.toLocaleString();
+			autoclickconf('Clicking upgraded');
+		} else {
+			autoclickconf('Not enough penguins...');
+		}
+	    }
+            function loadgame() {
+                //if (block == false) {
+                document.getElementById('content').innerHTML =
+                    '<output id="pengout">0 <span id="units"></span>penguins</output><output id="auto"></output>' +
+                    '<br><br>' +
+                    '<button onclick="openup()">Auto clicking <u>u</u>pgrades</button>' +
+		    '<br>' +
+		    '<button onclick="openclickup()"><u>C</u>licking upgrades</button>' +
+                    '<br>' +
+		    '<div style="display: none;" id="clickup">' +
+			'<button style="float: left;" onclick="hideclickdown()">X Close</button>' +
+			'<span id="pengalt2" style="float: right;">Loading...</span>' +
+			'<br>' +
+			'<h1>Clicking upgrades</h1>' +
+			'Currently <span id="clicktrack">' + clickval + '</span> penguins per click' +
+			'<br><br>' +
+			'<button onclick="upclick(1, 5)">Add 1 penguin/click (5 penguins)</button>' +
+			'<button onclick="upclick(5, 10)">Add 5 penguin/click (10 penguins)</button>' +
+			'<button onclick="upclick(10, 20)">Add 10 penguin/click (20 penguins)</button>' +
+			'<button onclick="upclick(50, 100)">Add 50 penguin/click (100 penguins)</button>' +
+			'<button onclick="upclick(100, 200)">Add 100 penguin/click (200 penguins)</button>' +
+			'<button onclick="upclick(500, 1000)">Add 500 penguin/click (1,000 penguins)</button>' +
+			'<button onclick="upclick(1000, 2000)">Add 1,000 penguin/click (2,000 penguins)</button>' +
+			'<button onclick="upclick(5000, 10000)">Add 5,000 penguin/click (10,000 penguins)</button>' +
+			'<button onclick="upclick(10000, 20000)">Add 10,000 penguin/click (20,000 penguins)</button>' +
+			'<button onclick="upclick(50000, 100000)">Add 50,000 penguin/click (100,000 penguins)</button>' +
+			'<button onclick="upclick(100000, 200000)">Add 100,000 penguin/click (200,000 penguins)</button>' +
+			'<button onclick="upclick(500000, 1000000)">Add 500,000 penguin/click (1,000,000 penguins)</button>' +
+			'<button onclick="upclick(1000000, 2000000)">Add 1,000,000 penguin/click (2,000,000 penguins)</button>' +
+			'<button onclick="upclick(5000000, 10000000)">Add 5,000,000 penguin/click (10,000,000 penguins)</button>' +
+			'<button onclick="upclick(10000000, 20000000)">Add 10,000,000 penguin/click (20,000,000 penguins)</button>' +
+			'<button onclick="upclick(50000000, 100000000)">Add 50,000,000 penguin/click (100,000,000 penguins)</button>' +
+			'<button onclick="upclick(100000000, 200000000)">Add 100,000,000 penguin/click (200,000,000 penguins)</button>' +
+			'<button onclick="upclick(500000000, 1000000000)">Add 500,000,000 penguin/click (1,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(1000000000, 2000000000)">Add 1,000,000,000 penguin/click (2,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(5000000000, 10000000000)">Add 5,000,000,000 penguin/click (10,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(10000000000, 20000000000)">Add 10,000,000,000 penguin/click (20,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(50000000000, 100000000000)">Add 50,000,000,000 penguin/click (100,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(100000000000, 200000000000)">Add 100,000,000,000 penguin/click (200,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(500000000000, 1000000000000)">Add 500,000,000,000 penguin/click (1,000,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(1000000000000, 2000000000000)">Add 1,000,000,000,000 penguin/click (2,000,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(5000000000000, 100000000000000)">Add 5,000,000,000,000 penguin/click (10,000,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(10000000000000, 20000000000000)">Add 10,000,000,000,000 penguin/click (20,000,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(50000000000000, 100000000000000)">Add 50,000,000,000,0000 penguin/click (100,000,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(100000000000000, 200000000000000)">Add 100,000,000,000,000 penguin/click (200,000,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(500000000000000, 1000000000000000)">Add 500,000,000,000,000 penguin/click (1,000,000,000,000,000 penguins)</button>' +
+			'<button onclick="upclick(1000000000000000, 2000000000000000)">Add 1,000,000,000,000,000 penguin/click (2,000,000,000,000,000 penguins)</button>' +
+		    '</div>' +
+                    '<div style="display: none;" id="upgrades">' +
+                        '<button style="float: left;" onclick="hidedown()">X Close</button>' +
+								'<span id="pengalt" style="float: right;">Loading...</span>' +
+                        '<br>' +
+                        '<h1>Upgrades</h1>' +
+                        'Current penguins per second: <span id="pps">0</span><br>' +
+                        '<!--<button id="pfbutton" onclick="startpenguinfarm()">Make penguins generate penguins (1,000 penguins)</button><br><br>-->' +
+                        '<!--<button id="doubleclickbutton" onclick="doubleclick()">Double Click Rate (300 penguins)</button><br><br>-->' +
+                        '<!--<button onclick="levelup()">Upgrade Multiplier (1,000 penguins)</button>-->' +
+                        '<button onclick="addclicker(1, 50)">Basic Penguin Duplicator (50 penguins, gives 1/sec)</button><br>' +
+                        '<button onclick="addclicker(5, 100)">Penguin Duplicator (100 penguins, gives 5/sec)</button>' +
+                        '<button onclick="addclicker(10, 1000)">Penguin Duplicator Plus (1,000 penguins, gives 10/sec)</button><br>' +
+                        '<button onclick="addclicker(15, 2000)">Penguin Duplicator Plus - Premium Edition (2,000 penguins, gives 15/sec)</button><div style="display: none;" id="up2">' +
+                        '<button onclick="addclicker(20, 5000)">Ultimate Penguin Generator (5,000 penguins, gives 20/sec)</button>' +
+                        '<button onclick="addclicker(50, 10000)">Ultimate Penguin Generator Plus (10000 penguins, gives 50/sec)</button>' +
+                        '<button onclick="addclicker(500, 50000)">Now you are being ridiculous (50000 penguins, gives 500/sec)</button></div><span id="up1"><br>Buy the upgrade above to unlock more!</span><div style="display: none;" id="up3">' +
+                        '<button onclick="addclicker(800, 100000)">You may need to stop now (100,000 penguins, gives 800/sec)</button><br>' +
+                        '<button onclick="addclicker(1000, 1000000)">Nuclear Penguin Generator (1,000,000 penguins, gives 1,000/sec)</button><br>' +
+                        '<button onclick="addclicker(5000, 10000000)">Golden Penguin Generator (10,000,000 penguins, gives 5,000/sec)</button>' +
+                        '<button onclick="addclicker(10000, 100000000)">Golden Nuclear Penguin Generator (100,000,000 penguins, gives 10,000/sec)</button><br>' +
+                        '<button onclick="addclicker(50000, 1000000000)">Penguin Obsession (1,000,000,000 penguins, gives 50,000/sec)</button>' +
+                        '<button onclick="addclicker(1000000, 5000000000)">Completionist (5,000,000,000 penguins, gives 1,000,000/sec)</button>' +
+                        '<button onclick="addclicker(50000000, 10000000000)">Completionist Plus (50,000,000,000 penguins, gives 10,000,000/sec)</button>' +
+                        '<button onclick="addclicker(10000000, 500000000000)">Perfect Completionist (100,000,000,000 penguins, gives 50,000,000/sec)</button><br>' +
+                        '<button onclick="addclicker(100000000, 10000000000000)">Perfect Completionist Plus (1,000,000,000,000 penguins, gives 100,000,000/sec)</button><br>' +
+                        '<button onclick="addclicker(10000000000000, 100000000000000000)">Perfect Completionist Plus Premium (100,000,000,000,000,000 penguins, gives 10,000,000,000,000/sec)</button><br>' +
+                        '<button onclick="addclicker(1000000000000000, 1000000000000000000)">The End (1,000,000,000,000,000,000 penguins, gives 1,000,000,000,000,000/sec)</button><br>' +
+                        '<button onclick="addclicker(1000000000000000000000000000000000000, 1000000000000000000000);">The End Plus (1,000,000,000,000,000,000,000 penguins, gives 1,000,000,000,000,000,000,000,000,000,000,000,000/sec)</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div><span id="peng" height="500px" width="200px" onclick="pengclick()"><span id="pengstyling" draggable onclick="pengbig()">🐧</span></span></div><br>' +
+                    '<!--<input type="number" id="numin"><button onclick="setclicks()"></button>-->';
+                document.getElementById('content').style = 'cursor: auto;';
+                //} else {
+                    //document.getElementById('content').innerHTML = 'This game has been blocked due to excessive gameplay during school hours. I apologize. These may be up eventually, but for now, please focus on schoolwork.';
+                //}
+            }
+	    function pengclick() {
+	    	penguins = parseInt(penguins) + parseInt(clickval) - 1;
+		addpeng();
+	    }
+            function exit() {
+                var leave = prompt('Enter Dev key');
+                if (leave == atob('Njk0NzQ=')) {
+                    document.write('<link rel="stylesheet" href="Style1.css"><title>Loading...</title><h1>Loading...</h1>');
+                    location.replace('index.html');
+                }
+            }
+            function startpenguinfarm() {
+                if (penguinfarm == false) {
+                    if (penguins > 999) {
+                        penguins = penguins - 1000;
+                        penguinfarm = true;
+                        autoclickconf('Penguins now generate penguins');
+                        document.getElementById('pfbutton').outerHTML = '';
+                        setInterval(() => {pengfarm();}, 1000);
+                    } else {
+                        alert("You don't have enough penguins yet...")
+                    }
+                }
+            }
+            function pengfarm() {
+                var penguintotal = Math.floor(penguins/10) - 1;
+                var penguincount = 0;
+                while (penguincount < penguintotal) {
+                    addpeng();
+                    penguincount++;
+                }
+            }
+            function delsave() {
+                var clearall = confirm('Delete all save data?');
+                if (clearall == true) {
+                    autosave = false;
+                    clearInterval(saveint);
+                    document.getElementById('autosavebutton').innerText = 'Turn on automatic saving (same as save but automatic)';
+		    localStorage.clear();
+                    autoclickconf('Save data deleted');
+                }
+            }
+            function enableautostart() {
+                if (autosave == false) {
+                    saveint = setInterval(() => {
+                        localStorage.setItem('penguins', penguins);
+                        localStorage.setItem('penguinsps', penguinsps);
+                        localStorage.setItem('progressval', progressval);
+                        if (lagred) {
+                            localStorage.setItem('lagred', true);
+                        } else {
+                            localStorage.removeItem('lagred');
+                        }
+                        autoclickconf('Saved');
+                    }, 30000);
+                    document.getElementById('autosavebutton').innerText = 'Turn off automatic saving';
+                    autosave = true;
+                    localStorage.setItem('autosave', true);
+                } else {
+                    autosave = false;
+                    localStorage.removeItem('autosave');
+                    clearInterval(saveint);
+                    document.getElementById('autosavebutton').innerText = 'Turn on automatic saving (same as save but automatic)';
+                }
+            }
+            function exim() {
+                semi.style = '';
+                eximopt.style = '';
+            }
+            function closeexim() {
+                semi.style = 'display: none';
+                eximopt.style = 'display: none';
+            }
+            function exportsave() {
+        let file = new File([btoa(penguins) + '&' + btoa(penguinsps) + '&' + btoa(clickval) + '&'], 'PenguinClickerSave.txt', {
+  type: 'text/plain',
+})
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(file)
+  link.href = url
+  link.download = file.name
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+            }
+            let imported;
+            window.addEventListener('load', () => {
+                document.getElementById('userimport') 
+            .addEventListener('change', function() { 
+              
+            let fr=new FileReader(); 
+            fr.onload=function(){ 
+                imported=fr.result;
+            } 
+              
+            fr.readAsText(this.files[0]);
+        }) }, false);
+        function importsave() {
+                let isinvalid = false;
+                imported = imported.split('&');
+                imported[0] = atob(imported[0]);
+                imported[1] = atob(imported[1]);
+                if (parseInt(imported[0]) != NaN) {
+                    penguins = parseInt(imported[0]);
+                } else {
+                    isinvalid = true;
+                }
+                if (parseInt(imported[1]) != NaN) {
+                    let lpenguinsps = parseInt(imported[1]);
+                    setInterval(() => {penguins = penguins + lpenguinsps; document.getElementById('pengout').value = penguins + ' penguins';}, 1000);
+                } else {
+                    isinvalid = true;
+                }
+		if (parseInt(imported[2]) != NaN) {
+			clickval = parseInt(imported[2]);
+		}
+                if (isinvalid) {
+                    alert('Some data was not imported due to invalid save data.');
+                }
+                closeexim();
+            }
+            function togglekey(elem) {
+                if (usekey) {
+                    usekey = false;
+                    elem.innerText = 'Enable Quick Keys';
+                } else {
+                    usekey = true;
+                    elem.innerText = 'Disable Quick Keys';
+                }
+            }
+        </script>
+    </head>
+    <body id="body">
+        <div id="pengbox" style="position: fixed; z-index: -2; top: 0; left: 0; width: 100%; height: 100%;"></div>
+        <button onclick="togglelagred()" id="lrbutton" style="position: fixed; bottom: 0; left: 0;">Enable Lag Reduction</button>
+        <div id="semi" style="display: none"></div>
+        <div id="eximopt" style="display: none;">
+            <button onclick="closeexim()" style="float: left;">X Close</button>
+            <br>
+            <h1>Export/Import options</h1>
+            <button onclick="exportsave()">Export save data (will save as a file)</button>
+            <br><br>
+            Import save data:
+            <input type="file" accept=".txt" id="userimport">
+            <br>
+            <button onclick="importsave()">Import save</button>
+        </div>
+        <button style="position: fixed; top: 0; right: 0;" id="eximbutton" onclick="exim()">Export/Import options</button>
+        <button hidden style="position: fixed; top: 0; right: 0;" onclick="openFullscreen()">Fullscreen</button>
+        <button style="position: fixed; bottom: 0; right: 0;" onclick="togglekey(this)" id="quickkeybutton">Disable Quick Keys</button>
+        <div id="conf">Auto clicker added</div>
+        <a id="bb" href="index.html">Back</a>
+        <h1>Penguin Clicker</h1>
+        <center>
+            <div style="cursor: wait;" id="content">Loading game...<br><progress value="0" max="100" id="progbar"></progress></div>
+            <button onclick="save()">Save (uses local storage)</button> ~ <button onclick="load()">Load</button> ~ <button onclick="delsave()">Delete</button> ~
+            <button onclick="enableautostart()" id="autosavebutton">Turn on automatic saving (same as save but automatic)</button>
+        </center>
+        <!--
+        <div id="penguin1" class="fallingpeng">🐧</div>
+        <div id="penguin2" class="fallingpeng">🐧</div>
+        <div id="penguin3" class="fallingpeng">🐧</div>
+        <div id="penguin4" class="fallingpeng">🐧</div>
+        <div id="penguin5" class="fallingpeng">🐧</div>
+        <div id="penguin6" class="fallingpeng">🐧</div>
+        <div id="penguin7" class="fallingpeng">🐧</div>
+        <div id="penguin8" class="fallingpeng">🐧</div>
+        <div id="penguin9" class="fallingpeng">🐧</div>
+        <div id="penguin10" class="fallingpeng">🐧</div>
+        -->
+    </body>
+    <script>
+        const semi = document.getElementById('semi');
+        const eximopt = document.getElementById('eximopt');
+    </script>
+</html>
