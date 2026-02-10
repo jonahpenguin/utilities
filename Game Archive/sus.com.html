@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <title>sus.com</title>
+        <style>
+            body {
+    background-color: black;
+    color: red;
+    text-align: center;
+    font-family: courier;
+    zoom: 200%;
+}
+a {
+    color: red;
+}
+button {
+    background-color: black;
+    color: red;
+}
+        </style>
+        <script>
+            function next() {
+                document.body.innerHTML = '<html><head><title>sus.com</title><link rel="stylesheet" href="sus_style.css"></head><body><h1>Thank you for visiting sus.com!</h1><button onclick="location.reload()">Watch again</button></body></html>';
+            }
+            function load() {
+                document.body.innerHTML = '';
+                setTimeout(() => { document.body.innerHTML += '<br>Loading virus.exe...<br>' }, 1000);
+                setTimeout(() => { document.body.innerHTML += 'Running sus_script.js...<br>' }, 5000);
+                setTimeout(() => { document.body.innerHTML += 'Editing boot instructions...<br>' }, 10000);
+                setTimeout(() => { document.body.innerHTML += 'Disabling network...<br>' }, 15000);
+                setTimeout(() => { document.body.innerHTML='<h1>Virus loading complete</h1><h3>Get wrecked</h3><button onclick="next()">Continue</button>' }, 20000);
+            }
+            function verify() {
+                var inputcode = document.getElementById('verification').value;
+                if (inputcode == 'index') {
+                    location.replace('index.html');
+                } else {
+                    alert('Access denied');
+                    location.replace('sus.com.html');
+                }
+            }
+            function loadverify() {
+                document.write('<link rel="stylesheet" href="sus_style.css"><title>sus.com</title><input type="password" id="verification"><button onclick="verify()">Continue</button>')
+            }
+            function weird() {
+                document.write('<body id="bodystuff"><link rel="stylesheet" href="sus_style.css"><br>So this is an odd thing I found I could do...<br>');
+                setTimeout(() => { document.write('But I need you to do something for me first...<br>') }, 5000);
+                setTimeout(() => { document.write('Open a website, any website...<br>') }, 10000);
+                setTimeout(() => { document.write('And from there type "tinyurl.com/sus-feature"...<br>') }, 15000);
+                setTimeout(() => { document.write('The result should prove intresting...<br>') }, 20000);
+                setTimeout(() => { document.write('Well? What are you waiting for?<br>') }, 30000);
+                setTimeout(() => { document.write('Go ahead and follow the instructions above, it is actually quite intresting<br>') }, 60000);
+            }
+        </script>
+    </head>
+    <body id="content">
+        <h1>sus.com</h1>
+        Welcome to sus.com
+        <br><br>
+        <button onclick="load()">Play</button><!--~<button onclick="weird()">Odd feature</button><br><br>
+        <button onclick="loadverify()">Dev</button>-->
+    </body>
+</html>
