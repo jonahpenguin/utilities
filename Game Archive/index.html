@@ -24,11 +24,13 @@
                 new Game("Choose Your Path (Python Version)", "https://codehs.com/sandbox/jonahpenguin/choose-your-path-python-ver"),
                 new Game("Ruins of Duskmere (Python Game)", "https://codehs.com/sandbox/jonahpenguin/ruins-of-duskmere/run"),
                 new Game("Penguin Clicker", "penguinClicker.html"),
-                new Game("CPS Test", "cps.html")
+                new Game("CPS Test", "cps.html"),
+                new Game("Zamboni", "zamboni.html"),
+                new Game("Smartboard Calibration", "smartboard.html")
             ];
             window.addEventListener('load', init);
             function init() {
-                let content = document.getElementById('content');
+                let content = document.getElementById('linkList');
                 let html = '<br>';
                 for (let i = 0;i<games.length;i++) {
                     html += "<button onclick=games["+i+"].launch()>"+games[i].name+"</button><br><br>";
@@ -42,7 +44,7 @@
         <br>
         <h1>Game Archive</h1>
         <center>
-            <div id="content">
+            <div id="linkList">
                 Loading...
             </div>
         </center>
