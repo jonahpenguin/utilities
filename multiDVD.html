@@ -30,7 +30,7 @@
         <script>
             let dvdCount = 1;
             let canMove = true;
-            let spinInt;
+            let spinInts = [];
             
             window.addEventListener("mousemove", actionHandler);
 
@@ -92,6 +92,7 @@
 
             window.addEventListener('load', () => {
                 popup(
+                    "<span style='position:fixed;top:0;right:0;'>Hit the Plus key to add another logo!</span>" +
                     "<button onclick='closepop()' style='float:left;'>X Close and play as normal</button>" +
                     "<button onclick='openOriginal()' style='float:right;'>Back to Original Version</button>" +
                     "<br><h1>DVD v2</h1>" +
@@ -99,14 +100,18 @@
                     "<button onclick='init(1)'>Increase speed on collision</button><br><br>" +
                     "<button onclick='init(2)'>Add logo on collision</button><br><br>" +
                     "<button onclick='init(3)'>Set random slope on collision</button><br><br>" +
+                    "<button onclick='init(3.5)'>Set random slope on collision (but they leave if you add enough)</button><br><br>" +
                     "<button onclick='init(4)'>Do all three above on collision (will crash soon after starting)</button><br><br>" +
-                    "<button onclick='init(5)'>Set random spin on collision</button><br><br>" +
+                    "<button onclick='init(5)'>Set random spin (unique per logo) on collision</button><br><br>" +
+                    "<button onclick='init(5.5)'>Set random spin (identical across logos) on collision</button><br><br>" +
                     "<button onclick='init(6)'>Set both random spin and random slope on collision</button><br><br>" +
                     "<button onclick='init(7)'>Add logo after a certain amount of time</button><br><br>" +
                     "<button onclick='init(100)'>All. Of. Them. (will crash soon after starting)</button>"
                 )
             }, false);
 
+            let sameSpin = false;
+            let leaveMode = false;
             let positions = [
                 {x:0,y:0}
             ]
@@ -116,6 +121,14 @@
             let int = setInterval(moveDVD, 5);
             let selectedAction = 0;
             function init(id, close=true) {
+                if (id == 5.5) {
+                    id = 5;
+                    sameSpin = true;
+                }
+                if (id == 3.5) {
+                    id = 3;
+                    leaveMode = true;
+                }
                 selectedAction = parseInt(id);
                 if (id == 5 || id == 6 || id == 100) {
                     for (let i = 0;i<positions.length;i++) {
@@ -154,34 +167,34 @@
                     closepop();
                 }
             }
-            function handleAction() {
+            function handleAction(i) {
                 switch(selectedAction) {
                     case 1:
-                        increaseSpeed();
+                        increaseSpeed(i);
                         break;
                     case 2:
                         addDVD();
                         break;
                     case 3:
-                        randomSpeed();
+                        randomSpeed(i);
                         break;
                     case 4:
-                        increaseSpeed();
+                        increaseSpeed(i);
                         addDVD();
-                        randomSpeed();
+                        randomSpeed(i);
                         break;
                     case 5:
-                        randomSpin();
+                        randomSpin(i);
                         break;
                     case 6:
-                        randomSpin();
-                        randomSpeed();
+                        randomSpin(i);
+                        randomSpeed(i);
                         break;
                     case 100:
-                        increaseSpeed();
+                        increaseSpeed(i);
                         addDVD();
-                        randomSpeed();
-                        randomSpin();
+                        randomSpeed(i);
+                        randomSpin(i);
                         break;
                 }
             }
@@ -192,20 +205,20 @@
                     positions[i].y += slopes[i].rise;
 
                     if (positions[i].x >= 92) {
-                        handleAction();
+                        handleAction(i);
                         slopes[i].run = -slopes[i].run
                     }
                     if (positions[i].x <= 0) {
-                        handleAction();
+                        handleAction(i);
                         slopes[i].run = -slopes[i].run
                     }
 
                     if (positions[i].y >= 86) {
-                        handleAction();
+                        handleAction(i);
                         slopes[i].rise = -slopes[i].rise
                     }
                     if (positions[i].y <= 0) {
-                        handleAction();
+                        handleAction(i);
                         slopes[i].rise = -slopes[i].rise
                     }
 
@@ -234,7 +247,7 @@
                         }
                         if (slopes[i].rise == -0.1 && slopes[i].run == -0.1) {
                             // top left
-                            if (position.y > 49 && position.y < 51) {
+                            if (positions[i].y > 49 && positions[i].y < 51) {
                                 positions[i].y = 50;
                             }
                         }
@@ -257,41 +270,63 @@
                 }
             }
             // setInterval(addDVD, 50);
-            function randomSpeed() {
-                setTimeout(() => {
-                    for (let i = 0;i<slopes.length;i++) {
-                        if (slopes[i].rise > 0) {
-                            slopes[i].rise = Math.floor(Math.random()*10)/10;
-                        } else {
-                            slopes[i].rise = -Math.floor(Math.random()*10)/10;
+            function randomSpeed(i) {
+                if (!leaveMode) {
+                    setTimeout(() => {
+                        // for (let i = 0;i<slopes.length;i++) {
+                            if (slopes[i].rise > 0) {
+                                slopes[i].rise = Math.floor(Math.random()*10)/10;
+                            } else {
+                                slopes[i].rise = -Math.floor(Math.random()*10)/10;
+                            }
+                            if (slopes[i].run > 0) {
+                                slopes[i].run = Math.floor(Math.random()*10)/10;
+                            } else {
+                                slopes[i].run = -Math.floor(Math.random()*10)/10;
+                            }
+
+                            if (slopes[i].rise < 0.1 && slopes[i].rise > -0.1) {
+                                slopes[i].rise = 0.1;
+                            }
+                            if (slopes[i].run < 0.1 && slopes[i].run > -0.1) {
+                                slopes[i].run = 0.1;
+                            }
+                        // }
+                    }, 5);
+                } else {
+                    setTimeout(() => {
+                        for (let i = 0;i<slopes.length;i++) {
+                            if (slopes[i].rise > 0) {
+                                slopes[i].rise = Math.floor(Math.random()*10)/10;
+                            } else {
+                                slopes[i].rise = -Math.floor(Math.random()*10)/10;
+                            }
+                            if (slopes[i].run > 0) {
+                                slopes[i].run = Math.floor(Math.random()*10)/10;
+                            } else {
+                                slopes[i].run = -Math.floor(Math.random()*10)/10;
+                            }
+
+                            if (slopes[i].rise < 0.1 && slopes[i].rise > -0.1) {
+                                slopes[i].rise = 0.1;
+                            }
+                            if (slopes[i].run < 0.1 && slopes[i].run > -0.1) {
+                                slopes[i].run = 0.1;
+                            }
                         }
-                        if (slopes[i].run > 0) {
-                            slopes[i].run = Math.floor(Math.random()*10)/10;
-                        } else {
-                            slopes[i].run = -Math.floor(Math.random()*10)/10;
-                        }
-                        
-                        if (slopes[i].rise < 0.1 && slopes[i].rise > -0.1) {
-                            slopes[i].rise = 0.1;
-                        }
-                        if (slopes[i].run < 0.1 && slopes[i].run > -0.1) {
-                            slopes[i].run = 0.1;
-                        }
-                    }
-                }, 5);
+                    }, 5);
+                }
             }
-            function increaseSpeed() {
-                for (let i = 0;i<positions.length;i++) {
-                    if (slopes[i].rise > 0) {
-                        slopes[i].rise += 0.1;
-                    } else {
-                        slopes[i].rise -= 0.1;
-                    }
-                    if (slopes[i].run > 0) {
-                        slopes[i].run += 0.1;
-                    } else {
-                        slopes[i].run -= 0.1;
-                    }
+            function increaseSpeed(i) {
+                if (slopes[i].rise > 0) {
+                    slopes[i].rise += 0.1;
+                } else {
+                    slopes[i].rise -= 0.1;
+                }
+                if (slopes[i].run > 0) {
+                    slopes[i].run += 0.1;
+                } else {
+                    slopes[i].run -= 0.1;
                 }
             }
             function addDVD() {
@@ -316,19 +351,32 @@
                 positions.push(pos)
                 slopes.push({rise:0.1,run:0.1})
             }
-            function randomSpin() {
-                if (spinInt) {
-                    clearInterval(spinInt);
+            function randomSpin(i=0) {
+                if (sameSpin) {
+                    i = 0;
+                }
+                if (spinInts[i]) {
+                    clearInterval(spinInts[i]);
                 }
                 let stepVal = Math.floor(Math.random()*180);
                 let intVal = Math.floor(Math.random()*20)+10;
-                spinInt = setInterval(() => {
-                    for (let i = 0;i<positions.length;i++) {
-                        let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
-                        rotVal+=stepVal;
-                        document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
-                    }
-                }, 10);
+                if (sameSpin) {
+                    spinInts[0] = setInterval(() => {
+                        for (let i = 0;i<positions.length;i++) {
+                            let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
+                            rotVal+=stepVal;
+                            document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
+                        }
+                    }, 10);
+                } else {
+                    spinInts[i] = setInterval(() => {
+                        // for (let i = 0;i<positions.length;i++) {
+                            let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
+                            rotVal+=stepVal;
+                            document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
+                        // }
+                    }, 10);
+                }
             }
             function catMode() {
                 if (document.getElementById('popup')) {
@@ -342,7 +390,7 @@
             }
             let lastCol = -1;
             let currentCol = -1;
-            function setCol(col,update=true) {
+            function setCol(col,i,update=true) {
                 lastCol = parseInt(currentCol);
                 currentCol = parseInt(col);
                 if (update) {
@@ -365,7 +413,7 @@
                     default:return 0;
                 }
             }
-            function changeCol() {
+            function changeCol(i) {
                 let randoCol = Math.floor(Math.random()*9)+1;
                 if (toHue(randoCol) == lastCol) {
                     if (randoCol <=9) {
@@ -376,35 +424,35 @@
                 }
                 switch(randoCol) {
                     case 1:
-                        setCol(50);
+                        setCol(50,i);
                         break;
                     case 2:
-                        setCol(100);
+                        setCol(100,i);
                         break;
                     case 3:
-                        setCol(150);
+                        setCol(150,i);
                         break;
                     case 4:
-                        setCol(200);
+                        setCol(200,i);
                         break;
                     case 5:
-                        setCol(250);
+                        setCol(250,i);
                         break;
                     case 6:
-                        setCol(300,false);
-                        document.getElementById('dvd0').style.filter = 'invert()';
+                        setCol(300,i,false);
+                        document.getElementById('dvd'+i).style.filter = 'invert()';
                         break;
                     case 7:
-                        setCol(350,false);
-                        document.getElementById('dvd0').style.filter = 'brightness(999)';
+                        setCol(350,i,false);
+                        document.getElementById('dvd'+i).style.filter = 'brightness(999)';
                         break;
                     case 8:
-                        setCol(400,false);
-                        document.getElementById('dvd0').style.filter = 'brightness(60%)';
+                        setCol(400,i,false);
+                        document.getElementById('dvd'+i).style.filter = 'brightness(60%)';
                         break;
                     case 9:
-                        setCol(450,false);
-                        document.getElementById('dvd0').style.filter = 'sepia(100%)';
+                        setCol(450,i,false);
+                        document.getElementById('dvd'+i).style.filter = 'sepia(100%)';
                         break;
                     default:
                         setCol(0);
@@ -413,7 +461,7 @@
             }
             let catVal = 0;
             window.addEventListener("keydown", (event) => {
-                if (event.key == "+") {
+                if (event.key == "+" || event.key == "=") {
                     addDVD();
                 }
                 if (event.key == "f") {
