@@ -12,6 +12,7 @@
                 position: fixed;
                 width: 8%;
                 height: 14%;
+                z-index: 1;
             }
             button {
                 background-color: white;
@@ -58,8 +59,7 @@
                 pop.innerHTML = html;
                 pop.setAttribute("id", "popup");
                 let semi = document.createElement('div');
-                // z-index of 8 to leave space for screen and highlighted content (see tutorial())
-                semi.style = "z-index:7;position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;";
+                semi.style = "z-index:9;position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;";
                 semi.setAttribute("id", "semi");
                 document.body.appendChild(semi);
                 document.body.appendChild(pop);
@@ -130,7 +130,7 @@
                 if ((id == 2 || id == 4 || id == 100) && !document.getElementById('countDisp')) {
                     let elem = document.createElement('span');
                     elem.innerText = 'DVDs: '+dvdCount;
-                    elem.style = 'position:fixed;bottom:0;left:0;';
+                    elem.style = 'position:fixed;bottom:0;left:0;z-index:2;';
                     document.body.appendChild(elem);
                 }
                 if (id == 7 || id == 100) {
