@@ -171,7 +171,7 @@
                     leaveMode = true;
                 }
                 selectedAction = parseInt(id);
-                if (id == 5 || id == 6 || id == 100) {
+                if (id == 5 || id == 6 || id == 100 || id == 9) {
                     for (let i = 0;i<positions.length;i++) {
                         document.getElementById('dvd'+i).style.rotate = "0deg";
                         spinInts[i] = setInterval(() => {
@@ -183,7 +183,7 @@
                         }, 10);
                     }
                 }
-                if ((id == 2 || id == 4 || id == 100 || id == 8) && !document.getElementById('countDisp')) {
+                if ((id == 2 || id == 4 || id == 100 || id == 8 || id == 9) && !document.getElementById('countDisp')) {
                     let elem = document.createElement('span');
                     elem.innerText = 'DVDs: '+dvdCount;
                     elem.style = 'position:fixed;bottom:0;left:0;z-index:2;';
