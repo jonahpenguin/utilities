@@ -363,16 +363,31 @@
                     }, 5);
                 }
             }
-            function increaseSpeed(i) {
-                if (slopes[i].rise > 0) {
-                    slopes[i].rise += 0.1;
+            function increaseSpeed(i=-1) {
+                if (i == -1) {
+                    for (let j = 0;j<positions.length;j++) {  
+                        if (slopes[i].rise > 0) {
+                            slopes[i].rise += 0.1;
+                        } else {
+                            slopes[i].rise -= 0.1;
+                        }
+                        if (slopes[i].run > 0) {
+                            slopes[i].run += 0.1;
+                        } else {
+                            slopes[i].run -= 0.1;
+                        }
+                    }
                 } else {
-                    slopes[i].rise -= 0.1;
-                }
-                if (slopes[i].run > 0) {
-                    slopes[i].run += 0.1;
-                } else {
-                    slopes[i].run -= 0.1;
+                    if (slopes[i].rise > 0) {
+                        slopes[i].rise += 0.1;
+                    } else {
+                        slopes[i].rise -= 0.1;
+                    }
+                    if (slopes[i].run > 0) {
+                        slopes[i].run += 0.1;
+                    } else {
+                        slopes[i].run -= 0.1;
+                    }
                 }
             }
             function addDVD() {
