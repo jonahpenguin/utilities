@@ -90,26 +90,65 @@
                 }
             }
 
-            window.addEventListener('load', () => {
+            function showMenu(id) {
+                closepop();
+                switch(id) {
+                    case 1:
+                        // Multiple dvd logos
+                        popup(
+                            "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Modes that add multiple DVD logos</h2>" +
+                            "<button onclick='init(2)'>Add logo on collision</button><br><br>" +
+                            "<button onclick='init(7)'>Add logo after a certain amount of time</button>"
+                        )
+                        break;
+                    case 2:
+                        // Affect speed/slope
+                        popup(
+                            "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Modes that affect speed/slope</h2>" +
+                            "<button onclick='init(1)'>Increase speed on collision</button><br><br>" +
+                            "<button onclick='init(3)'>Set random slope on collision</button><br><br>" +
+                            "<button onclick='init(3.5)'>Set random slope on collision (but they leave if you add enough)</button>"
+                        )
+                        break;
+                    case 3:
+                        // Spin
+                        popup(
+                            "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Modes that affect speed/slope</h2>" +
+                            "<button onclick='init(5)'>Set random spin (unique per logo) on collision</button><br><br>" +
+                            "<button onclick='init(5.5)'>Set random spin (identical across logos) on collision</button>"
+                        )
+                        break;
+                    case 100:
+                        // Combination modes
+                        popup(
+                            "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Combination modes (the fun stuff)</h2>" +
+                            "<button onclick='init(4)'>Add logo, increase speed, and set random slope on collision (will crash soon after starting)</button><br><br>" +
+                            "<button onclick='init(6)'>Set both random spin and random slope on collision</button><br><br>" +
+                            "<button onclick='init(8)'>Increase speed on collision and add logo on collision</button><br><br>" +
+                            "<button onclick='init(100)'>All. Of. Them. (will crash soon after starting)</button>"
+                        )
+                        break;
+                }
+            }
+
+            function mainMenu() {
+                if (document.getElementById('popup')) {
+                    closepop();
+                }
                 popup(
                     "<span style='position:fixed;top:0;right:0;'>Hit the Plus key to add another logo!</span>" +
                     "<button onclick='closepop()' style='float:left;'>X Close and play as normal</button>" +
                     "<button onclick='openOriginal()' style='float:right;'>Back to Original Version</button>" +
                     "<br><h1>DVD v2</h1>" +
                     "Fun things that didn't work in the original; reload to return to this menu<br>After crashing you may have to completely close the tab and reopen this page<br><br>" +
-                    "<button onclick='init(1)'>Increase speed on collision</button><br>" +
-                    "<button onclick='init(2)'>Add logo on collision</button><br>" +
-                    "<button onclick='init(3)'>Set random slope on collision</button><br>" +
-                    "<button onclick='init(3.5)'>Set random slope on collision (but they leave if you add enough)</button><br>" +
-                    "<button onclick='init(4)'>Do all three above on collision (will crash soon after starting)</button><br>" +
-                    "<button onclick='init(5)'>Set random spin (unique per logo) on collision</button><br>" +
-                    "<button onclick='init(5.5)'>Set random spin (identical across logos) on collision</button><br>" +
-                    "<button onclick='init(6)'>Set both random spin and random slope on collision</button><br>" +
-                    "<button onclick='init(7)'>Add logo after a certain amount of time</button><br>" +
-                    "<button onclick='init(8)'>Increase speed on collision and add logo on collision</button><br>" +
-                    "<button onclick='init(100)'>All. Of. Them. (will crash soon after starting)</button>"
+                    "<button onclick='showMenu(1)'>Modes that add multiple DVD logos</button><br><br>" +
+                    "<button onclick='showMenu(2)'>Modes that affect speed/slope</button><br><br>" +
+                    "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
+                    "<button onclick='showMenu(100)'>Combination modes (the fun stuff)</button>"
                 )
-            }, false);
+            }
+
+            window.addEventListener('load', mainMenu, false);
 
             let sameSpin = false;
             let leaveMode = false;
