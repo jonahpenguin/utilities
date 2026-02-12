@@ -131,6 +131,22 @@
                         break;
                 }
             }
+            let recentbounce = [];
+
+            function checkconfetti() {
+                if (recentbounce) {
+                    confetti();
+                } else {
+                    recentbounce = true;
+                    setTimeout(() => {recentbounce = false;}, 10);
+                }
+            }
+            function confetti() {
+                document.body.style.backgroundImage = "url('confetti.webp')";
+                setTimeout(() => {
+                    document.body.style.backgroundImage = "none";
+                }, 1000);
+            }
 
             function mainMenu() {
                 if (document.getElementById('popup')) {
