@@ -97,15 +97,16 @@
                     "<button onclick='openOriginal()' style='float:right;'>Back to Original Version</button>" +
                     "<br><h1>DVD v2</h1>" +
                     "Fun things that didn't work in the original; reload to return to this menu<br>After crashing you may have to completely close the tab and reopen this page<br><br>" +
-                    "<button onclick='init(1)'>Increase speed on collision</button><br><br>" +
-                    "<button onclick='init(2)'>Add logo on collision</button><br><br>" +
-                    "<button onclick='init(3)'>Set random slope on collision</button><br><br>" +
-                    "<button onclick='init(3.5)'>Set random slope on collision (but they leave if you add enough)</button><br><br>" +
-                    "<button onclick='init(4)'>Do all three above on collision (will crash soon after starting)</button><br><br>" +
-                    "<button onclick='init(5)'>Set random spin (unique per logo) on collision</button><br><br>" +
-                    "<button onclick='init(5.5)'>Set random spin (identical across logos) on collision</button><br><br>" +
-                    "<button onclick='init(6)'>Set both random spin and random slope on collision</button><br><br>" +
-                    "<button onclick='init(7)'>Add logo after a certain amount of time</button><br><br>" +
+                    "<button onclick='init(1)'>Increase speed on collision</button><br>" +
+                    "<button onclick='init(2)'>Add logo on collision</button><br>" +
+                    "<button onclick='init(3)'>Set random slope on collision</button><br>" +
+                    "<button onclick='init(3.5)'>Set random slope on collision (but they leave if you add enough)</button><br>" +
+                    "<button onclick='init(4)'>Do all three above on collision (will crash soon after starting)</button><br>" +
+                    "<button onclick='init(5)'>Set random spin (unique per logo) on collision</button><br>" +
+                    "<button onclick='init(5.5)'>Set random spin (identical across logos) on collision</button><br>" +
+                    "<button onclick='init(6)'>Set both random spin and random slope on collision</button><br>" +
+                    "<button onclick='init(7)'>Add logo after a certain amount of time</button><br>" +
+                    "<button onclick='init(8)'>Increase speed on collision and add logo on collision</button>" +
                     "<button onclick='init(100)'>All. Of. Them. (will crash soon after starting)</button>"
                 )
             }, false);
@@ -142,7 +143,7 @@
                         }, 10);
                     }
                 }
-                if ((id == 2 || id == 4 || id == 100) && !document.getElementById('countDisp')) {
+                if ((id == 2 || id == 4 || id == 100 || id == 8) && !document.getElementById('countDisp')) {
                     let elem = document.createElement('span');
                     elem.innerText = 'DVDs: '+dvdCount;
                     elem.style = 'position:fixed;bottom:0;left:0;z-index:2;';
@@ -191,6 +192,10 @@
                     case 6:
                         randomSpin(i);
                         randomSpeed(i);
+                        break;
+                    case 8:
+                        increaseSpeed(i);
+                        addDVD();
                         break;
                     case 100:
                         increaseSpeed(i);
