@@ -133,10 +133,12 @@
                 if (id == 5 || id == 6 || id == 100) {
                     for (let i = 0;i<positions.length;i++) {
                         document.getElementById('dvd'+i).style.rotate = "0deg";
-                        spinInt = setInterval(() => {
-                            let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
-                            rotVal++;
-                            document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
+                        spinInts[i] = setInterval(() => {
+                            for (let j = 0;j<positions.length;j++) {
+                                let rotVal = parseInt(document.getElementById('dvd'+j).style.rotate);
+                                rotVal++;
+                                document.getElementById('dvd'+j).style.rotate = rotVal+"deg";
+                            }
                         }, 10);
                     }
                 }
@@ -350,6 +352,24 @@
                 document.body.appendChild(elem);
                 positions.push(pos)
                 slopes.push({rise:0.1,run:0.1})
+
+                // Ensuring spin works
+                if (selectedAction == 5 || selectedAction == 5.5 || selectedAction == 6 || selectedAction == 100) {
+                    for (let i = 0;i<positions.length;i++) {
+                        if (spinInts[i]) {
+                            clearInterval(spinInts[i]);
+                        } else {
+                            document.getElementById('dvd'+i).style.rotate = '0deg';
+                        }
+                        spinInts[i] = setInterval(() => {
+                            for (let j = 0;j<positions.length;j++) {
+                                let rotVal = parseInt(document.getElementById('dvd'+j).style.rotate);
+                                rotVal++;
+                                document.getElementById('dvd'+j).style.rotate = rotVal+"deg";
+                            }
+                        }, 10);
+                    }
+                }
             }
             function randomSpin(i=0) {
                 if (sameSpin) {
