@@ -1670,6 +1670,8 @@ class Wall {
                     if (clockCol&&position.x<22&&(event.key=="ArrowRight"||event.key=="ArrowLeft")) {position.x=22}
                     if (clockCol&&position.y<10&&(event.key=="ArrowUp"||event.key=="ArrowDown")) {position.y=10}
                     if (rTrayOpen&&position.x>81.9) {position.x=81.9}
+                    document.getElementById('dvd').style.top =  position.y + '%';
+                    document.getElementById('dvd').style.left = position.x + '%';
                 }
             }, false);
             function toggleArrows(elem=0) {
