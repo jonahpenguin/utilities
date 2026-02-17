@@ -443,6 +443,7 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                 if (vidName != '' && vidName != null && vidName != undefined) {
                     saved[index][0] = vidName;
                     saveSaved();
+                    document.getElementById('title').innerText = vidName+" ~ Ad Free YouTube";
                     alert('Video renamed!');
                     closepop();
                     savedVids();
@@ -478,6 +479,7 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                         }
                         saved.push([vidName,vidid]);
                         saveSaved();
+                        document.getElementById('title').innerText = vidName+" ~ Ad Free YouTube";
                         alert('Video saved!');
                     }
                 } else {
