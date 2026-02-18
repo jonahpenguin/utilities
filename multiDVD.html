@@ -151,7 +151,13 @@
                     document.body.style.backgroundImage = "none";
                 }, 1000);
             }
-
+            function toggleSubway() {
+                if (document.getElementById('brainVid1').style.display == 'none') {
+                    document.getElementById('brainVid1').style.display = '';
+                } else {
+                    document.getElementById('brainVid1').style.display = 'none';
+                }
+            }
             function mainMenu() {
                 if (document.getElementById('popup')) {
                     closepop();
@@ -159,6 +165,7 @@
                 popup(
                     "<span style='position:fixed;top:0;right:0;'>Hit the Plus key to add another logo!</span>" +
                     "<button onclick='closepop()' style='float:left;'>X Close and play as normal</button>" +
+                    "<button onclick='toggleSubway()'>Toggle Subway Surfers</button>" +
                     "<button onclick='openOriginal()' style='float:right;'>Back to Original Version</button>" +
                     "<br><h1>DVD v2</h1>" +
                     "Fun things that didn't work in the original; reload to return to this menu<br>After crashing you may have to completely close the tab and reopen this page<br><br>" +
@@ -615,6 +622,7 @@
         </script>
     </head>
     <body>
+        <video id="brainVid1" src="subwayVid.mp4" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;display:none;" autoplay muted loop></video>
         <img src="dvd.png" class="dvd" id="dvd0">
     </body>
 </html>
