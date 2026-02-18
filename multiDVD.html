@@ -203,6 +203,7 @@
                     let elem = document.createElement('span');
                     elem.innerText = 'DVDs: '+dvdCount;
                     elem.style = 'position:fixed;bottom:0;left:0;z-index:2;';
+                    elem.setAttribute("id", "countDisp");
                     document.body.appendChild(elem);
                 }
                 if (id == 7 || id == 100 || id == 9) {
