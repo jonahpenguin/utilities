@@ -7,6 +7,10 @@
                 background-color: black;
                 color: lime;
                 font-family: "comic sans ms", helvetica;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: cover;
+                background-attachment: fixed;
             }
             img.dvd {
                 position: fixed;
@@ -131,7 +135,7 @@
                         break;
                 }
             }
-            let recentbounce = [];
+            let recentbounce = [false];
 
             function checkconfetti() {
                 if (recentbounce) {
@@ -228,6 +232,15 @@
                 }
             }
             function handleAction(i) {
+                if (recentbounce[i]) {
+                    confetti();
+                    recentbounce[i] = false;
+                } else {
+                    recentbounce[i] = true;
+                    setTimeout(() => {
+                        recentbounce[i] = false;
+                    }, 10);
+                }
                 switch(selectedAction) {
                     case 1:
                         increaseSpeed(i);
@@ -448,6 +461,25 @@
                     }
                 }
             }
+            function removeDVD() {
+                if (dvdCount == 0) {
+                    return;
+                }
+                dvdCount--;
+                if (document.getElementById('countDisp')) {
+                    document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
+                } else {
+                    let elem = document.createElement('span');
+                    elem.innerText = 'DVDs: '+dvdCount;
+                    elem.setAttribute('id', 'countDisp');
+                    elem.style = 'position:fixed;bottom:0;left:0;z-index:1;';
+                    document.body.appendChild(elem);
+                }
+                positions.pop();
+                slopes.pop();
+                document.getElementById("dvd"+positions.length).outerHTML = '';
+            }
+
             function randomSpin(i=0) {
                 if (sameSpin) {
                     i = 0;
@@ -560,6 +592,9 @@
             window.addEventListener("keydown", (event) => {
                 if (event.key == "+" || event.key == "=") {
                     addDVD();
+                }
+                if (event.key == "-" || event.key == "_") {
+                    removeDVD();
                 }
                 if (event.key == "f") {
                     openFullscreen();
