@@ -165,7 +165,7 @@
                 }
                 popup(
                     "<span style='position:fixed;top:0;right:0;'>Hit the Plus key to add another logo!</span>" +
-                    "<button onclick='closepop()' style='float:left;'>X Close and play as normal</button>" +
+                    "<button onclick='closepop();actionHandler()' style='float:left;'>X Close and play as normal</button>" +
                     "<button onclick='toggleSubway()'>Toggle Subway Surfers</button>" +
                     "<button onclick='openOriginal()' style='float:right;'>Back to Original Version</button>" +
                     "<br><h1>DVD v2</h1>" +
@@ -239,6 +239,7 @@
                 if (close) {
                     closepop();
                 }
+                actionHandler()
             }
             function handleAction(i) {
                 if (recentbounce[i]) {
