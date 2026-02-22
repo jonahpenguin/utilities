@@ -169,6 +169,10 @@
                 unCheckIn() {
                     this.visits.pop();
                     savePeoples();
+
+                    // Below happens because this is triggered from a popup that needs to be refreshed
+                    closepop();
+                    todayPeople();
                 }
             }
             let peoples = [];
@@ -440,7 +444,7 @@
                     elem.value = '';
                 }
                 for (let i = 0;i<peoples.length;i++) {
-                    if (peoples[i].getFullName().includes(input)) {
+                    if (peoples[i].getFullName().toLowerCase().includes(input.toLowerCase())) {
                         if (!peoples[i].visits.includes(today)) {
                             matches.push(peoples[i].getFullName());
                             matchIndexes.push(i);
