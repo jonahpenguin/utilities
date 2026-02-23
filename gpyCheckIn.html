@@ -309,16 +309,24 @@
                 }
                 let html = "";
                 for (let i = 0;i<todayList.length;i++) {
-                    html += peoples[todayList[i]].getFullName()+" <button onclick='peoples["+todayList[i]+"].unCheckIn()'>Undo Check-In</button><br>";
+                    // For Edit, the Edit Visits button is removed to prevent people from seeing past visits
+                    // That is locked behind Graham's password, and should only be accessed from the View/Edit people button in the main menu
+                    html += peoples[todayList[i]].getFullName()+" <button onclick='peoples["+todayList[i]+"].unCheckIn()'>Undo Check-In</button> ~ <button onclick='closepop();editPerson("+i+");document.getElementById(\"editVisitsButton\").outerHTML=\"\";'>Edit</button><br>";
                 }
                 if (html == "") {
                     html = "<i>Nobody checked in yet!</i>"
                 }
                 popup(
-                    "<button onclick='closepop()' style='float:left;'>X Close</button>" +
+                    "<button onclick='closepop()' style='float:left;'>Back</button>" +
                     "<br><h1>People Checked In Today</h1>" +
                     html
                 )
+                document.getElementById('popup').style.position = "absolute";
+                document.getElementById('popup').style.top = "0px";
+                document.getElementById('popup').style.left = "0px";
+                document.getElementById('popup').style.width = "100%";
+                document.getElementById('popup').style.height = "100%";
+                document.getElementById('popup').style.border = "none";
             }
             function personPopup() {
                 // Called from startCheckIn screen
@@ -326,7 +334,7 @@
                     "<button onclick='closepop()' style='float:left;'>X Close</button>" +
                     "<br><h1>Add Person</h1>" +
                     "First name: <input id='fn' type='text'><br>" +
-                    "Last name: <input id='ln' type='text'><br>" +
+                    "Last name (put ? if unknown): <input id='ln' type='text'><br>" +
                     "Grade (zero if unknown): <input id='g' type='number'><br><br>" +
                     "<button onclick='addPerson()'>Save</button>"
                 )
@@ -501,7 +509,7 @@
                     "Last name: <input id='ln' type='text' value='"+peoples[index].lName+"'><br>" +
                     "Grade: <input id='g' type='number' value='"+peoples[index].grade+"'><br><br>" +
                     "Date added: "+peoples[index].addedDate+"<br>" +
-                    "<br><button onclick='editVisits("+index+")'>Edit Vists</button><br><br>" +
+                    "<br><button id='editVisitsButton' onclick='editVisits("+index+")'>Edit Vists</button><br><br>" +
                     "<button onclick='updatePerson("+index+")'>Save</button>"
                 )
             }
