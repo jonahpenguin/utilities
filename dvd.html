@@ -865,10 +865,11 @@
                 if (!trailMode) {
                     let issure = confirm('After enabling trail, it cannot be disabled without reloading. Continue?');
                     if (!issure) {return}
-                    document.getElementById('tcb').outerHTML = '';
-                    document.getElementById('etb').outerHTML = '';
-                    document.getElementById('etb2').outerHTML = '';
-                    document.getElementById('tinyB').outerHTML = '';
+                    // Removed below bc it caused more issues than it fixed
+                    // document.getElementById('tcb').outerHTML = '';
+                    // document.getElementById('etb').outerHTML = '';
+                    // document.getElementById('etb2').outerHTML = '';
+                    // document.getElementById('tinyB').outerHTML = '';
                     trailMode = true;
                     //elem.innerText = 'Disable Trail';
                 } else {
@@ -880,10 +881,11 @@
                 if (!trailMode) {
                     let issure = confirm('After enabling LDM trail, it cannot be disabled without reloading. Continue?');
                     if (!issure) {return}
-                    document.getElementById('tcb').outerHTML = '';
-                    document.getElementById('etb').outerHTML = '';
-                    document.getElementById('etb2').outerHTML = '';
-                    document.getElementById('tinyB').outerHTML = '';
+                    // Removed below bc it caused more issues than it fixed
+                    // document.getElementById('tcb').outerHTML = '';
+                    // document.getElementById('etb').outerHTML = '';
+                    // document.getElementById('etb2').outerHTML = '';
+                    // document.getElementById('tinyB').outerHTML = '';
                     LDMtrail = true;
                     trailMode = true;
                 } else {
