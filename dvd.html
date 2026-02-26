@@ -1964,6 +1964,9 @@ class Wall {
             let fadeInt;
             let fadeProgress = 0;
             function progressFade() {
+                if (!document.getElementById('dvd')) {
+                    return;
+                }
                 document.getElementById('dvd').style.filter = "hue-rotate("+fadeProgress+"deg)";
                 fadeProgress++;
                 if (fadeProgress>=360) {
