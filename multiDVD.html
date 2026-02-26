@@ -431,7 +431,7 @@
                     }
                 }
             }
-            function addDVD() {
+            function addDVD(x=-1,y=-1) {
                 dvdCount++;
                 if (document.getElementById('countDisp')) {
                     document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
@@ -442,7 +442,12 @@
                     elem.style = 'position:fixed;bottom:0;left:0;z-index:1;';
                     document.body.appendChild(elem);
                 }
-                let pos = {x:Math.floor(Math.random()*92),y:Math.floor(Math.random()*86)};
+                let pos;
+                if (x == -1 || y == -1) {
+                    pos = {x:Math.floor(Math.random()*92),y:Math.floor(Math.random()*86)};
+                } else {
+                    pos = {x:x,y:y};
+                }
                 let elem = document.createElement("img");
                 elem.setAttribute('id', "dvd"+positions.length);
                 elem.setAttribute('class', 'dvd');
@@ -599,6 +604,26 @@
                 }
             }
             let catVal = 0;
+            window.addEventListener("mousedown", (event) => {
+                if (document.getElementById('popup')) {
+                    return;
+                }
+                let x = ((event.clientX/window.innerWidth)*100)-4;
+                let y = ((event.clientY/window.innerHeight)*100)-7;
+                if (x < 0) {
+                    x = 0.1;
+                }
+                if (y < 0) {
+                    y = 0.1;
+                }
+                if (x >= 92) {
+                    x = 91.9;
+                }
+                if (y >= 86) {
+                    y = 85.9;
+                }
+                addDVD(x,y);
+            }, false);
             window.addEventListener("keydown", (event) => {
                 if (event.key == "+" || event.key == "=") {
                     addDVD();
