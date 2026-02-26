@@ -1,0 +1,94 @@
+<html>
+    <head>
+        <title>Typing Fidget</title>
+        <style>
+            body {
+                background-color: black;
+                text-align: center;
+                color: white;
+                font-family: helvetica;
+                font-family: 14px;
+            }
+            input {
+                border: 1px solid grey;
+                outline: none;
+                color: white;
+                font-size: 24px;
+                font-family: helvetica;
+                background-color: black;
+                border-radius: 5px;
+                padding: 10px;
+            }
+            input:focus {
+                border: 1px solid white;
+                outline: none;
+            }
+        </style>
+        <script>
+            window.addEventListener('keyup', (event) => {
+                if (event.key == "\\") {
+                    document.getElementById('userIn').value = '';
+                    document.getElementById('userIn').focus();
+                }
+                if (event.key == "Backspace" || event.key == "/") {
+                    document.getElementById('userIn').focus();
+                }
+            }, false);
+            let content = [];
+            function saveText(elem) {
+                if (elem.value == "help") {
+                    alert("saveContent, clr, help")
+                    return;
+                }
+                if (elem.value == "importContent") {
+                    content = prompt("Paste text:").split(",");
+                    elem.value = '';
+                    updateDisp();
+                    localStorage.setItem('typingWords', content.join(","));
+                    return;
+                }
+                if (elem.value == "saveContent") {
+                    navigator.clipboard.writeText(content.join(","));
+                    alert('Copied to clipboard');
+                    return;
+                }
+                if (elem.value == "clr") {
+                    let isSure = confirm("Clear?")
+                    if (isSure) {
+                        content = [];
+                        updateDisp();
+                        if (localStorage.getItem('typingWords')) {
+                            localStorage.removeItem("typingWords");
+                        }
+                    }
+                    elem.value = '';
+                    elem.focus();
+                    return;
+                }
+                if (elem.value == '' || elem.value.includes(",")) {
+                    return;
+                }
+                content.push(elem.value);
+                localStorage.setItem('typingWords', content.join(","));
+                elem.value = '';
+                updateDisp();
+            }
+            function updateDisp() {
+                document.getElementById('disp').innerHTML = content.join("<br><br>");
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('typingWords')) {
+                    content = localStorage.getItem('typingWords').split(",");
+                    updateDisp();
+                }
+                document.getElementById('userIn').focus();
+            }, false);
+        </script>
+    </head>
+    <body>
+        <br><br>
+        <input type="text" id="userIn" placeholder="Type here..." onkeydown="if(event.key=='Enter'){saveText(this)}">
+        <br><br><br><br>
+        <span id="disp"></span>
+    </body>
+</html>
