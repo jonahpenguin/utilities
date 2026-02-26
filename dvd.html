@@ -863,6 +863,9 @@
             }
             function toggleTrail(elem) {
                 if (!trailMode) {
+                    if (document.getElementById('tinydvd').style.display != 'none') {
+                        toggleTiny();
+                    }
                     let issure = confirm('After enabling trail, it cannot be disabled without reloading. Continue?');
                     if (!issure) {return}
                     // Removed below bc it caused more issues than it fixed
@@ -879,6 +882,9 @@
             }
             function toggleLDMTrail(elem) {
                 if (!trailMode) {
+                    if (document.getElementById('tinydvd').style.display != 'none') {
+                        toggleTiny();
+                    }
                     let issure = confirm('After enabling LDM trail, it cannot be disabled without reloading. Continue?');
                     if (!issure) {return}
                     // Removed below bc it caused more issues than it fixed
