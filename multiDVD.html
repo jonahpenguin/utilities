@@ -102,7 +102,8 @@
                         popup(
                             "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Modes that add multiple DVD logos</h2>" +
                             "<button onclick='init(2)'>Add logo on collision</button><br><br>" +
-                            "<button onclick='init(7)'>Add logo after a certain amount of time</button>"
+                            "<button onclick='init(7)'>Add logo after a certain amount of time</button><br><br>" +
+                            "<button onclick='init(11)'>Add logo in the top left after a certain amount of time</button>"
                         )
                         break;
                     case 2:
@@ -211,19 +212,19 @@
                         }, 10);
                     }
                 }
-                if ((id == 2 || id == 4 || id == 100 || id == 8 || id == 9 || id == 10) && !document.getElementById('countDisp')) {
+                if ((id == 2 || id == 4 || id == 100 || id == 8 || id == 11 || id == 9 || id == 10) && !document.getElementById('countDisp')) {
                     let elem = document.createElement('span');
                     elem.innerText = 'DVDs: '+dvdCount;
                     elem.style = 'position:fixed;bottom:0;left:0;z-index:2;';
                     elem.setAttribute("id", "countDisp");
                     document.body.appendChild(elem);
                 }
-                if (id == 7 || id == 100 || id == 9 || id == 10) {
+                if (id == 7 || id == 100 || id == 9 || id == 10 || id == 11) {
                     let timeVal;
                     if (id == 100 || id == 9) {
                         timeVal = 1;
                     } else {
-                        // For 7 and 10
+                        // For 7, 10 and 11
                         timeVal = prompt("Enter a time interval in seconds: ");
                     }
                     if (timeVal == "" || timeVal == undefined || timeVal == null) {
@@ -234,7 +235,13 @@
                         return;
                     }
                     timeVal = parseFloat(timeVal)*1000;
-                    setInterval(addDVD, timeVal);
+                    if (id != 11) {
+                        setInterval(addDVD, timeVal);
+                    } else {
+                        setInterval(() => {
+                            addDVD(0,0);
+                        }, timeVal);
+                    }
                 }
                 if (close) {
                     closepop();
