@@ -170,7 +170,7 @@
                     "<button onclick='toggleSubway()'>Toggle Subway Surfers</button>" +
                     "<button onclick='openOriginal()' style='float:right;'>Back to Original Version</button>" +
                     "<br><h1>DVD v2</h1>" +
-                    "Fun things that didn't work in the original; reload to return to this menu<br>After crashing you may have to completely close the tab and reopen this page. This page may cause issues for photosensitive people, consider yourself warned :)<br><br>" +
+                    "Fun things that didn't work in the original; hit Escape or reload to return to this menu<br>After crashing you may have to completely close the tab and reopen this page. This page may cause issues for photosensitive people, consider yourself warned :)<br><br>" +
                     "<button onclick='showMenu(1)'>Modes that add multiple DVD logos</button><br><br>" +
                     "<button onclick='showMenu(2)'>Modes that affect speed/slope</button><br><br>" +
                     "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
@@ -632,6 +632,10 @@
                 addDVD(x,y);
             }, false);
             window.addEventListener("keydown", (event) => {
+                if (event.key == "Escape") {
+                    selectedAction = 0;
+                    mainMenu();
+                }
                 if (event.key == "+" || event.key == "=") {
                     addDVD();
                 }
