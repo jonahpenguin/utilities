@@ -3,6 +3,7 @@
         <title>Index</title>
         <link rel="stylesheet" href="Style1.css">
         <script>
+            let linkNames = ["DVD Homepage", "DVD game", "Typing Fidget", "DVD v2", "Gonculator", "Answer Checker", "Ad Free YT (SHHS ver)", "DVD logo", "Weight Calculator", "Ad Free YT", "Binary Game", "Link Locker"];
             let links = ["dvdMain.html", "dvdGame.html", "typingFidget.html", "multiDVD.html", "gonculator.html", "answerChecker.html", "shhs.adFreeYT.html", "dvd.html", "weightCalc.html", "adFreeYT.html", "binaryGame.html", "linkLocker.html"];
             window.addEventListener('load', () => {
                 if (localStorage.getItem(atob('aXNEZXY='))) {
@@ -49,7 +50,7 @@
             function loadNormal() {
                 let html = '';
                 for (let i = 0;i<links.length;i++) {
-                    html += '<a href="'+links[i]+'">'+links[i]+'</a><br><br>';
+                    html += '<a href="'+links[i]+'">'+linkNames[i]+'</a><br><br>';
                 }
                 document.getElementById('content').innerHTML = html+"<a target='_blank' href='/Game Archive/index.html'>Game Archive</a><br><br>";
             }
