@@ -1,0 +1,257 @@
+<html>
+    <head>
+        <title>DVD logo</title>
+        <script>
+            // document.write('Loading...');
+            // location.replace('https://extra-other-stuff-10439159.codehs.me/dvd.html');
+        </script>
+        <style>
+            body {
+                background-color: black;
+                color: lime;
+                font-family: monospace;
+                text-align: center;
+            }
+            button {
+                background-color: white;
+                color: black;
+            }
+            button:hover {
+                background-color: black;
+                color: white;
+            }
+            button:focus {
+                background-color: black;
+                color: white;
+            }
+            img#dvd {
+                width: 8%;
+                height: 14%;
+                top: 0%;
+                left: 0%;
+                position: absolute;
+            }
+        </style>
+        <link rel="stylesheet" href="Style1.css">
+        <script>
+            function invert() {
+                if (slope.rise == 1) {
+                    slope.rise = -1;
+                } else {
+                    slope.rise = 1;
+                }
+                if (slope.run == 1) {
+                    slope.run = -1;
+                } else {
+                    slope.run = 1;
+                }
+            }
+            window.addEventListener('load', () => {
+                let loca = location.href;
+                if (loca.includes('?')) {
+                    loca = loca.split('?');
+                    loca = loca[1];
+                    if (loca == 'classic') {
+                        document.body.style.backgroundColor = 'black';
+                        document.body.style.color = 'green';
+                        document.getElementById('dvd').src = 'dvd.png';
+                    }
+                }
+            }, false);
+            var position = {
+                x: 0,
+                y: 0
+            }
+            var slope = {
+                rise: 1,
+                run: 1
+            }
+            function movedvd() {
+                position.x = position.x + slope.run;
+                position.y = position.y + slope.rise;
+                if (position.x > 91 | position.x < 1) {
+                    if (slope.run == 1) {
+                        slope.run = -1;
+                    } else {
+                        slope.run = 1;
+                    }
+                    changebg();
+                    /*if (slope.rise == 1) {
+                        slope.rise = -1;
+                    } else {
+                        slope.rise = 1;
+                    }*/
+                    /*let srun = slope.run;
+                    slope.run = slope.rise;
+                    slope.rise = srun - srun*2;*/
+                }
+                if (position.y > 85 | position.y < 1) {
+                    /*if (slope.run == 1) {
+                        slope.run = -1;
+                    } else {
+                        slope.run = 1;
+                    }*/
+                    if (slope.rise == 1) {
+                        slope.rise = -1;
+                    } else {
+                        slope.rise = 1;
+                    }
+                    changebg();
+                    /*let srun = slope.run;
+                    slope.run = slope.rise;
+                    slope.rise = srun - srun*2;*/
+                }
+                document.getElementById('dvd').style.top =  position.y + '%';
+                document.getElementById('dvd').style.left = position.x + '%';
+                document.getElementById('posbox').innerText = 'X: ' + position.x + ' Y: ' + position.y;
+            }
+            function changebg() {
+                let elem = document.getElementById('dvd');
+                return true;
+                switch(document.getElementById('dvd').style.backgroundColor) {
+                    case 'red':
+                        elem.style.backgroundColor = 'orange';
+                        break;
+                    case 'orange':
+                        elem.style.backgroundColor = 'yellow';
+                        break;
+                    case 'yellow':
+                        elem.style.backgroundColor = 'green';
+                        break;
+                    case 'green':
+                        elem.style.backgroundColor = 'blue';
+                        break;
+                    case 'blue':
+                        elem.style.backgroundColor = 'purple';
+                        break;
+                    case 'purple':
+                        elem.style.backgroundColor = 'red';
+                        break;
+                    default:
+                        elem.style.backgroundColor = 'red';
+                }
+            }
+            function openso() {
+                document.getElementById('speedopt').style = '';
+                document.getElementById('semi').style = '';
+            }
+            function closeso() {
+                document.getElementById('speedopt').style = 'display: none';
+                document.getElementById('semi').style = 'display: none';
+            }
+            function updatespeed() {
+                clearInterval(moveint);
+                intval = parseInt(document.getElementById('speedint').value);
+                moveint = setInterval(() => {movedvd()}, parseInt(document.getElementById('speedint').value));
+            }
+            function hideopt() {
+                if (ishiding == false) {
+                    ishiding = true;
+                    document.body.style.cursor = 'none';
+                    let opacityval = 1;
+                    hidingint = setInterval(() => {
+                        document.getElementById('optionsbox').style = 'opacity: ' + opacityval;
+                        opacityval = opacityval - 0.01;
+                        if (opacityval < 0.01) {
+                            clearTimeout(hidingint);
+                            ishiding = false;
+                        }
+                    }, 10);
+                }
+            }
+            function actionhandler() {
+                clearInterval(hidingint);
+                document.body.style.cursor = 'auto';
+                document.getElementById('optionsbox').style = 'opacity: 1';
+                ishiding = false;
+                clearTimeout(hidetimer);
+                hidetimer = setTimeout(() => {hideopt();}, 5000);
+            }
+            document.addEventListener('mousemove', actionhandler, false);
+            document.addEventListener('keypress', actionhandler, false);
+            let ishiding = false;
+            let hidingint = null;
+            let ishidden = false;
+            let hidetimer = setTimeout(() => {hideopt()}, 5000);
+            let intval = 50;
+            let moveint = setInterval(() => {movedvd()}, 50);
+            window.addEventListener('keydown', (event) => {
+                if (event.key == 'Escape') {
+                    closeso();
+                }
+            }, false);
+        </script>
+        <style>
+            #semi {
+                background-color: black;
+                opacity: 0.5;
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+                position: fixed;
+                z-index: 2;
+            }
+            body {
+                z-index: 1;
+            }
+            #speedopt {
+                background-color: blue;
+                border: 3px dashed cyan;
+                position: fixed;
+                top: 10%;
+                left: 10%;
+                width: 80%;
+                height: 80%;
+                z-index: 3;
+            }
+            #optionsbox {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 10%;
+            }
+        </style>
+        <script>
+            function openFullscreen() {
+const elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
+function togglepos() {
+    if (document.getElementById('posbox').style.display == 'none') {
+        document.getElementById('posbox').style.display = '';
+    } else {
+        document.getElementById('posbox').style.display = 'none';
+    }
+}
+        </script>
+        <! img scale:100x68 50/34 25/17
+    </head>
+    <body id="body">
+        <div id="semi" style="display: none;"></div>
+        <div id="speedopt" style="display: none;">
+            <button onclick="closeso()" style="float: left;">X Close</button>
+            <br>
+            <h1>Speed Options</h1>
+            Speed interval:
+            <input type="number" id="speedint" value=50 placeholder="Type here..." onchange="updatespeed()">
+            <br><br>
+            Lower = faster
+        </div>
+        <span id="posbox" style="position:fixed;bottom:0;left:0;display:none;"></span>
+        <div id="optionsbox">
+            <button onclick="openso()" style="right: 0; top: 0; position: absolute; z-index: 1;">Speed options</button>
+            <button onclick="openFullscreen()" style="right: 0; top: 21px; position: absolute; z-index: 1;">Fullscreen</button>
+            <button onclick="invert()" style="position:absolute;top:42px;right:0;z-index:1;;">Invert</button>
+            <button onclick="togglepos()" style="position:absolute;top:63px;right:0;z-index:1;">Toggle positional info</button>
+        </div>
+        <img src="dvd.png" style="background-color:transparent;" id="dvd" alt="DVD logo">
+    </body>
+</html>
