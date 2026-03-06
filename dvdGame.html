@@ -697,15 +697,26 @@
                     alert("Not enough DVD bits...");
                 }
             }
+            function sellNM() {
+                if (nathanMode) {
+                    moneys += 10000;
+                    nathanMode = false;
+                    saveGame();
+                    closepop();
+                    showShop();
+                } else {
+                    alert("An error occured");
+                }
+            }
             function showShop() {
                 let multCost = Math.pow(2, multiplier+3);
                 let speedCost = 1000*(speedVal*2);
                 let dvdCost = dvdCount*20;
                 let spaces = " ";
-                let nmButton = "<button onclick='buyNM()'>Buy Nathan Mode (10,000)</button> Removes spaces from between buttons above";
+                let nmButton = "<button onclick='buyNM()'>Buy Nathan Mode (10,000 DVD bits)</button> Removes spaces from between buttons above";
                 if (nathanMode) {
                     spaces = '';
-                    nmButton = '';
+                    nmButton = '<button onclick="sellNM()">Sell Nathan Mode (+10,000 DVD bits)</button>';
                 }
                 popup(
                     "<button onclick='closepop()' style='float:left;'>X Close</button>" +
