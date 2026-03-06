@@ -641,6 +641,7 @@
                     alert("Upgraded to Level "+multiplier+" multiplier!");
                 } else {
                     alert("Not enough DVD bits...")
+                    break
                 }
             }
             let multiplier = 1;
@@ -655,6 +656,7 @@
                     showShop();
                 } else {
                     alert("Not enough DVD bits...");
+                    break
                 }
             }
             let speedVal = 1;
@@ -669,6 +671,7 @@
                     showShop();
                 } else {
                     alert("Not enough DVD bits...");
+                    break
                 }
             }
             function showShop() {
@@ -679,9 +682,24 @@
                     "<button onclick='closepop()' style='float:left;'>X Close</button>" +
                     "<button onclick='reset()' style='float:right;'>Reset</button>" +
                     "<br><h1>Shop</h1>" +
-                    "<button onclick='buyLogo()'>+1 DVD logo</button><span style='background-color:black;'> ("+dvdCost+" DVD bits) You currently have "+dvdCount+" logos</span><br><br>" +
-                    "<button onclick='buyMultiplier()'>Upgrade Multiplier (all income)</button><span style='background-color:black;'> ("+multCost+" DVD bits) Current multiplier: Level "+multiplier+"</span><br><br>" +
-                    "<button onclick='buySpeed()'>Increase all logo speeds</button><span style='background-color:black;'> ("+speedCost+" DVD bits) Current speed multiplier: "+speedVal+"</span><br><br>"
+
+                    "<button onclick='buyLogo();'>+1 DVD logo</button> " +
+                    "<button onclick='buyLogo();buyLogo();buyLogo();buyLogo();buyLogo();'>x5</button> " +
+                    "<button onclick='buyLogo();buyLogo();buyLogo();buyLogo();buyLogo();buyLogo();buyLogo();buyLogo();buyLogo();buyLogo();'>x10</button>"+
+                    "<button onclick='for(let i=0;i<=20;i++){buyLogo()}'>x20</button>" +
+                    "<span style='background-color:black;'> ("+dvdCost+" DVD bits) You currently have "+dvdCount+" logos</span><br><br>" +
+
+                    "<button onclick='buyMultiplier()'>Upgrade Multiplier (all income)</button> " +
+                    "<button onclick='buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();'>x5</button> " +
+                    "<button onclick='buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();buyMultiplier();'>x10</button>" +
+                    "<button onclick='for(let i=0;i<=20;i++){buyMultiplier()}'>x20</button>" +
+                    "<span style='background-color:black;'> ("+multCost+" DVD bits) Current multiplier: Level "+multiplier+"</span><br><br>" +
+
+                    "<button onclick='buySpeed();'>Increase all logo speeds</button> " +
+                    "<button onclick='buySpeed();buySpeed();buySpeed();buySpeed();buySpeed();'>x5</button> " +
+                    "<button onclick='buySpeed();buySpeed();buySpeed();buySpeed();buySpeed();buySpeed();buySpeed();buySpeed();buySpeed();buySpeed();'>x10</button>" +
+                    "<button onclick='for(let i=0;i<=20;i++){buySpeed()}'>x20</button>" +
+                    "<span style='background-color:black;'> ("+speedCost+" DVD bits) Current speed multiplier: "+speedVal+"</span><br><br>"
                     // "<button onclick='buySubway()'>Buy Subway Surfers background (ultimate flex)</button> (1,000,000 DVD bits or Multiplier Level 100)<br><br>"
                 )
             }
