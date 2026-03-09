@@ -634,6 +634,13 @@
                 addDVD(x,y);
             }, false);
             window.addEventListener("keydown", (event) => {
+                if (event.key == " ") {
+                    if (canMove) {
+                        canMove = false;
+                    } else {
+                        canMove = true;
+                    }
+                }
                 if (event.key == "Escape") {
                     selectedAction = 0;
                     mainMenu();
