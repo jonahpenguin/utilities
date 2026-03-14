@@ -410,14 +410,18 @@
                 // Called from main
                 let header = "<br><h1>GP Youth Check-In</h1>";
                 if (isMobile) {
-                    header = '';
+                    header = '<h1>GP Youth Check-In</h1>';
+                }
+                let splitter = " ~ ";
+                if (isMobile) {
+                    splitter = '<br><br>';
                 }
                 document.getElementById('content').innerHTML =
                     header +
                     "Name: <input type='text' id='nameIn' placeholder='Type here...' onkeydown='if(event.key==\"Enter\"){lookupPerson(this)}'><br><br>" +
                     "<button onpointerdown='lookupPerson(document.getElementById(\"nameIn\"))'>Check In</button>" +
                     "<br><br>Or...<br><br>"+
-                    "<button id='tAddB' onpointerdown='personPopup()'>Add New Person</button> ~ " +
+                    "<button id='tAddB' onpointerdown='personPopup()'>Add New Person</button>"+splitter +
                     "<button id='tTodayB' onpointerdown='todayPeople()'>View/Edit Checked-In people from today</button>" +
                     "<br><br><hr><br>" +
                     "<button id='tEndB' onpointerdown='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>";
