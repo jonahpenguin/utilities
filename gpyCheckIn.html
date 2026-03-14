@@ -6,7 +6,7 @@
             body {
                 background-color: white;
                 color: #167cab;
-                font-family: cursive, "Comic Sans MS", helvetica;
+                font-family: "Comic Sans MS", helvetica;
                 text-align: center;
                 z-index: 1;
                 zoom: 125%;
@@ -44,7 +44,7 @@
             }
             input {
                 color: #167cab;
-                font-family: cursive, "Comic Sans MS", helvetica;
+                font-family: "Comic Sans MS", helvetica;
             }
             input:focus {
                 outline: 2px solid #167cab;
@@ -201,6 +201,9 @@
                 idleTimer = setTimeout(showDVD, 10000);
             }
             function showDVD() {
+                if (isMobile) {
+                    return;
+                }
                 // Called by actionHandler()
                 let i = 0;
                 idleFadeInt = setInterval(() => {
