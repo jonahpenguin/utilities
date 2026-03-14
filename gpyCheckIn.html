@@ -420,7 +420,7 @@
                     header +
                     "Name: <input type='text' id='nameIn' placeholder='Type here...' onkeydown='if(event.key==\"Enter\"){lookupPerson(this)}'><br><br>" + (isMobile ? "<br><br>" : "") +
                     "<button onpointerdown='lookupPerson(document.getElementById(\"nameIn\"))'>Check In</button>" +
-                    "<br><br>Or...<br><br>"+
+                    (isMobile ? "<br><br>") + "<br><br>Or...<br><br>" + (isMobile ? "<br><br>") +
                     "<button id='tAddB' onpointerdown='personPopup()'>Add New Person</button>"+splitter +
                     "<button id='tTodayB' onpointerdown='todayPeople()'>View/Edit Checked-In people from today</button>" +
                     "<br><br><hr><br>" +
