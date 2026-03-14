@@ -1,0 +1,495 @@
+<html>
+    <head>
+        <title id="title">Ad Free YouTube</title>
+        <link rel="icon" href="yt.png">
+        <style>
+            /* Basic styling */
+            body {
+                z-index: 1;
+                background-color: darkblue;
+                color: white;
+                text-align: center;
+                font-family: comic sans ms, helvetica, arial;
+            }
+
+            /* Buttons */
+            button {
+                background-color: white;
+                color: black;
+                cursor: hand;
+            }
+            button:hover {
+                background-color: black;
+                color: white;
+            }
+            button:focus {
+                background-color: black;
+                color: white;
+            }
+
+            /* Below is used specifically for the iframe containing the video */
+            iframe {
+                position: fixed;
+                top: 20%;
+                left: 0%;
+                width: 100%;
+                height: 80%;
+                border: none;
+                border-top: 3px dashed cyan;
+                z-index: 2;
+            }
+
+            /* Placement of the Fullscreen button */
+            button#fsbutton {
+                bottom: 80%;
+                right: 0%;
+                position: fixed;
+            }
+        </style>
+        <script>
+            let vidLoaded = false;
+            let vidId;
+
+            // This function is called when the Go button is pressed; it parses the ID from the YouTube URL
+            // and passes it back to this page as a URL parameter
+            function openURL() {
+                let vidid = document.getElementById('userIn').value;
+                // First I do some basic verification to make sure it's actually a real link
+                if (vidid.includes('https:') || vidid.includes("http:") || vidid.includes("www") || vidid.includes("youtube.com/watch")) {
+                    // Some YouTube links (especially from the Share menu) use the parameter "si" for their
+                    // ID, so this first statement checks for that and parses accordingly
+                    if (vidid.includes("?si=")) {
+                        vidid = vidid.split('/');
+                        vidid = vidid[3];
+                        vidid = vidid.split("?si=");
+                        vidid = vidid[0];
+                    } else if (vidid.includes("v=")) {
+                        // This section parses it instead as it usually ends up being done:
+                        // it simply gets the "v" parameter, which you may notice when looking
+                        // in the address bar of a general YouTube video
+                        vidid = vidid.split('v=')[1];
+                        if (vidid.includes("&")) {
+                            vidid = vidid.split("&")[0];
+                        }
+                    } else {
+                        alert("Invalid URL");
+                        return;
+                    }
+                    // If the program has reached this point and somehow still doesn't have an ID,
+                    // then something went really wrong, so I report the issue and provide some
+                    // debug details
+                    if (vidid == undefined || vidid == 'undefined' || vidid == '') {
+                        alert('URL error. Values given (note this down for debugging):\nSplit ID: ' + vidid[1] + '\nJoined ID: ' + document.getElementById('userIn').value);
+                        return;
+                    } else {
+                        // This odd little step is here because I have multiple versions
+                        // of this program at different locations, so I needed to account
+                        // for redirecting to each of said locations
+                        let cLoca = location.href;
+                        // So I get the current URL,
+                        if (cLoca.includes('?')) {
+                            cLoca = cLoca.split("?")[0];
+                            // remove any parameters,
+                        }
+                        if (vidLoaded) {
+                            document.getElementById('userIn').value = '';
+                            window.open(cLoca+'?' + vidid);
+                        } else {
+                            location.replace(cLoca+'?' + vidid);
+                        }
+                        // make the new one with the video ID added, and open it
+                        // As seen above, if a video is already loaded, it opens it in a new tab and clears the textbox,
+                        // but otherwise it just opens it in the current tab
+                    }
+                } else {
+                    // For when there is not a YouTube url and a normal string instead:
+                    window.open('https://www.youtube.com/results?search_query='+vidid);
+                    // Opens a new tab with YouTube open to search the user's input
+                }
+            }
+
+            // Keybind for "f", that opens fullscreen, provided a video is loaded
+            window.addEventListener('keypress', (event) => {
+                if (event.key == 'f' && vidLoaded) {
+                    openFullscreen();
+                }
+            }, false);
+            function openFullscreen() {
+                // This flag is changed such that the events that trigger here
+                // don't cause issues with detecting when the user exits fullscreen
+                isEnteringFS = true;
+
+                // Taking the video iframe and allowing it to take up the entire page;
+                // so it's actually fullscreen
+                document.getElementById('videoframe').style.height = '100%';
+                document.getElementById('videoframe').style.top = '0%';
+                document.getElementById('videoframe').style.borderTop = 'none';
+
+                // Basic fullscreen page stuff
+                const elem = document.body;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+
+                // Sets the flag back after to allow unfullscreen detection triggers
+                setTimeout(() => {isEnteringFS = false;}, 500);
+            }
+
+            // Handles exiting fullscreen and shifting the video iframe back
+            function exitHandler() {
+                if (!isEnteringFS) {
+                    document.getElementById('videoframe').style.height = '80%';
+                    document.getElementById('videoframe').style.top = '20%';
+                    document.getElementById('videoframe').style.borderTop = '3px dashed white';
+                }
+            }
+            
+            // Event listeners to detect unfullscreen; these are why the isEnteringFS flag was
+            // necessary; otherwise these would also go off when opening fullscreen
+            document.addEventListener('fullscreenchange', exitHandler, false);
+            document.addEventListener('mozfullscreenchange', exitHandler, false);
+            document.addEventListener('MSFullscreenChange', exitHandler, false);
+            document.addEventListener('webkitfullscreenchange', exitHandler, false);
+            
+            window.addEventListener('load', () => {
+                // Detecting if a video should be loaded
+                let loca = location.href;
+                if (loca.includes('?')) {
+
+                    // Parsing the parameter out
+                    loca = loca.split('?');
+                    let vidid = loca[1];
+                    if (vidid.includes("&")) {
+                        vidid = vidid.split("&")[0];
+                    }
+
+                    // Making the iframe, because it doesn't exist by default on this page
+                    let vf = document.createElement('iframe');
+                    vf.setAttribute('id', 'videoframe');
+                    vf.src = 'https://www.youtube.com/embed/' + vidid;
+                    document.body.appendChild(vf);
+                    
+                    // Also adding the Save Video button, since that isn't usually here either
+                    let saveb = document.createElement('button');
+                    saveb.addEventListener('click',addVid);
+                    saveb.innerText = 'Save this video';
+                    document.getElementById('saveSpan').appendChild(saveb);
+
+                    // For mobile users, I try to format the video iframe better; it's not perfect,
+                    // but better than nothing
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                        document.getElementById('videoframe').style.height = '75%';
+                    } else {
+                        // If not on mobile (where it doesn't work anyway), then I also add the fullscreen button
+                        let fb = document.createElement('button');
+                        fb.addEventListener('click', openFullscreen);
+                        fb.setAttribute('id', 'fsbutton');
+                        fb.innerText = 'Fullscreen';
+                        document.body.appendChild(fb);
+                    }
+
+                    loca = loca[1];
+                    // If a video name was also passed as a parameter, as happens with saved videos,
+                    // these get parsed and added to the tab title here
+                    if (loca.includes("&")) {
+                        loca = loca.split("&");
+                        document.getElementById('title').innerText = decodeURIComponent(loca[1])+" ~ Ad Free YouTube";
+                        loca = loca[0];
+                    } else {
+                        // Otherwise just make sure it has the default tab title
+                        document.getElementById('title').innerText = "Ad Free YouTube";
+                    }
+                    vidLoaded = true;
+                } else {
+                    // If there is no video to load, it just loads the default page and focuses the video URL input box
+                    document.getElementById('title').innerText = "Ad Free YouTube";
+                    document.getElementById('content').innerHTML += '<br><br><br><br><button onclick="nerdyStuff()">How this works</button>';
+                    document.getElementById('userIn').focus()
+                }
+            }, false);
+
+            // A generic popup function I heavily use across programs; this is mainly used for the Saved Videos menu here
+            function popup(html) {
+                document.getElementById('popup').innerHTML = '<button id="closeb" onclick="closepop()" style="float:left;">X Close</button><br>' + html;
+                document.getElementById('semi').style.display = '';
+                document.getElementById('popup').style.display = '';
+            }
+            // The generic closing of a generic popup
+            function closepop() {
+                document.getElementById('semi').style.display = 'none';
+                document.getElementById('popup').style.display = 'none';
+            }
+            
+            // This contains all the saved videos as 2-element arrays in this big array
+            let saved = [];
+            /*
+            Example:
+            let saved = [
+                [songName,id]
+            ]
+            
+            Save to localStorage as:
+            songName&id;
+            */
+
+            // This checks if any videos were saved to localStorage and pulls them back into the "saved" array
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('savedSHHS')) {
+                    let saveStr = localStorage.getItem('savedSHHS').split(';');
+                    let i = 0;
+                    while(i<saveStr.length-1) {
+                        let vidInfo = saveStr[i].split('&');
+                        if (vidInfo != '-') {
+                            saved.push([vidInfo[0],vidInfo[1]]);
+                        }
+                        i++;
+                    }
+                }
+            }, false);
+            
+            // This formats and writes the entire "saved" array to localStorage, where it can be retrieved
+            // should the user reload or otherwise exit the page
+            function saveSaved() {
+                if (saved.length > 0) {
+                    let saveStr = '';
+                    let i = 0;
+                    while(i<saved.length) {
+                        saveStr += saved[i][0] + '&' + saved[i][1] + ';'
+                        i++;
+                    }
+                    localStorage.setItem('savedSHHS',saveStr);
+                } else {
+                    alert('No videos to save');
+                }
+            }
+
+            // This takes a parameter, being the index of a specific video,
+            // and loads it from "saved" such that it can be opened
+            function loadSaved(i) {
+                let loca = location.href;
+                if (loca.includes("?")) {
+                    loca = loca.split("?")[0];
+                }
+                if (vidLoaded) {
+                    window.open(loca+'?'+saved[i][1]+'&'+saved[i][0]);
+                    closepop();
+                } else {
+                    location.replace(loca+'?'+saved[i][1]+"&"+saved[i][0]);
+                }
+            }
+
+            // Loads a popup listing all saved videos, along with a couple actions for each
+            function savedVids() {
+                let output = '<i>No videos saved yet. Use the button in the top right of the page to save one!</i>';
+                if (saved.length > 0) {
+                    let i = 0;
+                    output = '';
+                    while(i<saved.length) {
+                        // This if statement is here because deleted videos are replaced with an id of "-" and a name of "-"
+                        if (saved[i].includes('-') == false) {
+                            output +=
+                                '<button onclick="loadSaved('+i+')">'+
+                                'Load "' + saved[i][0]+'"</button> ~ <button onclick="renameVid('+i+')">Rename</button> ~ ' +
+                                '<button onclick="delVid('+i+')" style="background-color:red;">Delete</button><br>';
+                        }
+                        i++;
+                    }
+                    // If there aren't any elements, the output will remain empty, and I make sure there aren't any
+                    // phantom video entries that may have caused it to get to this point without just defaulting to the
+                    // "no videos saved yet" message already
+                    if (output == '') {
+                        if (localStorage.getItem('savedSHHS')) {
+                            localStorage.removeItem('savedSHHS');
+                        }
+                        saved=[];
+                        output = '<i>No videos saved yet. Use the button in the top right of the page to save one!</i>';
+                    } else {
+                        // If there are videos I append a Reset button that deletes all saved videos after confirmation
+                        output +=
+                            '<br>' +
+                            '<button onclick="let isSure=confirm(\'Delete all videos? This cannot be undone\');if(!isSure){return;}localStorage.removeItem(\'savedSHHS\');saved=[];closepop();savedVids();" style="background-color:red;">Delete all videos</button>'
+                    }
+                }
+                // Finally calling the popup, adding a header and some export/import options. More on that later
+                popup(
+                    '<h1>Saved Videos</h1>' +
+                    output +
+                    '<span style="position:fixed;bottom:5%;right:5%;text-align:right;">'+
+                        '<button onclick="exportSaved()">Export</button> ~ <button onclick="importPrompt()">Import</button>'+
+                    '</span>'
+                )
+            }
+            // It's later! This takes all saved videos and makes them one long string,
+            // like what happened when saving to localStorage; but here I write it to
+            // a text file, allowing users to have their own backup or to transport their
+            // data
+            function exportSaved() {
+                let saveStr = '';
+                let i = 0;
+                while(i<saved.length) {
+                    saveStr += saved[i][0] + '&' + saved[i][1] + ';'
+                    i++;
+                }
+                const link = document.createElement('a');
+                const file = new Blob([saveStr], {type: 'text/plain'})
+                link.href = URL.createObjectURL(file);
+                link.download = "adFreeYT_videos.txt";
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }
+
+            // This opens the prompt for importing one such saved file,
+            // but also contains the event listeners to import it once
+            // uploaded to the <input> element (all local)
+            function importPrompt() {
+                closepop();
+                popup(
+                    "<h1>Import</h1>" +
+                    "Attach a file below:<br>"+
+                    '<input type="file" id="importIn">'
+                )
+                // Triggers when the file is added
+                document.getElementById("importIn").addEventListener('change', () => {
+                    const fileInput = document.getElementById('importIn');
+                    // Makes sure a file has actually been added
+                    if (fileInput.files && fileInput.files[0]) {
+                        // I hate FileReaders, but here we are...
+                        let fr = new FileReader();
+                        fr.onload = () => {
+                            // Once loaded, it pulls the result (if it exists) and splits it on semicolons,
+                            // which is how I divided each entry in exportSaved()
+                            const loadedStr = fr.result;
+                            let saveStr = (loadedStr || '').split(';');
+                            let i = 0;
+                            // Then I loop through and add/push each real video entry to "saved"
+                            while(i<saveStr.length-1) {
+                                let vidInfo = saveStr[i].split('&');
+                                if (vidInfo != '-') {
+                                    saved.push([vidInfo[0],vidInfo[1]]);
+                                }
+                                i++;
+                            }
+                            // Finally, a confirmation alert and the import prompt gets closed
+                            alert('Imported successfully!');
+                            closepop();
+                        }
+                        // This tells the listener to read it as text when the FileReader is finally loaded
+                        fr.readAsText(fileInput.files[0]);
+                    } else {
+                        // Otherwise gives this alert
+                        alert('No file selected');
+                    }
+                })
+            }
+
+            // This takes in an index and allows the user to rename the saved video there
+            function renameVid(index) {
+                let vidName = prompt('Enter a new name for "' + saved[index][0] + '":');
+                // Very simple: if the video name actually exists, then overwrite the saved video name at saved[index][0] to whatever the user inputted
+                if (vidName != '' && vidName != null && vidName != undefined) {
+                    saved[index][0] = vidName;
+                    // Save it to localStorage
+                    saveSaved();
+                    // Update the title
+                    document.getElementById('title').innerText = vidName+" ~ Ad Free YouTube";
+                    // Confirmation alert
+                    alert('Video renamed!');
+                    // Close and reopen saved videos to update entry
+                    closepop();
+                    savedVids();
+                }
+            }
+
+            // Deletes a saved video at a specific index
+            function delVid(index) {
+                // Asks for confirmation
+                let isSure = confirm('Delete "' + saved[index][0] + '"?');
+
+                // If not sure then end the function here
+                if (!isSure) {return;}
+
+                // Setting both video ID and name to "-" tells everything else to ignore it,
+                // and deletes the data
+                saved[index] = ['-','-'];
+
+                // Save to localStorage
+                saveSaved();
+
+                // Confirmation alert
+                alert('Video deleted');
+
+                // Reload menu to update removed entry
+                closepop();
+                savedVids();
+            }
+
+            // Takes whatever video is loaded, asks for a name and saves it
+            function addVid() {
+                if (vidLoaded) {
+                    // Asks for name
+                    let vidName = prompt('Enter a name for this video:')
+                    if (vidName != '' && vidName != null && vidName != undefined) {
+                        // If actually a real name, then parse the video ID from the URL again
+                        let vidid = location.href;
+                        vidid = vidid.split("?")[1];
+                        if (vidid.includes("&")) {
+                            vidid = vidid.split("&")[0];
+                        }
+
+                        // Add/push it to the "saved" array
+                        saved.push([vidName,vidid]);
+
+                        // Save to localStorage
+                        saveSaved();
+
+                        // Update title with name
+                        document.getElementById('title').innerText = vidName+" ~ Ad Free YouTube";
+
+                        // Confirmation alert
+                        alert('Video saved!');
+                    }
+                } else {
+                    alert('No video loaded');
+                }
+            }
+            // A very simple popup explaining this program's main functionality; I would recommend reading it
+            function nerdyStuff() {
+                popup(
+                    '<h1>Nerdy Explanation</h1>' +
+                    'This page started as an interesting observation - I noticed that embedded YouTube<br>' +
+                    'videos do not show ads. So what I did was place the textbox, and then I parsed the link<br>' +
+                    'pasted to get the video ID (the part after v=). I then used that to get the embed link for<br>'+
+                    'the video, which looks like "https://www.youtube.com/embed/[video id]". Finally, I put that<br>'+ 
+                    'in the frame you see onscreen, with the video inside. Some fancy CSS styling and extra stuff<br>' +
+                    'for video saving and now there\'s this thing!'
+                )
+            }
+        </script>
+</head>
+    <body>
+        <!-- The starting HTML; includes the hidden empty popup and semi-transparent backdrop for said popup -->
+        <div id="semi" style="position:fixed;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.5;z-index:99;display:none;"></div>
+        <div id="popup" style="position:fixed;top:5%;left:5%;width:90%;height:90%;background-color:blue;border:3px dashed cyan;z-index:100;display:none;"></div>
+        
+        <!-- The span is for positioning, and also gets the Save Video button added to it when one is loaded -->
+        <span id="saveSpan" style="text-align:right;position:fixed;top:0;right:0;">
+            <button onclick="savedVids()">View/Edit Saved Videos</button><br>
+        </span>
+
+        <!-- Epic header -->
+        <h1 id="header">Ad Free YouTube</h1>
+
+        <!-- Main content div; this gets overwritten by the iframe when a video is loaded -->
+        <div id="content">
+            Paste the YouTube URL:
+            <br>
+            <!-- Also has a key detection mechanism such that if the user presses Enter, it opens the link as well as if they press the button -->
+            <input type="text" id="userIn" onkeypress="if(event.key=='Enter'){openURL()}" placeholder="Paste YouTube URL...">
+            <button onclick="openURL()">Go 🡆</button>
+        </div>
+    </body>
+</html>
