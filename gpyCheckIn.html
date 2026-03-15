@@ -661,6 +661,7 @@
                 for (let i = 0;i<peoples.length;i++) {
                     fileContent += peoples[i].toString()+";";
                 }
+                fileContent = btoa(fileContent);
                 var elem = document.createElement("a");
                 elem.setAttribute("href", 'data:text/plain;charset=utf-8,'+encodeURIComponent(fileContent));
                 elem.setAttribute("download",fileName);
@@ -707,6 +708,7 @@
             function importData(input) {
                 // Called from importDataPopup() popup
                 // That's kinda redundant, huh...
+                input = atob(input);
                 input = input.split(";");
                 for (let i = 0;i<input.length-1;i++) {
                     let person = input[i].split(",");
