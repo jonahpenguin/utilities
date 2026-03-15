@@ -426,7 +426,7 @@
                     "<button id='tAddB' onpointerdown='personPopup()'>Add New Person</button>"+splitter +
                     "<button id='tTodayB' onpointerdown='todayPeople()'>View/Edit Checked-In people from today</button>" +
                     "<br><br><hr><br>" +
-                    "<button id='tEndB' onpointerdown='let isSure=confirm(\"Exit check-in session?\");if(isSure){mainMenu()}'>End Session</button>";
+                    "<button id='tEndB' onpointerdown='endSession()'>End Session</button>";
                 if (!isMobile) {
                     document.getElementById('content').innerHTML +=
                         "<br><br>" +
@@ -438,6 +438,17 @@
                     document.getElementById('questionBox').innerHTML = '<hr><br><br><button onpointerdown="initBBpop()">Start Poll</button>';
                 }
                 document.getElementById('nameIn').focus();
+            }
+            function endSession() {
+                // Called from startCheckIn() screen
+                let isSure=confirm(\"Exit check-in session?\");
+                if (isSure) {
+                    if (!isMobile) {
+                        mainMenu();
+                    } else {
+                        report();
+                    }
+                }
             }
             function initBBpop() {
                 // Called from startCheckIn() screen
@@ -783,7 +794,7 @@
                 window.open("mailto:graham@gracepointsc.com?subject=Youth%20Check-In%20Report&body="+output);
                 if (isMobile) {
                     popup(
-                        "<br><br>A file should be downloading once you click the button below; please post it in the group chat so I can update the records<br>Thanks :)<br><br><button onpointerdown='closepop();exportData();'>Okay!</button>"
+                        "<br><br>A file should be downloading once you click the button below; please post it in the group chat so I can update the records<br>Thanks :)<br><br><button onpointerdown='closepop();mainMenu();exportData();'>Okay!</button>"
                     )
                 }
             }
