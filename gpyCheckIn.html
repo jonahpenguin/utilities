@@ -480,6 +480,9 @@
             function lookupPerson(elem) {
                 // Called from startCheckIn() screen
                 let input = elem.value;
+                if (input == "") {
+                    return;
+                }
                 let matches = [];
                 let matchIndexes = [];
                 let d = new Date()
