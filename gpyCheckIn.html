@@ -246,7 +246,7 @@
             }
             function closepop(bypassAllow=false) {
                 // Close generic popup
-                if ((allowClose || bypassAllow) && (document.getElementById("popup") && document.getElementById("semi"))) {
+                if ((allowClose || bypassAllow) && (document.getElementById("popup"))) {
                     document.getElementById('popup').outerHTML = '';
                     document.getElementById('semi').outerHTML = '';
                 } else {
