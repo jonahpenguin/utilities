@@ -1,0 +1,677 @@
+<html>
+    <head>
+        <title>Just Escape</title>
+
+        <!-- Cool font :D -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Pirata+One&display=swap" rel="stylesheet">
+        
+        <style>
+            body {
+                background-color: black;
+                color: brown;
+                font-family: "Finger Paint", helvetica;
+                font-weight: 400;
+                font-style: normal;
+                text-align: center;
+            }
+            #player {
+                background-color: purple;
+                width: 5%;
+                height: 10%;
+                position: fixed;
+                z-index: 10;
+            }
+            button {
+                background-color: brown;
+                border: 2px solid rgb(35, 35, 35);
+                color: white;
+                border-radius: 8px;
+                padding: 5px;
+            }
+            button:hover {
+                background-color: white;
+                color: brown;
+            }
+            button:focus {
+                background-color: white;
+                color: brown;
+            }
+        </style>
+        <script>
+            window.addEventListener('load', () => {
+                function fadeIn(elem) {
+                    let i = 0;
+                    let int = setInterval(() => {
+                        i += 0.05;
+                        if (elem) {
+                            elem.style.opacity = i;
+                            if (i >= 1) {
+                                elem.style.opacity = 1;
+                                clearInterval(int);
+                            }
+                        } else {
+                            clearInterval(int);
+                        }
+                    }, 10);
+                }
+                fadeIn(document.getElementById('title'));
+                setTimeout(() => {
+                    fadeIn(document.getElementById('subtitle'));
+                    setTimeout(() => {
+                        fadeIn(document.getElementById('startButton'));
+                    }, 2000);
+                }, 2000);
+            }, false);
+            let levelProg = 0;
+            function start() {
+                if (localStorage.getItem("escapeLevel")) {
+                    levelProg = parseInt(localStorage.getItem("escapeLevel"));
+                    loadLevel(levelProg);
+                } else {
+                    loadLevel(1);
+                }
+            }
+            let player = {
+                x:50,
+                y:50,
+                arrowsPressed: {
+                    up: false,
+                    down: false,
+                    left: false,
+                    right: false
+                },
+                isActive: false,
+                canMove: true
+            }
+
+            let walls = [];
+
+            function loadWalls() {
+                if (walls.length == 0) {
+                    return;
+                }
+                // Below is supposed to remove old walls; didn't work :`)
+                // if (document.getElementsByClassName("wallDiv").length >= 1) {
+                //     let prevWalls = document.getElementsByClassName("wallDiv");
+                //     for (let i = 0;i<prevWalls.length;i++) {
+                //         prevWalls[i].outerHTML = '';
+                //     }
+                // }
+                while (document.getElementById('wall')) {
+                    document.getElementById('wall').outerHTML = '';
+                }
+                for (let i = 0;i<walls.length;i++) {
+                    let wall = document.createElement("div");
+                    wall.style = "position:fixed;top:"+walls[i].y+"%;left:"+walls[i].x+"%;width:5%;height:10%;background-color:grey;"
+                    wall.setAttribute("class", "wallDiv");
+                    wall.setAttribute("id", "wall");
+                    document.body.appendChild(wall);
+                }
+            }
+
+            let walkAwayInt;
+            function walkAway(isReflected=false) {
+                if (document.getElementById("goal")) {
+                    document.getElementById('goal').src = "openDoor.png";
+                }
+                player.canMove = false;
+                // For level 9 (mirror)
+                if (isReflected) {
+                    walkAwayInt = setInterval(() => {
+                        if (player.x < -5) {
+                            clearInterval(walkAwayInt);
+                            currentLevel = Math.floor(currentLevel);
+                            currentLevel++;
+                            loadLevel(currentLevel);
+                        } else {
+                            player.x-=0.1;
+                            if (player.y > 4) {
+                                player.y-=0.1;
+                            } else if (player.y < 4) {
+                                player.y+=0.1;
+                            } else {
+                                player.y = 4;
+                            }
+                            document.getElementById('player').style.left = player.x+"%";
+                            document.getElementById('player').style.top = player.y+"%";
+                        }
+                    }, 10);
+                } else {
+                    walkAwayInt = setInterval(() => {
+                        if (player.x > 100) {
+                            clearInterval(walkAwayInt);
+                            currentLevel = Math.floor(currentLevel);
+                            currentLevel++;
+                            loadLevel(currentLevel);
+                        } else {
+                            player.x+=0.1;
+                            if (player.y > 4) {
+                                player.y-=0.1;
+                            } else if (player.y < 4) {
+                                player.y+=0.1;
+                            } else {
+                                player.y = 4;
+                            }
+                            document.getElementById('player').style.left = player.x+"%";
+                            document.getElementById('player').style.top = player.y+"%";
+                        }
+                    }, 10);
+                }
+            }
+
+            function checkCol() {
+                for (let i = 0;i<walls.length;i++) {
+                    if (player.x > walls[i].x-5 && player.x < walls[i].x+5 && player.y > walls[i].y-10 && player.y < walls[i].y+10) {
+                        if (currentLevel == 1) {
+                            // Level 1 Exit Walls
+                            if (!(i >= 0 && i <= 2)) {
+                                return true;
+                            }
+                        } else {
+                            // Persistence counter
+                            if (currentLevel == 5 && !level5timeout) {
+                                level5counter++;
+                                if (level5counter >= 20) {
+                                    unlockEnd();
+                                }
+                                level5timeout = true;
+                                setTimeout(() => {
+                                    level5timeout = false;
+                                }, 500);
+                            }
+
+                            // Everything else
+                            return true;
+                        }
+                    }
+                }
+
+                // Normal goal
+                if (player.x > 90 && player.y < 15 && currentLevel != 9) {
+                    walkAway();
+                }
+
+                // Goal for level 9 (mirror)
+                if (player.x < 10 && player.y < 15 && currentLevel == 9) {
+                    // Passes true so walkAway() moves the correct direction
+                    walkAway(true);
+                }
+
+                if (player.x < 0) {
+                    return true;
+                }
+                if (player.x > 95) {
+                    return true;
+                }
+                if (player.y < 0) {
+                    return true;
+                }
+
+                // Bottom wall for Remote Control
+                if (player.y > 19 && currentLevel == 3) {
+                    return true;
+                }
+
+                if (player.y > 90) {
+                    return true;
+                }
+                return false;
+            }
+
+            // Player movement updating
+            setInterval(() => {
+                if (!document.getElementById('player')) {
+                    player.isActive = false;
+                }
+                if (!player.canMove || !player.isActive) {
+                    return;
+                }
+                if (player.arrowsPressed.up) {
+                    player.y--;
+                    if (checkCol()) {
+                        player.y++;
+                    }
+                }
+                if (player.arrowsPressed.down) {
+                    player.y++;
+                    if (checkCol()) {
+                        player.y--;
+                    }
+                }
+                if (player.arrowsPressed.left) {
+                    player.x-=0.5;
+                    if (checkCol()) {
+                        player.x+=0.5;
+                    }
+                }
+                if (player.arrowsPressed.right) {
+                    player.x+=0.5;
+                    if (checkCol()) {
+                        player.x-=0.5;
+                    }
+                }
+                if (document.getElementById('player') && currentLevel != 2) {
+                    document.getElementById('player').style.left = player.x+"%";
+                    if (currentLevel == 3) {
+                        document.getElementById('player').style.top = (player.y+72)+"%";
+                    } else {
+                        document.getElementById('player').style.top = player.y+"%";
+                    }
+                }
+            }, 10);
+
+            window.addEventListener('keydown', (event) => {
+                if (event.key == "Shift") {
+                    shiftHeld = true;
+                }
+                if (event.key == "ArrowUp" || event.key == "w") {
+                    player.arrowsPressed.up = true;
+                }
+                if (event.key == "ArrowDown" || event.key == "s") {
+                    player.arrowsPressed.down = true;
+                }
+                if (event.key == "ArrowLeft" || event.key == "a") {
+                    player.arrowsPressed.left = true;
+                }
+                if (event.key == "ArrowRight" || event.key == "d") {
+                    player.arrowsPressed.right = true;
+                }
+            }, false);
+
+            window.addEventListener('blur', () => {shiftHeld=false}, false);
+
+            window.addEventListener('keyup', (event) => {
+                if (event.key == "Shift") {
+                    shiftHeld = false;
+                }
+                if (event.key == "ArrowUp" || event.key == "w") {
+                    player.arrowsPressed.up = false;
+                }
+                if (event.key == "ArrowDown" || event.key == "s") {
+                    player.arrowsPressed.down = false;
+                }
+                if (event.key == "ArrowLeft" || event.key == "a") {
+                    player.arrowsPressed.left = false;
+                }
+                if (event.key == "ArrowRight" || event.key == "d") {
+                    player.arrowsPressed.right = false;
+                }
+            }, false);
+
+            function loadPlayer() {
+                if (!document.getElementById("player")) {
+                    let p = document.createElement("div");
+                    p.setAttribute("id", "player");
+                    p.style.top = "50%";
+                    p.style.left = "50%";
+                    document.body.appendChild(p);
+                }
+                player.isActive = true;
+            }
+            let currentLevel = 0;
+            /* 
+                Level ideas:
+                Ki1zdHVwaWQgbGV2ZWwgICAgICAgICAgICAgICAgKi1wZXJzaXN0ZW5jZSAgICAgICAgICAgICAgICAqLXJlbW90ZSBjb250cm9sICAgICAgICAgICAgICAgICotYmFzaWMgbWF0aCAoMSsxKSAgICAgICAgICAgICAgICAqLXRoZSBtb3N0IG9ic2N1cmUga2V5IChgKSAgICAgICAgICAgICAgICAqLWZyb3plbi4uLm9yIGFyZSB5b3U/ICAgICAgICAgICAgICAgICotanVzdCBlc2NhcGUgYWdhaW4gKGVzY2FwZSBrZXkpICAgICAgICAgICAgICAgICotbWlycm9yIG1pcnJvciBvbiB0aGUgd2FsbCAocmVmbGVjdCBtYXAp
+
+                You didn't think I would leave it in the source code, did you?
+            */
+            function unlockEnd() {
+                walls = [];
+                while (document.getElementById('wall')) {
+                    document.getElementById('wall').outerHTML = '';
+                }
+            }
+            function preloadLevel0() {
+                // For testing
+                displayTitle("Level 0 ~ Testing testing 123");
+            }
+            function preloadLevel1() {
+                displayTitle("Level 1 ~ Just Escape");
+                walls = [
+                    // Area around exit
+                    {x:90,y:0},
+                    {x:90,y:10},
+                    {x:95,y:10},
+
+
+                    // Left side (going up)
+                    {x:45,y:0},
+                    {x:45,y:7},
+                    {x:45,y:17},
+                    {x:45,y:27},
+                    {x:45,y:37},
+
+                    // Horizontal bar
+                    {x:50,y:37},
+                    {x:55,y:37},
+                    {x:60,y:37},
+                    {x:65,y:37},
+                    // 2-block gap here
+                    {x:80,y:37},
+                    {x:85,y:37},
+                    {x:90,y:37},
+                    {x:95,y:37}
+                ]
+            }
+            function preloadLevel2() {
+                displayTitle("Level 2 ~ Frozen");
+                walls = [];
+            }
+            function preloadLevel3() {
+                displayTitle("Level 3 ~ Remote Control");
+                walls = [
+                    {x:0,y:62},
+                    {x:5,y:62},
+                    {x:10,y:62},
+                    {x:15,y:62},
+                    {x:20,y:62},
+                    {x:25,y:62},
+                    {x:30,y:62},
+                    {x:35,y:62},
+                    {x:40,y:62},
+                    {x:45,y:62},
+                    {x:50,y:62},
+                    {x:55,y:62},
+                    {x:60,y:62},
+                    {x:65,y:62},
+                    {x:70,y:62},
+                    {x:75,y:62},
+                    {x:80,y:62},
+                    {x:85,y:62},
+                    {x:90,y:62},
+                    {x:95,y:62}
+                ];
+                player.y = 14;
+            }
+            function preloadLevel4() {
+                displayTitle("Level 4 ~ Basic Math");
+                walls = [
+                    {x:90,y:0},
+                    {x:90,y:10},
+                    {x:95,y:10}
+                ]
+
+                // Key to unlock the exit
+                window.addEventListener("keydown", (event) => {
+                    if (event.key == parseInt(atob("Mg==")) && currentLevel == 4) {
+                        unlockEnd();
+                        currentLevel = 4.5;
+                    }
+                }, false);
+
+                // Hint system
+                let hintProg = 0;
+                let int = setInterval(() => {
+                    if (currentLevel != 4) {
+                        clearInterval(int);
+                    } else {
+                        switch(hintProg) {
+                            case 0:
+                                displayTitle("", atob("TWF5YmUgaXQncyByZWxhdGVkIHRvIG51bWJlcnM/"));
+                                break;
+                            case 1:
+                                displayTitle("", atob("V2hhdCBpcyB0aGUgbW9zdCBiYXNpYyBtYXRoIHByb2JsZW0geW91IGNhbiB0aGluayBvZj8="));
+                                break;
+                            case 2:
+                                displayTitle("", atob("VHJ5IHR5cGluZyB0aGUgYW5zd2VyIHRvIGEgKnJlYWxseSogc2ltcGxlIG1hdGggcHJvYmxlbS4uLg=="));
+                                break;
+                            case 3:
+                                displayTitle("", atob("V2hhdCdzIDErMT8="));
+                                break;
+                            default:
+                                displayTitle("", atob("VHlwZSB0aGUgYW5zd2VyIHRvIDErMQ=="));
+                                break;
+                        }
+                        hintProg++;
+                    }
+                }, 20000);
+            }
+            let level5counter = 0;
+            let level5timeout = false;
+            function preloadLevel5() {
+                level5counter = 0;
+                displayTitle("Level 5 ~ Persistence");
+                walls = [
+                    {x:90,y:0},
+                    {x:90,y:10},
+                    {x:95,y:10}
+                ]
+            }
+            function preloadLevel6() {
+                displayTitle("Level 6 ~ Absolute Stupidity");
+                walls = [
+                    {x:90,y:0},
+                    {x:90,y:10},
+                    {x:95,y:10}
+                ]
+                let keyCounter = 0;
+                window.addEventListener("keydown", (event) => {
+                    if (event.key == parseInt(atob("Ng=="))) {
+                        keyCounter = 1;
+                    } else if (event.key == parseInt(atob("Nw==")) && keyCounter == 1) {
+                        unlockEnd();
+                    } else {
+                        keyCounter = 0;
+                    }
+                }, false);
+
+                // Hint system
+                let hintProg = 0;
+                let int = setInterval(() => {
+                    if (currentLevel != 6) {
+                        clearInterval(int);
+                    } else {
+                        switch(hintProg) {
+                            case 0:
+                                displayTitle("", atob("TWF5YmUgaXQncyByZWxhdGVkIHRvIG51bWJlcnM/"));
+                                break;
+                            case 1:
+                                displayTitle("", atob("TWF5YmUgYSByZWZlcmVuY2UgdG8gYSBtZW1lIG9mIHNvbWUgc29ydD8="));
+                                break;
+                            case 2:
+                                displayTitle("", atob("VHJ5IHR5cGluZyBzb21ldGhpbmcuLi4="));
+                                break;
+                            case 3:
+                                displayTitle("", atob("QW55IHBvcHVsYXIgbWVtZXMgdGhhdCBhcmUgc3R1cGlkPw=="));
+                                break;
+                            case 4:
+                                displayTitle("", atob("QW55dGhpbmcgcmVsYXRlZCB0byBudW1iZXJzLi4ubGlrZSA2Pw=="));
+                                break;
+                            case 5:
+                                displayTitle("", atob("TWF5YmUgNiBhbmQgdGhlIG51bWJlciBhZnRlciBpdD8="));
+                                break;
+                            default:
+                                displayTitle("", atob("VHJ5IHR5cGluZyA2IGFuZCB0aGVuIHRoZSBudW1iZXIgYWZ0ZXIgaXQ="));
+                                break;
+                        }
+                        hintProg++;
+                    }
+                }, 20000);
+            }
+            function preloadLevel7() {
+                displayTitle("Level 7 ~ Just Escape...again");
+                walls = [
+                    {x:90,y:0},
+                    {x:90,y:10},
+                    {x:95,y:10}
+                ]
+                window.addEventListener("keydown", (event) => {
+                    if (event.key == atob("RXNjYXBl") && currentLevel == 7) {
+                        unlockEnd();
+                        currentLevel = 7.5;
+                    }
+                }, false);
+            }
+            function preloadLevel8() {
+                displayTitle("Level 8 ~ The Most Obscure Key");
+                walls = [
+                    {x:90,y:0},
+                    {x:90,y:10},
+                    {x:95,y:10}
+                ]
+                window.addEventListener("keydown", (event) => {
+                    if (event.key == atob("YA==") && currentLevel == 8) {
+                        unlockEnd();
+                        currentLevel = 8.5;
+                    }
+                }, false);
+            }
+            function preloadLevel9() {
+                displayTitle("Level 9 ~ Mirror, Mirror, on the Wall...");
+            }
+            function preloadLevel10() {
+                displayTitle("Level 10 ~ Easiest Level Ever");
+                // Used ingame visual placement to build this map
+                // I wasn't about to place 70+ walls using only coordinates lol
+                walls = [
+                    {x:40,y:40},{x:40,y:50},{x:40,y:60},{x:40,y:70},{x:40,y:80},{x:40,y:90},{x:45,y:40},{x:50,y:40},{x:55,y:40},{x:60,y:40},{x:60,y:50},{x:60,y:60},{x:60,y:70},{x:60,y:80},{x:65,y:80},{x:70,y:80},{x:75,y:80},{x:80,y:80},{x:85,y:80},{x:75,y:60},{x:80,y:60},{x:85,y:60},{x:90,y:60},{x:100,y:60},{x:100,y:60},{x:100,y:60},{x:100,y:60},{x:100,y:60},{x:100,y:60},{x:95,y:60},{x:65,y:40},{x:70,y:40},{x:75,y:40},{x:80,y:40},{x:85,y:40},{x:90,y:40},{x:95,y:20},{x:90,y:20},{x:85,y:20},{x:80,y:20},{x:75,y:20},{x:70,y:20},{x:70,y:20},{x:65,y:20},{x:60,y:20},{x:55,y:20},{x:50,y:20},{x:45,y:20},{x:40,y:20},{x:35,y:20},{x:30,y:20},{x:25,y:20},{x:20,y:20},{x:15,y:20},{x:10,y:20},{x:20,y:30},{x:20,y:40},{x:20,y:50},{x:20,y:60},{x:20,y:70},{x:20,y:80},{x:10,y:60},{x:0,y:50},{x:0,y:30},{x:5,y:80},{x:15,y:30},{x:20,y:0},{x:45,y:10},{x:65,y:0},{x:85,y:0},{x:5,y:10}
+                ]
+            }
+            let mousePos = [0,0];
+            window.addEventListener('mousemove', (event) => {
+                mousePos[0] = (event.clientX/window.innerWidth)*100;
+                mousePos[1] = (event.clientY/window.innerHeight)*100;
+            }, false);
+            let shiftHeld = false;
+            let isDev = false;
+            window.addEventListener("click", (event) => {
+                if (!isDev) {return;}
+                if (!shiftHeld) {return;}
+                let pos = [mousePos[0],mousePos[1]];
+                
+                // Round to nearest 5 for x bc width is 5,
+                // round to nearest 10 for y bc height is 10
+                pos[0] = Math.round(mousePos[0]/5)*5;
+                pos[1] = Math.round(mousePos[1]/10)*10;
+                walls.push(
+                    {x:pos[0],y:pos[1]}
+                )
+                loadWalls();
+            }, false);
+            let titleInt;
+            let titleInt2;
+            function displayTitle(title,subtitle='') {
+                if (titleInt) {
+                    clearInterval(titleInt);
+                }
+                if (titleInt2) {
+                    clearInterval(titleInt2);
+                }
+                if (document.getElementById('titleSpan')) {
+                    document.getElementById("titleSpan").outerHTML = '';
+                }
+                let elem = document.createElement('span');
+                elem.style = "position:fixed;top:20%;left:0%;width:100%;height:80%;z-index:15;text-align:center;opacity:0";
+                elem.innerHTML = "<h1>"+title+"</h1><h3>"+subtitle+"</h3>"
+                elem.setAttribute("id", "titleSpan");
+                document.body.appendChild(elem);
+                let opacity = 0;
+                titleInt = setInterval(() => {
+                    opacity += 0.06;
+                    if (document.getElementById('titleSpan')) {
+                        document.getElementById("titleSpan").style.opacity = opacity;
+                    } else {
+                        clearInterval(titleInt);
+                    }
+                    if (opacity >= 1) {
+                        opacity = 1;
+                        document.getElementById('titleSpan').style.opacity = 1;
+                        clearInterval(titleInt);
+                        setTimeout(() => {
+                            titleInt2 = setInterval(() => {
+                                opacity -= 0.005;
+                                if (document.getElementById('titleSpan')) {
+                                    document.getElementById("titleSpan").style.opacity = opacity;
+                                } else {
+                                    clearInterval(titleInt2);
+                                }
+                                if (opacity <= 0) {
+                                    opacity = 0;
+                                    document.getElementById('titleSpan').style.opacity = 0;
+                                    document.getElementById('titleSpan').outerHTML = '';
+                                    clearInterval(titleInt2);
+                                }
+                            }, 10);
+                        }, 1000);
+                    }
+                }, 10);
+            }
+
+            function reset() {
+                if (localStorage.getItem("escapeLevel")) {
+                    localStorage.removeItem("escapeLevel");
+                }
+                location.reload();
+            }
+
+            function loadLevel(id) {
+                if (walkAwayInt) {
+                    clearInterval(walkAwayInt);
+                }
+                if (id >= 11) {
+                    document.body.innerHTML =
+                        "<br><h1>Congrats!</h1>" +
+                        "You escaped all 10 levels! More possibly coming soon...<br><br>" +
+                        "In the meantime, hope you enjoyed!<br><br>" +
+                        "<button onclick='reset()'>Play Again</button>"
+                    localStorage.setItem("escapeLevel",11);
+                    return;
+                }
+                player.canMove = true;
+                player.x = 50;
+                player.y = 50;
+                currentLevel = parseInt(id);
+                document.body.innerHTML = '';
+                eval("preloadLevel"+id+"()");
+                loadPlayer();
+                if (id != 10) {
+                    loadWalls();
+                }
+                loadGoal();
+                localStorage.setItem("escapeLevel", id);
+            }
+            function loadGoal() {
+                let elem = document.createElement("img");
+                elem.style = 'position:fixed;top:0;right:0;width:5%;height:15%;background-color:transparent;z-index:1;';
+                elem.src = "closedDoor.png";
+                elem.setAttribute('id', 'goal');
+                document.body.appendChild(elem);
+            }
+            function enableDev() {
+                if (isDev) {
+                    let isSure = confirm("Disable dev mode?");
+                    if (isSure) {
+                        isDev = false;
+                        alert("Dev mode disabled");
+                    }
+                    return;
+                }
+                let passIn = prompt("Enter dev key:", "");
+                if (passIn == atob("MDc0NzQ=")) {
+                    alert("Dev mode enabled");
+                    isDev = true;
+                } else if (passIn == undefined || passIn == null || passIn == "") {
+                    return;
+                } else {
+                    alert("Invalid key");
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="enableDev()" style="position:fixed;top:0;left:0;background-color:transparent;color:transparent;border:none;">Dev</button>
+        <span style="opacity:0.5;position:fixed;top:0;right:0;">Version 1.0</span>
+        <br>
+        <h1 id="title" style="opacity:0;">Just Escape</h1>
+        <span id="subtitle" style="opacity:0;">A basic escape room game</span>
+        <br><br>
+        <button id="startButton" style="opacity:0;font-size:24px;" onclick="start()">Start</button>
+    </body>
+    <script>
+        if (localStorage.getItem("escapeLevel")) {
+            document.getElementById('startButton').innerText = "Continue";
+        }
+    </script>
+</html>
