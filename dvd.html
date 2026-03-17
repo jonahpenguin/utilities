@@ -472,6 +472,10 @@
                 if (!canmove) {return;}
                 position.x = position.x + slope.run;
                 position.y = position.y + slope.rise;
+                localStorage.setItem("dvdPosX",position.x);
+                localStorage.setItem("dvdPosY",position.y);
+                localStorage.setItem("dvdSlopeX",slope.run);
+                localStorage.setItem("dvdSlopeY",slope.rise);
                 if (recordPath) {
                    pathLog.push(
                         [Math.floor(position.x*100)/100,Math.floor(position.y*100)/100]
@@ -1186,6 +1190,12 @@
                     return dDisplay + hDisplay + mDisplay + sDisplay;
                 }
                 window.addEventListener('load', () => {
+                    if (localStorage.getItem('dvdPosX')) {
+                        position.x = parseFloat(localStorage.getItem("dvdPosX"));
+                        position.y = parseFloat(localStorage.getItem("dvdPosY"));
+                        slope.run = parseFloat(localStorage.getItem("dvdSlopeX"));
+                        slope.rise = parseFloat(localStorage.getItem("dvdSlopeY"));
+                    }
                     if (localStorage.getItem('DVDtime')) {
                         timeActive = parseInt(localStorage.getItem('DVDtime'));
                         updateTime();
