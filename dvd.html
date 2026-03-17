@@ -1190,6 +1190,7 @@
                     return dDisplay + hDisplay + mDisplay + sDisplay;
                 }
                 window.addEventListener('load', () => {
+                    canmove = false;
                     if (localStorage.getItem('dvdPosX')) {
                         position.x = parseFloat(localStorage.getItem("dvdPosX"));
                         position.y = parseFloat(localStorage.getItem("dvdPosY"));
@@ -1204,6 +1205,7 @@
                             document.getElementById('timeDisp').style.display = 'none';
                         }
                     }
+                    canmove = true;
                 }, false);
                 function updateTime() {
                     if (parseInt(localStorage.getItem('DVDtime')) > timeActive && parseInt(localStorage.getItem('DVDtime')) != 0) {
