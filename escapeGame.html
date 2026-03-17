@@ -120,7 +120,7 @@
                 // For level 9 (mirror)
                 if (isReflected) {
                     walkAwayInt = setInterval(() => {
-                        if (player.x < -5) {
+                        if (player.x < -5 || player.y > 10) {
                             clearInterval(walkAwayInt);
                             currentLevel = Math.floor(currentLevel);
                             currentLevel++;
