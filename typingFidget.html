@@ -25,13 +25,26 @@
             }
         </style>
         <script>
+            let shiftHeld = false;
             window.addEventListener('keyup', (event) => {
                 if (event.key == "\\") {
                     document.getElementById('userIn').value = '';
                     document.getElementById('userIn').focus();
                 }
-                if (event.key == "Backspace" || event.key == "/") {
+                if ((event.key == "Backspace" && !shiftHeld) || event.key == "/") {
                     document.getElementById('userIn').focus();
+                }
+                if (event.key == "Backspace" && shiftHeld) {
+                    content.pop();
+                    updateDisp();
+                }
+                if (event.key == "Shift") {
+                    shiftHeld = false;
+                }
+            }, false);
+            window.addEventListener('keydown', (event) => {
+                if (event.key == "Shift") {
+                    shiftHeld = true;
                 }
             }, false);
             let content = [];
