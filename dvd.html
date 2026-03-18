@@ -2003,6 +2003,16 @@ class Wall {
                     isFading = true;
                 }
             }
+            let isPenguin = false;
+            function penguinMode() {
+                if (!isPenguin) {
+                    document.getElementById("dvd").src = "https://transforms.stlzoo.org/production/animals/king-penguin-hero.jpg?w=800&h=950&auto=compress%2Cformat&fit=crop&dm=1643681906&s=a256b3b584f978fd6bff00921617ff49";
+                    isPenguin = true;
+                } else {
+                    document.getElementById("dvd").src = "dvd.png";
+                    isPenguin = false;
+                }
+            }
         </script>
         <! logo scale:100x68 50/34 25/17
     </head>
@@ -2130,8 +2140,9 @@ class Wall {
                     <button onclick="togglepos()" title="Show/hide the x/y coordinate info in the bottom right">Toggle positional info</button><br>
                     <button onclick="spinOpt()" title="Allows you to make the logo spin in many different ways :)">Spin options :)</button><br>
                     <button onclick="showCountdown()" title="Pick a time to count down to">Toggle Countdown</button><br>
-                    <button onclick="toggleFade()" title="Makes the logo fade from color to color">Toggle Fading Colors</button>
-                    <button onclick="toggleTunnel()" title="All the DVD logos you could ever want :)">Toggle Tunnel Mode</button>
+                    <button onclick="toggleFade()" title="Makes the logo fade from color to color">Toggle Fading Colors</button><br>
+                    <button onclick="toggleTunnel()" title="All the DVD logos you could ever want :)">Toggle Tunnel Mode</button><br>
+                    <button onclick="penguinMode()" title="Penguin :D">Penguin</button><br>
                     <br>
                 </details>
                 <details>
