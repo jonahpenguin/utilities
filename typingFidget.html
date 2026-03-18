@@ -65,6 +65,10 @@
                     alert('Copied to clipboard');
                     return;
                 }
+                if (content.includes(elem.value)) {
+                    alert("Word already saved");
+                    return;
+                }
                 if (elem.value == "clr") {
                     let isSure = confirm("Clear?")
                     if (isSure) {
