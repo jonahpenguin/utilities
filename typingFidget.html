@@ -87,7 +87,7 @@
                 updateDisp();
             }
             function updateDisp() {
-                document.getElementById('disp').innerHTML = content.join("<br><br>");
+                document.getElementById('disp').innerHTML = content.toReversed().join("<br><br>");
             }
             window.addEventListener('load', () => {
                 if (localStorage.getItem('typingWords')) {
