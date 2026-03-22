@@ -153,7 +153,8 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                     //}
                     let vf = document.createElement('iframe');
                     vf.setAttribute('id', 'videoframe');
-                    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    let d = new Date();
+                    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && (d.getMonth() > 4 && d.getFullYear() > 2026)) {
                         vf.src = 'https://www.youtube.com/embed/gqFriQpWlLm';
                     } else {
                         vf.src = 'https://www.youtube.com/embed/' + vidid;
