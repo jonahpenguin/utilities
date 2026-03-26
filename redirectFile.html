@@ -48,6 +48,7 @@
                 if (isSure) {
                     recentLinks[index] = "-";
                     loadContent();
+                    localStorage.setItem("recentRedLinks", recentLinks.join(";"));
                 }
             }
             function loadContent() {
