@@ -1,3 +1,86 @@
-<script>
-    location.replace(prompt("Paste link:"))
-</script>
+<html>
+    <head>
+        <title>Redirect Page</title>
+        <style>
+            body {
+                background-color: black;
+                color: lime;
+                text-align: center;
+                font-family: monospace;
+            }
+            a {
+                color: lime;
+            }
+            a:hover {
+                color: black;
+                background-color: lime;
+            }
+            a:focus {
+                color: black;
+                background-color: lime;
+            }
+            button {
+                color: lime;
+                border: 2px outset lime;
+                background-color: black;
+            }
+            button:hover {
+                color: black;
+                border: 2px outset black;
+                background-color: lime;
+            }
+            button:focus {
+                color: black;
+                border: 2px outset black;
+                background-color: lime;
+            }
+        </style>
+        <script>
+            let recentLinks = [];
+            function customLink() {
+                let url = prompt("Enter link:");
+                recentLinks.push(url);
+                localStorage.setItem("recentRedLinks", recentLinks.join(";"));
+                location.replace(url);
+            }
+            function removeLink(index) {
+                let isSure = confirm("Remove link?");
+                if (isSure) {
+                    recentLinks[index] = "-";
+                    loadContent();
+                }
+            }
+            function loadContent() {
+                let html = "<h1>Recent Links</h1>";
+                for (let i = 0;i<recentLinks.length;i++) {
+                    if (recentLinks[i] != "-") {
+                        html += "<a href='"+recentLinks[i]+"'>"+recentLinks[i]+"</a>" +
+                        " - <button onclick='removeLink("+i+")'>Remove</button><br><br>";
+                    }
+                }
+                if (html == "<h1>Recent Links</h1>") {
+                    if (localStorage.getItem("recentRedLinks")) {
+                        localStorage.removeItem("recentRedLinks");
+                    }
+                    html = "";
+                }
+                document.getElementById("content").innerHTML = html;
+            }
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('recentRedLinks')) {
+                    recentLinks = localStorage.getItem('recentRedLinks').split(";");
+                    loadContent();
+                } else {
+                    document.getElementById("content").innerHTML = "";
+                }
+            }, false);
+        </script>
+    </head>
+    <body>
+        <br>
+        <div id='content'>
+            Loading...
+        </div>
+        <button onclick="customLink()">Paste Custom Link</button>
+    </body>
+</html>
