@@ -114,20 +114,20 @@
                     if (localStorage.getItem('counts')) {
                         localStorage.removeItem('counts');
                     }
-                    document.getElementById('questionBox').innerHTML = '<hr><br><br><button onpointerdown="initBBpop()">Start Poll</button>';
+                    document.getElementById('questionBox').innerHTML = '<hr><br><br><button onpointerup="initBBpop()">Start Poll</button>';
                     qotd = null;
                 }
                 loadIntoElem(id) {
                     let html = '';
                     for (let i = 0;i<this.opts.length;i++) {
-                        html += this.opts[i]+": <button onpointerdown='qotd.increment("+i+")'>+</button> <span id='bb"+i+"'>"+this.counts[i]+"</span> <button onpointerdown='qotd.decrement("+i+")'>-</button><br>";
+                        html += this.opts[i]+": <button onpointerup='qotd.increment("+i+")'>+</button> <span id='bb"+i+"'>"+this.counts[i]+"</span> <button onpointerup='qotd.decrement("+i+")'>-</button><br>";
                     }
                     document.getElementById(id).innerHTML =
                         "<hr>"+
                         this.question+"<br><br>" +
                         html +
                         "<br><br>" +
-                        "<button onpointerdown='qotd.endPoll()'>End Poll</button>"
+                        "<button onpointerup='qotd.endPoll()'>End Poll</button>"
                 }
             }
             // let qotd = new BallotBox("Is a hot dog a sandwich?", ["Yes", "No"]);
@@ -256,12 +256,12 @@
             function addBulk() {
                 // Called from main
                 popup(
-                    "<button style='float:left;' onpointerdown='let isSure = confirm(\"Cancel this process?\");if(isSure){closepop()}'>X Close</button><br>" +
+                    "<button style='float:left;' onpointerup='let isSure = confirm(\"Cancel this process?\");if(isSure){closepop()}'>X Close</button><br>" +
                     "<h1>Add People</h1>" +
                     "Format as first name space last name space grade (0 if unknown), and hit Enter between people<br><br>"+
                     "<textarea id='userInput' style='width:80%;height:50%;background-color:whitesmoke;color:#167cab;font-family:comic sans ms;'></textarea>"+
                     "<br><br>"+
-                    "<button onpointerdown='saveBulk()'>Submit</button>"
+                    "<button onpointerup='saveBulk()'>Submit</button>"
                 )
                 document.getElementById('userInput').focus();
             }
@@ -335,13 +335,13 @@
                 for (let i = 0;i<todayList.length;i++) {
                     // For Edit, the Edit Visits button is removed to prevent people from seeing past visits
                     // That is locked behind Graham's password, and should only be accessed from the View/Edit people button in the main menu
-                    html += peoples[todayList[i]].getFullName()+" <button onpointerdown='peoples["+todayList[i]+"].unCheckIn()'>Undo Check-In</button> ~ <button onpointerdown='closepop();editPerson("+i+");document.getElementById(\"editVisitsButton\").outerHTML=\"\";'>Edit</button><br>";
+                    html += peoples[todayList[i]].getFullName()+" <button onpointerup='peoples["+todayList[i]+"].unCheckIn()'>Undo Check-In</button> ~ <button onpointerup='closepop();editPerson("+i+");document.getElementById(\"editVisitsButton\").outerHTML=\"\";'>Edit</button><br>";
                 }
                 if (html == "") {
                     html = "<i>Nobody checked in yet!</i>"
                 }
                 popup(
-                    "<button onpointerdown='closepop()' style='float:left;'>Back</button>" +
+                    "<button onpointerup='closepop()' style='float:left;'>Back</button>" +
                     "<br><h1>People Checked In Today</h1>" +
                     html
                 )
@@ -355,12 +355,12 @@
             function personPopup() {
                 // Called from startCheckIn screen
                 popup(
-                    "<button onpointerdown='closepop()' style='float:left;'>X Close</button>" +
+                    "<button onpointerup='closepop()' style='float:left;'>X Close</button>" +
                     "<br><h1>Add Person</h1>" +
                     "First name: <input id='fn' type='text'><br>" +
                     "Last name (put ? if unknown): <input id='ln' type='text'><br>" +
                     "Grade (zero if unknown): <input id='g' type='number'><br><br>" +
-                    "<button onpointerdown='addPerson()'>Save</button>"
+                    "<button onpointerup='addPerson()'>Save</button>"
                 )
             }
             function addPerson() {
@@ -421,12 +421,12 @@
                 document.getElementById('content').innerHTML =
                     header +
                     "Name: <input type='text' id='nameIn' placeholder='Type here...' onkeydown='if(event.key==\"Enter\"){lookupPerson(this)}'><br><br>" + (isMobile ? "<br><br>" : "") +
-                    "<button onpointerdown='lookupPerson(document.getElementById(\"nameIn\"))'>Check In</button>" +
+                    "<button onpointerup='lookupPerson(document.getElementById(\"nameIn\"))'>Check In</button>" +
                     (isMobile ? "<br><br>" : "") + "<br><br>Or...<br><br>" + (isMobile ? "<br><br>" : "") +
-                    "<button id='tAddB' onpointerdown='personPopup()'>Add New Person</button>"+splitter +
-                    "<button id='tTodayB' onpointerdown='todayPeople()'>View/Edit Checked-In people from today</button>" +
+                    "<button id='tAddB' onpointerup='personPopup()'>Add New Person</button>"+splitter +
+                    "<button id='tTodayB' onpointerup='todayPeople()'>View/Edit Checked-In people from today</button>" +
                     "<br><br><hr><br>" +
-                    "<button id='tEndB' onpointerdown='endSession()'>End Session</button>";
+                    "<button id='tEndB' onpointerup='endSession()'>End Session</button>";
                 if (!isMobile) {
                     document.getElementById('content').innerHTML +=
                         "<br><br>" +
@@ -435,7 +435,7 @@
                 if (qotd != null) {
                     qotd.loadIntoElem('questionBox');
                 } else {
-                    document.getElementById('questionBox').innerHTML = '<hr><br><br><button onpointerdown="initBBpop()">Start Poll</button>';
+                    document.getElementById('questionBox').innerHTML = '<hr><br><br><button onpointerup="initBBpop()">Start Poll</button>';
                 }
                 document.getElementById('nameIn').focus();
             }
@@ -453,11 +453,11 @@
             function initBBpop() {
                 // Called from startCheckIn() screen
                 popup(
-                    "<button onpointerdown='closepop()' style='float:left;'>X Close</button>" +
+                    "<button onpointerup='closepop()' style='float:left;'>X Close</button>" +
                     "<br><h1>Poll Setup</h1>" +
                     "Question: <input type='text' id='qIn' placeholder='Is a hot dog a sandwich?'><br><br>" +
                     "Answers (separate each with a comma): <input type='text' id='optsIn' placeholder='Yes,No'><br><br>" +
-                    "<button onpointerdown='initBB()'>Continue</button>"
+                    "<button onpointerup='initBB()'>Continue</button>"
                 )
             }
             function initBB() {
@@ -529,10 +529,10 @@
                     // Multiple people popup here
                     let html = '';
                     for (let i = 0;i<matches.length;i++) {
-                        html += "<button onpointerdown='choosePerson("+matchIndexes[i]+")'>"+peoples[matchIndexes[i]].getFullName()+"</button><br><br>"
+                        html += "<button onpointerup='choosePerson("+matchIndexes[i]+")'>"+peoples[matchIndexes[i]].getFullName()+"</button><br><br>"
                     }
                     popup(
-                        "<button onpointerdown='closepop()' style='position:fixed;top:0;left:0;'>X Close</button>" +
+                        "<button onpointerup='closepop()' style='position:fixed;top:0;left:0;'>X Close</button>" +
                         "<br><h1>Select a person to check in:</h1>" +
                         html
                     )
@@ -550,21 +550,21 @@
             function seeVisits(index) {
                 // Called by showPeople()
                 popup(
-                    "<button onpointerdown='closepop()' style='float:left;'>X Close</button><br><h1>"+peoples[index].getFullName()+"'s past visits</h1>" +
+                    "<button onpointerup='closepop()' style='float:left;'>X Close</button><br><h1>"+peoples[index].getFullName()+"'s past visits</h1>" +
                     peoples[index].visits.join(" - ")
                 )
             }
             function editPerson(index) {
                 // Called by showPeople()
                 popup(
-                    "<button onpointerdown='closepop()' style='float:left;'>X Cancel</button>" +
+                    "<button onpointerup='closepop()' style='float:left;'>X Cancel</button>" +
                     "<br><h1>Edit "+peoples[index].getFullName()+"</h1>" +
                     "First name: <input id='fn' type='text' value='"+peoples[index].fName+"'><br>" +
                     "Last name: <input id='ln' type='text' value='"+peoples[index].lName+"'><br>" +
                     "Grade: <input id='g' type='number' value='"+peoples[index].grade+"'><br><br>" +
                     "Date added: "+peoples[index].addedDate+"<br>" +
-                    "<br><button id='editVisitsButton' onpointerdown='editVisits("+index+")'>Edit Vists</button><br><br>" +
-                    "<button onpointerdown='updatePerson("+index+")'>Save</button>"
+                    "<br><button id='editVisitsButton' onpointerup='editVisits("+index+")'>Edit Vists</button><br><br>" +
+                    "<button onpointerup='updatePerson("+index+")'>Save</button>"
                 )
             }
             function updatePerson(index) {
@@ -582,13 +582,13 @@
                 closepop();
                 let html = '';
                 for (let i = 0;i<peoples[index].visits.length;i++) {
-                    html += peoples[index].visits[i] + ": <button onpointerdown='removeVisit("+index+","+i+")'>Remove Visit</button> - "
+                    html += peoples[index].visits[i] + ": <button onpointerup='removeVisit("+index+","+i+")'>Remove Visit</button> - "
                 }
                 popup(
-                    "<button onpointerdown='closepop()' style='float:left;'>X Cancel</button><br><h1>"+peoples[index].getFullName()+"'s Visits</h1>" +
+                    "<button onpointerup='closepop()' style='float:left;'>X Cancel</button><br><h1>"+peoples[index].getFullName()+"'s Visits</h1>" +
                     html +
                     "<br><br>" +
-                    "<button onpointerdown='addVisit("+index+")'>Add Missed Visit</button>"
+                    "<button onpointerup='addVisit("+index+")'>Add Missed Visit</button>"
                 )
             }
             function removeVisit(index, i) {
@@ -612,10 +612,10 @@
                 // Called from main
                 if (input == 0) {
                     popup(
-                        "<button onpointerdown='closepop()' style='float:left;'>X Close</button>" +
+                        "<button onpointerup='closepop()' style='float:left;'>X Close</button>" +
                         "<br><h1>Verification</h1>" +
                         "Password: <input id='passIn' type='password' placeholder='Type here...' onkeydown='if(event.key==\"Enter\"){toShowPeople(this)}'>" +
-                        " <button onpointerdown='toShowPeople(1)'>Continue</button>"
+                        " <button onpointerup='toShowPeople(1)'>Continue</button>"
                     )
                     document.getElementById('passIn').focus();
                 } else {
@@ -639,13 +639,13 @@
                 }
                 let html = '';
                 for (let i = 0;i<peoples.length;i++) {
-                    html += peoples[i].getFullName()+" <button onpointerdown='editPerson("+i+")'>Edit</button> <button onpointerdown='seeVisits("+i+")'>Show past visits</button><br><br>";
+                    html += peoples[i].getFullName()+" <button onpointerup='editPerson("+i+")'>Edit</button> <button onpointerup='seeVisits("+i+")'>Show past visits</button><br><br>";
                 }
                 if (html == "") {
                     html = 'Nothing here yet!'
                 }
                 document.getElementById('content').innerHTML =
-                    "<button onpointerdown='mainMenu()' style='position:fixed;top:0;left:0;'>Back</button>" +
+                    "<button onpointerup='mainMenu()' style='position:fixed;top:0;left:0;'>Back</button>" +
                     "<br><h1>GP Youth Check-In</h1>" +
                     "All saved people:<br><br>" +
                     html;
@@ -690,7 +690,7 @@
                 // Called from showOptions() popup
                 closepop();
                 popup(
-                    "<button onpointerdown='closepop();showOptions()' style='float:left;'>Back</button><br>" +
+                    "<button onpointerup='closepop();showOptions()' style='float:left;'>Back</button><br>" +
                     "<h1>File Import</h1>" +
                     "<input type='file' id='fileIn'> " +
                     "<br><br><i>Current data will NOT be overwritten</i>"
@@ -744,13 +744,13 @@
             function showOptions() {
                 // Called from main
                 popup(
-                    "<button onpointerdown='closepop()' style='float:left;'>X Close</button>" +
+                    "<button onpointerup='closepop()' style='float:left;'>X Close</button>" +
                     "<br><h1>Options</h1>" +
                     // So proud of myself for this; conditional strings, translates to if (allowScreensaver) {return "Disable Screensaver"} else {return "Enable Screensaver"}
-                    "<button onpointerdown='toggleScreensaver(this)'>"+(allowScreensaver?"Disable Screensaver":"Enable Screensaver")+"</button><br><br>" +
-                    "<button onpointerdown='exportData()'>Export Raw Data to file</button><br><br>" +
-                    "<button onpointerdown='importDataPopup()'>Import Raw Data</button><br><br>" +
-                    "<button onpointerdown='resetApp()' style='background-color:red;'>Reset</button>"
+                    "<button onpointerup='toggleScreensaver(this)'>"+(allowScreensaver?"Disable Screensaver":"Enable Screensaver")+"</button><br><br>" +
+                    "<button onpointerup='exportData()'>Export Raw Data to file</button><br><br>" +
+                    "<button onpointerup='importDataPopup()'>Import Raw Data</button><br><br>" +
+                    "<button onpointerup='resetApp()' style='background-color:red;'>Reset</button>"
                 )
             }
             let dvd = {
@@ -795,7 +795,7 @@
                 window.open("mailto:graham@gracepointsc.com?subject=Youth%20Check-In%20Report&body="+output);
                 if (isMobile) {
                     popup(
-                        "<br><br>A file should be downloading once you click the button below; please post it in the group chat so I can update the records<br>Thanks :)<br><br><button onpointerdown='closepop();mainMenu();exportData();'>Okay!</button>"
+                        "<br><br>A file should be downloading once you click the button below; please post it in the group chat so I can update the records<br>Thanks :)<br><br><button onpointerup='closepop();mainMenu();exportData();'>Okay!</button>"
                     )
                 }
             }
@@ -805,7 +805,7 @@
             function tutorial(prog=0,bypassPrompt=false) {
                 inTutorial = true;
                 let stillTutorial = true;
-                let nextHTML = "<button onpointerdown='tutorial(-1)' style='position:fixed;top:0;left:0;z-index:20;'>X Exit Tutorial</button>"+"<br><button onpointerdown='tutorial("+(prog+1)+")'>Next</button>"
+                let nextHTML = "<button onpointerup='tutorial(-1)' style='position:fixed;top:0;left:0;z-index:20;'>X Exit Tutorial</button>"+"<br><button onpointerup='tutorial("+(prog+1)+")'>Next</button>"
                 function highlightElem(id) {
                     if (document.getElementById(id)) {
                         document.getElementById(id).style.zIndex = 8;
@@ -958,7 +958,7 @@
                         closepop(true);
                         popup(
                             "<br><br>That's all for this tutorial! If you have any questions, ask Graham, or you can text/call me at 803-626-2512.<br><br>" +
-                            "<button onpointerdown='tutorial(-1,true)'>Sweet!</button>"
+                            "<button onpointerup='tutorial(-1,true)'>Sweet!</button>"
                         )
                         break;
                 }
@@ -988,19 +988,19 @@
         <div id="content">
             <br>
             <h1>GP Youth Check-In</h1>
-            <button id="tCheckIn" onpointerdown="startCheckIn()">Begin Checking In</button>
+            <button id="tCheckIn" onpointerup="startCheckIn()">Begin Checking In</button>
             ~
-            <button id="tBulkB" onpointerdown="addBulk()">Add Large Amount of People</button>
+            <button id="tBulkB" onpointerup="addBulk()">Add Large Amount of People</button>
             ~
-            <button id="tViewB" onpointerdown="toShowPeople()">View/Edit People</button>
+            <button id="tViewB" onpointerup="toShowPeople()">View/Edit People</button>
             ~
-            <button id="tReportB" onpointerdown="report()">Send Report</button>
+            <button id="tReportB" onpointerup="report()">Send Report</button>
             ~
-            <button id="tOptB" onpointerdown="showOptions()">Options</button>
+            <button id="tOptB" onpointerup="showOptions()">Options</button>
             <br><br><br>
             Not sure where to start?
             <br><br>
-            <button onpointerdown="tutorial(0)">Tutorial</button>
+            <button onpointerup="tutorial(0)">Tutorial</button>
         </div>
     </body>
     <script>
@@ -1009,21 +1009,21 @@
             document.body.style.zoom = "300%";
             document.getElementById('content').innerHTML =
                 '<h1>GP Youth Check-In</h1>' +
-                '<button id="tCheckIn" onpointerdown="startCheckIn()">Begin Checking In</button>' +
+                '<button id="tCheckIn" onpointerup="startCheckIn()">Begin Checking In</button>' +
                 '<br><br><br>' +
-                '<button id="tReportB" onpointerdown="report()">Send Report</button>' +
+                '<button id="tReportB" onpointerup="report()">Send Report</button>' +
                 '<br><br><br>' +
                 '<details><summary>Other Options</summary>' +
                 '<br><br><br>' +
-                '<button id="tBulkB" onpointerdown="addBulk()">Add Large Amount of People</button>' +
+                '<button id="tBulkB" onpointerup="addBulk()">Add Large Amount of People</button>' +
                 '<br><br><br>' +
-                '<button id="tViewB" onpointerdown="toShowPeople()">View/Edit People</button>' +
+                '<button id="tViewB" onpointerup="toShowPeople()">View/Edit People</button>' +
                 '<br><br><br>' +
-                '<button id="tOptB" onpointerdown="showOptions()">Options</button></details>'
+                '<button id="tOptB" onpointerup="showOptions()">Options</button></details>'
                 // '<br><br><br>' +
                 // 'Not sure where to start?' +
                 // '<br><br>' +
-                // '<button onpointerdown="tutorial(0)">Tutorial</button>'
+                // '<button onpointerup="tutorial(0)">Tutorial</button>'
         }
         const mainHTML = document.getElementById('content').innerHTML;
     </script>
