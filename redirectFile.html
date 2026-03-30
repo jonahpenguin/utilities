@@ -39,6 +39,9 @@
             let recentLinks = [];
             function customLink() {
                 let url = prompt("Enter link:");
+                if (url == undefined || url == null || url == "") {
+                    return;
+                }
                 recentLinks.push(url);
                 localStorage.setItem("recentRedLinks", recentLinks.join(";"));
                 location.replace(url);
@@ -51,12 +54,20 @@
                     localStorage.setItem("recentRedLinks", recentLinks.join(";"));
                 }
             }
+            function changeLink(index) {
+                let url = prompt("Enter link:");
+                if (url == undefined || url == null || url == "") {
+                    return;
+                }
+                recentLinks[index] = url;
+                location.reload();
+            }
             function loadContent() {
                 let html = "<h1>Recent Links</h1>";
                 for (let i = 0;i<recentLinks.length;i++) {
                     if (recentLinks[i] != "-") {
                         html += (i+1)+". <a href='"+recentLinks[i]+"'>"+recentLinks[i]+"</a>" +
-                        " - <button onclick='removeLink("+i+")'>Remove</button><br><br>";
+                        " - <button onclick='changeLink("+i+")'>Update</button> - <button onclick='removeLink("+i+")'>Remove</button><br><br>";
                     }
                 }
                 if (html == "<h1>Recent Links</h1>") {
@@ -82,11 +93,15 @@
                     keylog.push(event.key);
                 }
                 if (event.key == "Enter") {
-                    location.replace(
-                        recentLinks[
-                            parseInt(keylog.join(""))-1
-                        ]
-                    )
+                    if (keylog.length > 0) {
+                        location.replace(
+                            recentLinks[
+                                parseInt(keylog.join(""))-1
+                            ]
+                        )
+                    } else {
+                        customLink();
+                    }
                 }
                 if (event.key == "Backspace") {
                     keylog = [];
