@@ -89,6 +89,15 @@
                 }
             }, false);
 
+            window.addEventListener('focus', () => {
+                if (document.getElementById('content').innerHTML == "Loading...") {
+                    loadContent();
+                }
+                if (document.getElementById('clButton').style.display == "none") {
+                    document.getElementById('clButton').style.display = '';
+                }
+            }, false);
+
             let keylog = [];
             window.addEventListener('keydown', (event) => {
                 if (!isNaN(parseInt(event.key))) {
