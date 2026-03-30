@@ -45,6 +45,8 @@
                 recentLinks.push(url);
                 localStorage.setItem("recentRedLinks", recentLinks.join(";"));
                 location.replace(url);
+                document.getElementById('content').innerHTML = "Loading...";
+                document.getElementById('clButton').style.display = 'none';
             }
             function removeLink(index) {
                 let isSure = confirm("Remove link?");
@@ -60,13 +62,13 @@
                     return;
                 }
                 recentLinks[index] = url;
-                location.reload();
+                loadContent();
             }
             function loadContent() {
                 let html = "<h1>Recent Links</h1>";
                 for (let i = 0;i<recentLinks.length;i++) {
                     if (recentLinks[i] != "-") {
-                        html += (i+1)+". <a href='"+recentLinks[i]+"'>"+recentLinks[i]+"</a>" +
+                        html += (i+1)+". <a id='link"+i+"' href='"+recentLinks[i]+"'>"+recentLinks[i]+"</a>" +
                         " - <button onclick='changeLink("+i+")'>Update</button> - <button onclick='removeLink("+i+")'>Remove</button><br><br>";
                     }
                 }
@@ -94,11 +96,10 @@
                 }
                 if (event.key == "Enter") {
                     if (keylog.length > 0) {
-                        location.replace(
-                            recentLinks[
-                                parseInt(keylog.join(""))-1
-                            ]
-                        )
+                        let id = parseInt(keylog.join("")-1);
+                        document.getElementById('link'+id).click();
+                        document.getElementById('content').innerHTML = "Loading...";
+                        document.getElementById('clButton').style.display = 'none';
                     } else {
                         customLink();
                     }
@@ -114,6 +115,6 @@
         <div id='content'>
             Loading...
         </div>
-        <button onclick="customLink()">Paste Custom Link</button>
+        <button id="clButton" onclick="customLink()">Paste Custom Link</button>
     </body>
 </html>
