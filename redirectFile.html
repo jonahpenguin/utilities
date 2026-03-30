@@ -55,7 +55,7 @@
                 let html = "<h1>Recent Links</h1>";
                 for (let i = 0;i<recentLinks.length;i++) {
                     if (recentLinks[i] != "-") {
-                        html += "<a href='"+recentLinks[i]+"'>"+recentLinks[i]+"</a>" +
+                        html += (i+1)+". <a href='"+recentLinks[i]+"'>"+recentLinks[i]+"</a>" +
                         " - <button onclick='removeLink("+i+")'>Remove</button><br><br>";
                     }
                 }
@@ -73,6 +73,27 @@
                     loadContent();
                 } else {
                     document.getElementById("content").innerHTML = "";
+                }
+            }, false);
+
+            let keylog = [];
+            window.addEventListener('keydown', (event) => {
+                if (!isNaN(parseInt(event.key))) {
+                    keylog.push(event.key);
+                    let maxNum = recentLinks.length+"";
+                    let maxNumLength = maxNum.length;
+                    if (event.key == "Enter") {
+                        if (keylog.length >= 1 && parseInt(keylog.join("")) <= recentLinks.length) {
+                            location.replace(
+                                recentLinks[
+                                    parseInt(keylog.join(""))-1
+                                ]
+                            )
+                        }
+                    }
+                }
+                if (event.key == "Backspace") {
+                    keylog = [];
                 }
             }, false);
         </script>
