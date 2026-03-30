@@ -80,17 +80,13 @@
             window.addEventListener('keydown', (event) => {
                 if (!isNaN(parseInt(event.key))) {
                     keylog.push(event.key);
-                    let maxNum = recentLinks.length+"";
-                    let maxNumLength = maxNum.length;
-                    if (event.key == "Enter") {
-                        if (keylog.length >= 1 && parseInt(keylog.join("")) <= recentLinks.length) {
-                            location.replace(
-                                recentLinks[
-                                    parseInt(keylog.join(""))-1
-                                ]
-                            )
-                        }
-                    }
+                }
+                if (event.key == "Enter") {
+                    location.replace(
+                        recentLinks[
+                            parseInt(keylog.join(""))-1
+                        ]
+                    )
                 }
                 if (event.key == "Backspace") {
                     keylog = [];
