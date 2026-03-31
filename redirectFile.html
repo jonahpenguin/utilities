@@ -107,9 +107,13 @@
                 if (event.key == "Enter") {
                     if (keylog.length > 0) {
                         let id = parseInt(keylog.join("")-1);
-                        document.getElementById('link'+id).click();
-                        document.getElementById('content').innerHTML = "Loading...";
-                        document.getElementById('clButton').style.display = 'none';
+                        if (document.getElementById('link'+id)) {
+                            document.getElementById('link'+id).click();
+                            document.getElementById('content').innerHTML = "Loading...";
+                            document.getElementById('clButton').style.display = 'none';
+                        } else {
+                            keylog = [];
+                        }
                     } else {
                         customLink();
                     }
