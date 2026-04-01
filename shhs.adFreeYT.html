@@ -252,9 +252,11 @@ console.log(vValue); // Will log the value of 'v' or null if it's not present
                         '<iframe id="videoframe" src="https://www.youtube.com/embed/' + loca[1] + '"></iframe>';*/
                     
                     // April fools stuff :D
-                    if (d.getDate() == 1 && d.getMonth() == 3 && localStorage.getItem('afytFool') != 1) {
-                        localStorage.setItem('afytFool',1);
-                        window.open("https://utilities-8tvg.onrender.com/shhs.adFreeYT.html?dQw4w9WgXcQ");
+                    if (d.getDate() == 1 && d.getMonth() == 3) {
+                        if (localStorage.getItem('afytFool') != 1) {
+                            localStorage.setItem('afytFool',1);
+                            window.open("https://utilities-8tvg.onrender.com/shhs.adFreeYT.html?dQw4w9WgXcQ");
+                        }
                     } else {
                         if (localStorage.getItem('afytFool')) {
                             localStorage.removeItem('afytFool');
