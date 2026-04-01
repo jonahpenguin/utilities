@@ -1346,6 +1346,12 @@
                         allowKeys = false;
                     }
                 }, false);
+                window.addEventListener('load', () => {
+                    let d = new Date();
+                    if (d.getMonth() == 3 && d.getDate() == 1) {
+                        document.getElementById('dvd').src = "IMG_6900.jpeg";
+                    }
+                }, false);
                 function toggleTiny() {
                     if (document.getElementById('tinydvd').style.display != 'none') {
                         document.getElementById('tinydvd').style.display = 'none';
