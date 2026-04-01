@@ -134,10 +134,18 @@
                 }
             }
             window.addEventListener('load', () => {
+                // Snapping range persistance
                 if (localStorage.getItem('DVDsnap')) {
                     popup();
                     document.getElementById('snapIn').value = parseFloat(localStorage.getItem('DVDsnap'));
                     applySnap();
+                }
+            }, false);
+            window.addEventListener('load', () => {
+                // April fools stuff :)
+                let d = new Date();
+                if (d.getMonth() == 3 && d.getDate() == 1) {
+                    document.getElementById('dvd').src = "IMG_6900.jpeg";
                 }
             }, false);
             // stackoverflow solution for caching images
@@ -672,9 +680,14 @@
                         if (document.getElementById('dvd')) {
                             document.getElementById('dvd').outerHTML = '';
                         }
+                        let d = new Date();
                         let newdvd = document.createElement('img');
                         // <img src="dvd.png" style="background-color:transparent;" id="dvd">
-                        newdvd.src = 'dvd.png';
+                        if (d.getDate() == 1 && d.getMonth() == 3) {
+                            newdvd.src = "IMG_6900.jpeg";
+                        } else {
+                            newdvd.src = 'dvd.png';
+                        }
                         newdvd.style = 'background-color:transparent;left:'+position.x+'%;top:'+position.y+'%;';
                         newdvd.setAttribute('id', 'dvd'+trailCount);
                         newdvd.setAttribute('class', 'dvd');
@@ -1190,6 +1203,7 @@
                     return dDisplay + hDisplay + mDisplay + sDisplay;
                 }
                 window.addEventListener('load', () => {
+                    // Not working - position persistance
                     canmove = false;
                     if (localStorage.getItem('dvdPosX')) {
                         position.x = parseFloat(localStorage.getItem("dvdPosX"));
@@ -1320,6 +1334,7 @@
                     
                 }
                 window.addEventListener('load', () => {
+                    // Bug fix (deprecated)
                     let loca = location.href;
                     if (loca.includes('?')) {
                         loca = loca.split('?')
@@ -1393,6 +1408,7 @@
                     }
                 }
                 window.addEventListener('load', () => {
+                    // Keybindings persistance
                     if (localStorage.getItem('DVDnokeys')) {
                         allowKeys = false;
                     }
@@ -2005,6 +2021,11 @@ class Wall {
             }
             let isPenguin = false;
             function penguinMode() {
+                let d = new Date();
+                if (d.getDate() == 1 && d.getMonth() == 3) {
+                    alert("Why would you get rid of that epic face...?");
+                    return;
+                }
                 if (!isPenguin) {
                     document.getElementById("dvd").src = "https://transforms.stlzoo.org/production/animals/king-penguin-hero.jpg?w=800&h=950&auto=compress%2Cformat&fit=crop&dm=1643681906&s=a256b3b584f978fd6bff00921617ff49";
                     isPenguin = true;
