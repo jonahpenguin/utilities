@@ -686,7 +686,11 @@
                         if (d.getDate() == 1 && d.getMonth() == 3) {
                             newdvd.src = "IMG_6900.jpeg";
                         } else {
-                            newdvd.src = 'dvd.png';
+                            if (isPenguin) {
+                                newdvd.src = "https://transforms.stlzoo.org/production/animals/king-penguin-hero.jpg?w=800&h=950&auto=compress%2Cformat&fit=crop&dm=1643681906&s=a256b3b584f978fd6bff00921617ff49";
+                            } else {
+                                newdvd.src = 'dvd.png';
+                            }
                         }
                         newdvd.style = 'background-color:transparent;left:'+position.x+'%;top:'+position.y+'%;';
                         newdvd.setAttribute('id', 'dvd'+trailCount);
