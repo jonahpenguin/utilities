@@ -161,6 +161,10 @@
                 }
             }
             function mainMenu() {
+                let d = new Date();
+                if (d.getDate() == 1 && d.getMonth() == 3) {
+                    document.getElementById('dvd0').src = "IMG_6900.jpeg";
+                }
                 if (document.getElementById('popup')) {
                     closepop();
                 }
@@ -460,7 +464,12 @@
                 let elem = document.createElement("img");
                 elem.setAttribute('id', "dvd"+positions.length);
                 elem.setAttribute('class', 'dvd');
-                elem.src = 'dvd.png';
+                let d = new Date();
+                if (d.getMonth() == 3 && d.getDate() == 1) {
+                    elem.src = "IMG_6900.jpeg";
+                } else {
+                    elem.src = 'dvd.png';
+                }
                 elem.style.left = pos.x+"%";
                 elem.style.top = pos.y+"%";
                 document.body.appendChild(elem);
