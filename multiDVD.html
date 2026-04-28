@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>DVD logo</title>
-        <link rel="icon" href="dvd.png">
+        <link rel="icon" href=dvdImg>
         <style>
             body {
                 background-color: black;
@@ -32,6 +32,7 @@
             }
         </style>
         <script>
+            let dvdImg = dvdImg;
             let dvdCount = 1;
             let canMove = true;
             let spinInts = [];
@@ -160,6 +161,17 @@
                     document.getElementById('brainVid1').style.display = 'none';
                 }
             }
+
+            function runCmd(input=0) {
+                if (input != 0 && input != null && input != undefined && input != "") {
+                    try {
+                        alert(eval(input));
+                    } catch (e) {
+                        alert(e.message);
+                    }
+                }
+            }
+
             function mainMenu() {
                 let d = new Date();
                 if (d.getDate() == 1 && d.getMonth() == 3) {
@@ -172,7 +184,7 @@
                     "<span style='position:fixed;top:0;right:0;'>Hit the Plus key to add another logo!</span>" +
                     "<button onclick='closepop();actionHandler()' style='float:left;'>X Close and play as normal</button>" +
                     "<button onclick='toggleSubway()'>Toggle Subway Surfers</button>" +
-                    "<button onclick='openOriginal()' style='float:right;'>Back to Original Version</button>" +
+                    "<button onclick='window.open(\"dvdMain.html\");this.blur();' style='float:right;'>More DVD stuff :)</button>" +
                     "<br><h1>DVD v2</h1>" +
                     "Fun things that didn't work in the original; hit Escape or reload to return to this menu<br>After crashing you may have to completely close the tab and reopen this page. This page may cause issues for photosensitive people, consider yourself warned :)<br><br>" +
                     "<button onclick='showMenu(1)'>Modes that add multiple DVD logos</button><br><br>" +
@@ -180,7 +192,7 @@
                     "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
                     "<button onclick='showMenu(100)'>Combination modes (the fun stuff)</button><br><br>" +
                     "<br><br>" +
-                    "<button onclick='window.open(\"dvdMain.html\")'>More DVD stuff :)</button>"
+                    "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button>"
                 )
             }
 
@@ -468,7 +480,7 @@
                 if (d.getMonth() == 3 && d.getDate() == 1) {
                     elem.src = "IMG_6900.jpeg";
                 } else {
-                    elem.src = 'dvd.png';
+                    elem.src = dvdImg;
                 }
                 elem.style.left = pos.x+"%";
                 elem.style.top = pos.y+"%";
