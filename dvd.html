@@ -361,6 +361,10 @@
                     }, 5000);
                 }
                 
+                if (event.key == "s") {
+                    openso();
+                }
+
                 if (canmove && event.key == ' ' && !isUniversal) {
                     canmove = false;
                 } else if (!canmove && event.key == ' ') {
