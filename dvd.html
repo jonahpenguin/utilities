@@ -1355,7 +1355,7 @@
                 function resetTimer() {
                     let issure = confirm('Reset timer?\nThis cannot be undone');
                     if (!issure) {return}
-                    localStorage.setItem('DVDtime',0);
+                    setInterval(() => {localStorage.setItem('DVDtime',0);},1);
                     location.reload();
                 }
                 function popup(html=0) {
