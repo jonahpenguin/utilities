@@ -503,7 +503,17 @@
                 }, false);
                 document.body.appendChild(elem);
                 positions.push(pos)
-                slopes.push({rise:0.1*speedVal,run:0.1*speedVal})
+                let rise = 0.1;
+                let riseChance = Math.floor(Math.random()*100);
+                if (riseChance >= 50) {
+                    rise = -0.1;
+                }
+                let run = 0.1;
+                let runChance = Math.floor(Math.random()*100);
+                if (runChance >= 50) {
+                    run = -0.1;
+                }
+                slopes.push({rise:rise*speedVal,run:run*speedVal})
 
                 // Ensuring spin works
                 if (selectedAction == 5 || selectedAction == 5.5 || selectedAction == 6 || selectedAction == 9 || selectedAction == 10 || selectedAction == 100) {
