@@ -710,6 +710,11 @@
                     selectedAction = 0;
                     mainMenu();
                 }
+                if (event.key == "r") {
+                    for (let i=0;i<positions.length;i++) {
+                        randomSpeed(i);
+                    }
+                }
                 if (event.key == "+" || event.key == "=") {
                     addDVD();
                 }
