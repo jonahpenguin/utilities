@@ -30,6 +30,20 @@
                 background-color: black;
                 color: white;
             }
+            button.new {
+                background-color: rgb(236, 219, 117);
+                color: black;
+            }
+            button.new:hover {
+                background-color: gold;
+                color: black;
+                font-style: italic;
+            }
+            button.new:focus {
+                background-color: gold;
+                color: black;
+                font-style: italic;
+            }
         </style>
         <script>
             let dvdImg = 'dvd.png';
@@ -113,7 +127,8 @@
                             "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Modes that affect speed/slope</h2>" +
                             "<button onclick='init(1)'>Increase speed on collision</button><br><br>" +
                             "<button onclick='init(3)'>Set random slope on collision</button><br><br>" +
-                            "<button onclick='init(3.5)'>Set random slope on collision (but they leave if you add enough)</button>"
+                            "<button onclick='init(3.5)'>Set random slope on collision (but they leave if you add enough)</button><br><br>" +
+                            "<button class='new' onclick='init(12)'>Set random slope every 1/2 seconds [NEW]</button>"
                         )
                         break;
                     case 3:
@@ -187,7 +202,7 @@
                     "<br><h1>DVD v2</h1>" +
                     "Fun things that didn't work in the original; hit Escape or reload to return to this menu<br>After crashing you may have to completely close the tab and reopen this page. This page may cause issues for photosensitive people, consider yourself warned :)<br><br>" +
                     "<button onclick='showMenu(1)'>Modes that add multiple DVD logos</button><br><br>" +
-                    "<button onclick='showMenu(2)'>Modes that affect speed/slope</button><br><br>" +
+                    "<button class='new' onclick='showMenu(2)'>Modes that affect speed/slope [NEW]</button><br><br>" +
                     "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
                     "<button onclick='showMenu(100)'>Combination modes (the fun stuff)</button><br><br>" +
                     "<br><hr><br><br>" +
@@ -261,6 +276,9 @@
                         }, timeVal);
                     }
                 }
+                /* Other IDs:
+                    12: Random speed every 1/2 second
+                */
                 if (close) {
                     closepop();
                 }
@@ -310,11 +328,22 @@
                         break;
                 }
             }
+            let randomTimers = [0];
             function moveDVD() {
                 if (!canMove || selectedAction == 9) {return;}
                 for (let i = 0;i<positions.length;i++) {
                     positions[i].x += slopes[i].run;
                     positions[i].y += slopes[i].rise;
+
+                    // Increment random timers
+                    randomTimers[i]++;
+                    if (randomTimers[i] >= 50) {
+                        randomTimers[i] = 0;
+                        // Checks to make sure that the logo won't get stuck in a wall
+                        if (selectedAction == 12 && positions[i].x > 1.1 && positions[i].x < 91 && positions[i].y > 1.1 && positions[i].y < 85) {
+                            randomSpeed(i);
+                        }
+                    }
 
                     if (positions[i].x >= 92) {
                         handleAction(i);
@@ -458,6 +487,7 @@
             }
             function addDVD(x=-1,y=-1) {
                 dvdCount++;
+                randomTimers.push(0);
                 if (document.getElementById('countDisp')) {
                     document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
                 } else {
@@ -510,6 +540,7 @@
                 if (dvdCount == 0) {
                     return;
                 }
+                randomTimers.pop();
                 dvdCount--;
                 if (document.getElementById('countDisp')) {
                     document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
