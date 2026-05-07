@@ -340,7 +340,7 @@
                     if (randomTimers[i] >= 50) {
                         randomTimers[i] = 0;
                         // Checks to make sure that the logo won't get stuck in a wall
-                        if (selectedAction == 12 && positions[i].x > 1.1 && positions[i].x < 91 && positions[i].y > 1.1 && positions[i].y < 85) {
+                        if ((selectedAction == 12 || selectedAction == 100) && positions[i].x > 1.1 && positions[i].x < 91 && positions[i].y > 1.1 && positions[i].y < 85) {
                             randomSpeed(i);
                         }
                     }
