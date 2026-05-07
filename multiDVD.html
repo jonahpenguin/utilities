@@ -148,6 +148,7 @@
                             "<button onclick='init(8)'>Increase speed on collision and add logo on collision</button><br><br>" +
                             "<button onclick='init(9)'>Spin, and add logo after 1 sec while not moving</button><br><br>" +
                             "<button onclick='init(10)'>Spin, and add logo after a custom amount of time</button><br><br>" +
+                            "<button class='new' onclick='init(13)'>Random slope every 1/2 second with random pauses [NEW]</button><br><br>" +
                             "<button onclick='init(100)'>All. Of. Them. (will crash soon after starting)</button>"
                         )
                         break;
@@ -204,7 +205,7 @@
                     "<button onclick='showMenu(1)'>Modes that add multiple DVD logos</button><br><br>" +
                     "<button class='new' onclick='showMenu(2)'>Modes that affect speed/slope [NEW]</button><br><br>" +
                     "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
-                    "<button onclick='showMenu(100)'>Combination modes (the fun stuff)</button><br><br>" +
+                    "<button class='new' onclick='showMenu(100)'>Combination modes (the fun stuff) [NEW]</button><br><br>" +
                     "<br><hr><br><br>" +
                     "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button><br><br>" +
                     "<button onclick='toggleSubway()'>Toggle Subway Surfers</button>"
@@ -340,8 +341,20 @@
                     if (randomTimers[i] >= 50) {
                         randomTimers[i] = 0;
                         // Checks to make sure that the logo won't get stuck in a wall
-                        if ((selectedAction == 12 || selectedAction == 100) && positions[i].x > 1.1 && positions[i].x < 91 && positions[i].y > 1.1 && positions[i].y < 85) {
+                        if ((selectedAction == 12 || selectedAction == 13 || selectedAction == 100) && positions[i].x > 1.1 && positions[i].x < 91 && positions[i].y > 1.1 && positions[i].y < 85) {
                             randomSpeed(i);
+                        }
+                    }
+                    
+                    if (selectedAction == 13 || selectedAction == 100) {
+                        let roll = Math.floor(Math.random()*10000);
+                        if (roll <= 10) {
+                            canMove = false;
+                            setTimeout(() => {
+                                if (!canMove) {
+                                    canMove = true;
+                                }
+                            }, 1000);
                         }
                     }
 
