@@ -212,6 +212,20 @@
                 )
             }
 
+            function setLogoCount() {
+                let num = prompt("Enter the number of logos you want:");
+                if (isNaN(parseInt(num)) || num == "" || num == undefined || num == null) {
+                    return;
+                }
+                while (positions.length > 0) {
+                    removeDVD();
+                }
+                num = parseInt(num);
+                for (let i = 0;i<num;i++) {
+                    addDVD();
+                }
+            }
+
             function mainMenu() {
                 let d = new Date();
                 if (d.getDate() == 1 && d.getMonth() == 3) {
@@ -234,7 +248,8 @@
                     "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button> - " +
                     "<button onclick='toggleSubway()'>Toggle Subway Surfers</button> - " +
                     "<button class='new' onclick='toggleCol(this)'>"+(useCol? "Disable Collision [BETA]" : "Enable Collision [BETA]")+"</button> - " +
-                    "<button class='new' onclick='showKeybinds()'>Show Keyboard Shortcuts [NEW]</button>"
+                    "<button class='new' onclick='showKeybinds()'>Show Keyboard Shortcuts [NEW]</button> - " +
+                    "<button class='new' onclick='setLogoCount()'>Set Logo Count [NEW]</button>"
                 )
             }
 
