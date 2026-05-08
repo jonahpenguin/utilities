@@ -51,6 +51,7 @@
             let dvdCount = 1;
             let canMove = true;
             let spinInts = [];
+            let allowConfetti = true;
             
             window.addEventListener("mousemove", actionHandler);
 
@@ -158,6 +159,7 @@
             let recentbounce = [false];
 
             function checkconfetti() {
+                if (!allowConfetti) {return}
                 if (recentbounce) {
                     confetti();
                 } else {
@@ -191,9 +193,11 @@
 
             function toggleCol(elem) {
                 if (useCol) {
+                    allowConfetti = true;
                     useCol = false;
                     elem.innerText = "Enable Collision [BETA]";
                 } else {
+                    allowConfetti = false;
                     useCol = true;
                     elem.innerText = "Disable Collision [BETA]";
                 }
