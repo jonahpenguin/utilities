@@ -46,6 +46,7 @@
             }
         </style>
         <script>
+            let useCol = false;
             let dvdImg = 'dvd.png';
             let dvdCount = 1;
             let canMove = true;
@@ -188,6 +189,16 @@
                 }
             }
 
+            function toggleCol(elem) {
+                if (useCol) {
+                    useCol = false;
+                    elem.innerText = "Enable Collision [BETA]";
+                } else {
+                    useCol = true;
+                    elem.innerText = "Disable Collision [BETA]";
+                }
+            }
+
             function mainMenu() {
                 let d = new Date();
                 if (d.getDate() == 1 && d.getMonth() == 3) {
@@ -208,7 +219,8 @@
                     "<button class='new' onclick='showMenu(100)'>Combination modes (the fun stuff) [NEW]</button><br><br>" +
                     "<br><hr><br><br>" +
                     "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button><br><br>" +
-                    "<button onclick='toggleSubway()'>Toggle Subway Surfers</button>"
+                    "<button onclick='toggleSubway()'>Toggle Subway Surfers</button><br><br>" +
+                    "<button class='new' onclick='toggleCol(this)'>"+(useCol? "Disable Collision [BETA]" : "Enable Collision [BETA]")+"</button>"
                 )
             }
 
@@ -335,6 +347,41 @@
                 for (let i = 0;i<positions.length;i++) {
                     positions[i].x += slopes[i].run;
                     positions[i].y += slopes[i].rise;
+                    if (useCol) {
+                        for (let j = 0;j<positions.length;j++) {
+                            // No collision with self
+                            if (j == i) {continue}
+
+                            // Check x
+                            if (positions[i].x+8 >= positions[j].x && positions[i].x <= positions[j].x+8) {
+                                // Check y
+                                if (positions[i].y >= positions[j].y && positions[i].y <= positions[j].y+14) {
+                                    // Epic collision coding by Copilot, because I'm really bad at this :D
+                                    const xOverlap = Math.min(positions[i].x + 8, positions[j].x + 8) - Math.max(positions[i].x, positions[j].x);
+                                    const yOverlap = Math.min(positions[i].y + 14, positions[j].y + 14) - Math.max(positions[i].y, positions[j].y);
+
+                                    // Reflect along the axis of least penetration so diagonal collisions bounce correctly.
+                                    if (xOverlap < yOverlap) {
+                                        slopes[i].run = -slopes[i].run;
+                                        // Adjust position to separate based on which side was hit
+                                        if (positions[i].x + 4 < positions[j].x + 4) {
+                                            positions[i].x = positions[j].x - 8;
+                                        } else {
+                                            positions[i].x = positions[j].x + 8;
+                                        }
+                                    } else {
+                                        slopes[i].rise = -slopes[i].rise;
+                                        // Adjust position to separate based on which side was hit
+                                        if (positions[i].y + 7 < positions[j].y + 7) {
+                                            positions[i].y = positions[j].y - 14;
+                                        } else {
+                                            positions[i].y = positions[j].y + 14;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     // Increment random timers
                     randomTimers[i]++;
@@ -361,19 +408,23 @@
                     if (positions[i].x >= 92) {
                         handleAction(i);
                         slopes[i].run = -slopes[i].run
+                        positions[i].x = 91.9;
                     }
                     if (positions[i].x <= 0) {
                         handleAction(i);
                         slopes[i].run = -slopes[i].run
+                        positions[i].x = 0.1;
                     }
 
                     if (positions[i].y >= 86) {
                         handleAction(i);
                         slopes[i].rise = -slopes[i].rise
+                        positions[i].y = 85.9;
                     }
                     if (positions[i].y <= 0) {
                         handleAction(i);
                         slopes[i].rise = -slopes[i].rise
+                        positions[i].y = 0.1;
                     }
 
                    if (positions[i].x < 50.1 && positions[i].x > 49.9) {
