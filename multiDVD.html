@@ -208,7 +208,8 @@
                     "+: add a DVD logo\n" +
                     "-: remove a DVD logo\n" +
                     "f: open fullscreen\n" +
-                    "spacebar: pause/play all DVD logos"
+                    "spacebar: pause/play all DVD logos\n" +
+                    "i: reverse all DVD logos' direction"
                 )
             }
 
@@ -816,6 +817,12 @@
                 if (event.key == "h") {
                     if (document.getElementById('countDisp')) {
                         document.getElementById('countDisp').outerHTML = '';
+                    }
+                }
+                if (event.key == "i") {
+                    for (let i = 0;i<positions.length;i++) {
+                        slopes[i].rise = -slopes[i].rise;
+                        slopes[i].run = -slopes[i].run;
                     }
                 }
                 if (event.key == "+" || event.key == "=") {
