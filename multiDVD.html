@@ -199,6 +199,19 @@
                 }
             }
 
+            function showKeybinds() {
+                alert(
+                    "s: set all logos to random slope\n" +
+                    "r: reset all logo slopes\n" +
+                    "Escape: return to main menu\n" +
+                    "h: hide DVD logo counter\n" +
+                    "+: add a DVD logo\n" +
+                    "-: remove a DVD logo\n" +
+                    "f: open fullscreen\n" +
+                    "spacebar: pause/play all DVD logos"
+                )
+            }
+
             function mainMenu() {
                 let d = new Date();
                 if (d.getDate() == 1 && d.getMonth() == 3) {
@@ -218,9 +231,10 @@
                     "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
                     "<button class='new' onclick='showMenu(100)'>Combination modes (the fun stuff) [NEW]</button><br><br>" +
                     "<br><hr><br><br>" +
-                    "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button><br><br>" +
-                    "<button onclick='toggleSubway()'>Toggle Subway Surfers</button><br><br>" +
-                    "<button class='new' onclick='toggleCol(this)'>"+(useCol? "Disable Collision [BETA]" : "Enable Collision [BETA]")+"</button>"
+                    "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button> - " +
+                    "<button onclick='toggleSubway()'>Toggle Subway Surfers</button> - " +
+                    "<button class='new' onclick='toggleCol(this)'>"+(useCol? "Disable Collision [BETA]" : "Enable Collision [BETA]")+"</button> - " +
+                    "<button class='new' onclick='showKeybinds()'>Show Keyboard Shortcuts [NEW]</button>"
                 )
             }
 
@@ -765,9 +779,28 @@
                     selectedAction = 0;
                     mainMenu();
                 }
-                if (event.key == "r") {
+                if (event.key == "s") {
                     for (let i=0;i<positions.length;i++) {
                         randomSpeed(i);
+                    }
+                }
+                if (event.key = "r") {
+                    for (let i=0;i<positions.length;i++) {
+                        if (slopes[i].rise > 0) {
+                            slopes[i].rise = 0.1;
+                        } else {
+                            slopes[i].rise = -0.1;
+                        }
+                        if (slopes[i].run > 0) {
+                            slopes[i].run = 0.1;
+                        } else {
+                            slopes[i].run = -0.1;
+                        }
+                    }
+                }
+                if (event.key == "h") {
+                    if (document.getElementById('countDisp')) {
+                        document.getElementById('countDisp').outerHTML = '';
                     }
                 }
                 if (event.key == "+" || event.key == "=") {
