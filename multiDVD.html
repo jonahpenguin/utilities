@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>DVD logo</title>
+        <title>DVD v2</title>
         <link rel="icon" href="dvd.png">
         <style>
             body {
@@ -570,6 +570,10 @@
                 let elem = document.createElement("img");
                 elem.setAttribute('id', "dvd"+positions.length);
                 elem.setAttribute('class', 'dvd');
+                let goldRoll = Math.floor(Math.random()*1000000);
+                if (goldRoll == 88) {
+                    elem.style.filter = "invert()";
+                }
                 let d = new Date();
                 if (d.getMonth() == 3 && d.getDate() == 1) {
                     elem.src = "IMG_6900.jpeg";
