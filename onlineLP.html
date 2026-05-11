@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <title id="title">Lucky Pirate Online Multiplayer</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+        <style>
+            body {
+                background-color: tan;
+                color: brown;
+                text-align: center;
+                font-family: "Pirata One", helvetica, arial;
+                zoom: 200%;
+            }
+            select {
+                background-color: brown;
+                color: tan;
+            }
+            button {
+                background-color: tan;
+                color: brown;
+                border-style: groove;
+            }
+            button:hover {
+                background-color: brown;
+                color: tan;
+            }
+            button:focus {
+                background-color: brown;
+                color: tan;
+            }
+        </style>
+        <script>
+            function doStuff() {
+                document.getElementById("vid").play();
+                document.getElementById("vid").style.display = '';
+                document.getElementById('title').innerText = "get rick rolled lol"
+                document.body.style.backgroundColor = 'black';
+            }
+            window.addEventListener('load', () => {
+                document.getElementById('content').innerHTML = '<button onclick="doStuff()">Start</button>';
+            }, false);
+        </script>
+    </head>
+    <body>
+        <video id="vid" src="rickroll.mp4" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;"></video>
+        <br>
+        <h1>Lucky Pirate Online Multiplayer</h1>
+        <br><br>
+        <div id="content">
+            Loading...
+        </div>
+    </body>
+</html>
