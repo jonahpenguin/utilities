@@ -159,6 +159,7 @@
             let recentbounce = [false];
 
             function checkconfetti() {
+                // Unused; confetti check is done in moveDVD and calls confetti()
                 if (!allowConfetti || useCol) {return}
                 if (recentbounce) {
                     confetti();
@@ -168,6 +169,7 @@
                 }
             }
             function confetti() {
+                if (!allowConfetti || useCol) {return}
                 document.body.style.backgroundImage = "url('confetti.webp')";
                 setTimeout(() => {
                     document.body.style.backgroundImage = "none";
