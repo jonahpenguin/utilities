@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>DVD logo</title>
+        <title>DVD game</title>
         <link rel="icon" href="dvd.png">
         <style>
             body {
@@ -723,6 +723,19 @@
                     alert("An error occured");
                 }
             }
+            let autos = [false,false,false];
+            setInterval(() => {
+                // Autobuy interval
+                if (autos[0]) {
+                    for(let i=0;i<20;i++){buyLogo(false)}
+                }
+                if (autos[1]) {
+                    for(let i=0;i<20;i++){buyMultiplier(false)}
+                }
+                if (autos[2]) {
+                    for(let i=0;i<20;i++){buySpeed(false)}
+                }
+            }, 1);
             function showShop() {
                 let multCost = Math.pow(2, multiplier+3);
                 let speedCost = 1000*(speedVal*2);
@@ -741,19 +754,25 @@
                     "<button onclick='buyLogo(true);'>+1 DVD logo</button>"+spaces+"~"+spaces +
                     "<button onclick='buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);'>x5</button>"+ spaces +
                     "<button onclick='buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);buyLogo(false);'>x10</button>"+spaces+
-                    "<button onclick='for(let i=0;i<20;i++){buyLogo(false)}'>x20</button>"+spaces+"~"+spaces +
+                    "<button onclick='for(let i=0;i<20;i++){buyLogo(false)}'>x20</button>"+spaces+
+                    "<button onclick='toggleAuto(0,this)'>"+(autos[0] ? "Disable Autobuy" : "Enable Autobuy")+"</button>" + spaces +
+                    "~"+spaces +
                     "<span style='background-color:black;'>("+dvdCost+" DVD bits) You currently have "+dvdCount+" logos</span><br><br>" +
 
                     "<button onclick='buyMultiplier(true)'>Upgrade Multiplier (all income)</button>"+spaces+"~"+spaces +
                     "<button onclick='buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);'>x5</button>"+spaces +
                     "<button onclick='buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);'>x10</button>"+spaces +
-                    "<button onclick='for(let i=0;i<20;i++){buyMultiplier(false)}'>x20</button>"+spaces+"~"+spaces +
+                    "<button onclick='for(let i=0;i<20;i++){buyMultiplier(false)}'>x20</button>"+spaces+
+                    "<button onclick='toggleAuto(1,this)'>"+(autos[1] ? "Disable Autobuy" : "Enable Autobuy")+"</button>" + spaces +
+                    "~"+spaces +
                     "<span style='background-color:black;'>("+multCost+" DVD bits) Current multiplier: Level "+multiplier+"</span><br><br>" +
 
                     "<button onclick='buySpeed(true);'>Increase all logo speeds</button>"+spaces+"~"+spaces +
                     "<button onclick='buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);'>x5</button>"+spaces +
                     "<button onclick='buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);'>x10</button>"+spaces +
-                    "<button onclick='for(let i=0;i<20;i++){buySpeed(false)}'>x20</button>"+spaces+"~"+spaces +
+                    "<button onclick='for(let i=0;i<20;i++){buySpeed(false)}'>x20</button>"+spaces+
+                    "<button onclick='toggleAuto(2,this)'>"+(autos[2] ? "Disable Autobuy" : "Enable Autobuy")+"</button>" + spaces +
+                    "~"+spaces +
                     "<span style='background-color:black;'>("+speedCost+" DVD bits) Current speed multiplier: "+speedVal+"</span><br><br>" +
                     "<br><br>" +
                     nmButton + "<br><br>" +
