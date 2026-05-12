@@ -736,6 +736,15 @@
                     for(let i=0;i<20;i++){buySpeed(false)}
                 }
             }, 1);
+            function toggleAuto(id, elem) {
+                if (autos[id]) {
+                    autos[id] = false;
+                    elem.innerText = "Enable Autobuy";
+                } else {
+                    autos[id] = true;
+                    elem.innerText = "Disable Autobuy";
+                }
+            }
             function showShop() {
                 let multCost = Math.pow(2, multiplier+3);
                 let speedCost = 1000*(speedVal*2);
