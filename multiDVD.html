@@ -379,7 +379,7 @@
             }
             let randomTimers = [0];
             function moveDVD() {
-                if (!canMove || selectedAction == 9) {return;}
+                if (!canMove || selectedAction == 9 || isDragging) {return;}
                 for (let i = 0;i<positions.length;i++) {
                     positions[i].x += slopes[i].run;
                     positions[i].y += slopes[i].rise;
@@ -585,6 +585,34 @@
                     }
                 }
             }
+            let isDragging = false;
+            let dragId = -1;
+            let mousePos = {
+                x: 0,
+                y: 0
+            }
+            window.addEventListener('mousemove', (event) => {
+                mousePos.x = (event.clientX/window.innerWidth)*100;
+                mousePos.y = (event.clientY/window.innerHeight)*100;
+            }, false);
+            setInterval(() => {
+                return;
+                if (isDragging && dragId != -1) {
+                    positions[dragId].y = mousePos.y;
+                    positions[dragId].x = mousePos.x;
+                    document.getElementById('dvd'+dragId).style.top = positions[dragId].y+"%";
+                    document.getElementById('dvd'+dragId).style.left = positions[dragId].x+"%";
+                }
+            }, 10);
+            function startDrag(id) {
+                return;
+                dragId = id;
+                isDragging = true;
+            }
+            function endDrag(id) {
+                dragId = -1;
+                isDragging = false;
+            }
             function addDVD(x=-1,y=-1) {
                 dvdCount++;
                 randomTimers.push(0);
@@ -606,6 +634,7 @@
                 let elem = document.createElement("img");
                 elem.setAttribute('id', "dvd"+positions.length);
                 elem.setAttribute('class', 'dvd');
+                elem.setAttribute("draggable", "true");
                 let goldRoll = Math.floor(Math.random()*10000);
                 if (goldRoll == 88) {
                     elem.style.filter = "invert()";
@@ -618,6 +647,14 @@
                 }
                 elem.style.left = pos.x+"%";
                 elem.style.top = pos.y+"%";
+                elem.addEventListener('mousedown', () => {
+                    startDrag(positions.length-1);
+                    event.preventDefault();
+                }, false);
+                elem.addEventListener('mouseup', () => {
+                    endDrag(positions.length-1);
+                    event.preventDefault();
+                }, false);
                 document.body.appendChild(elem);
                 positions.push(pos)
                 slopes.push({rise:0.1,run:0.1})
@@ -769,8 +806,19 @@
                 }
             }
             let catVal = 0;
+            let shiftHeld = false;
+            window.addEventListener('keydown', (event) => {
+                if (event.key == "Shift") {
+                    shiftHeld = true;
+                }
+            }, false);
+            window.addEventListener('keyup', (event) => {
+                if (event.key == "Shift") {
+                    shiftHeld = false;
+                }
+            }, false);
             window.addEventListener("mousedown", (event) => {
-                if (document.getElementById('popup')) {
+                if (document.getElementById('popup') || !shiftHeld) {
                     return;
                 }
                 let x = ((event.clientX/window.innerWidth)*100)-4;
@@ -857,6 +905,6 @@
     </head>
     <body>
         <video id="brainVid1" src="subwayVid.mp4" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;display:none;" autoplay muted loop></video>
-        <img src="dvd.png" class="dvd" id="dvd0">
+        <img src="dvd.png" onmousedown="startDrag(0);event.preventDefault();" onmouseup="endDrag(0);event.preventDefault();" class="dvd" id="dvd0">
     </body>
 </html>
