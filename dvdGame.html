@@ -92,6 +92,22 @@
                 }
             }
 
+            function formatNumber(input) {
+                if (input >= 1000000000000) {
+                    input /= 1000000000000;
+                    return input.toLocaleString()+" trillion";
+                }
+                if (input >= 1000000000) {
+                    input /= 1000000000;
+                    return input.toLocaleString()+" billion";
+                }
+                if (input >= 1000000) {
+                    input /= 1000000;
+                    return input.toLocaleString()+" million";
+                }
+                return input.toLocaleString();
+            }
+
             function showMenu(id) {
                 closepop();
                 switch(id) {
@@ -224,7 +240,7 @@
             }
             function updateMonDisp() {
                 if (document.getElementById('monDisp')) {
-                    document.getElementById('monDisp').innerText = "DVD bits: "+moneys;
+                    document.getElementById('monDisp').innerText = "DVD bits: "+formatNumber(moneys);
                 }
             }
             function reset() {
@@ -776,7 +792,7 @@
                     "<button onclick='for(let i=0;i<20;i++){buyLogo(false)}'>x20</button>"+spaces+
                     "<button onclick='toggleAuto(0,this)'>"+(autos[0] ? "Disable Autobuy" : "Enable Autobuy")+"</button>" + spaces +
                     "~"+spaces +
-                    "<span style='background-color:black;'>("+dvdCost+" DVD bits) You currently have "+dvdCount+" logos</span><br><br>" +
+                    "<span style='background-color:black;'>("+formatNumber(dvdCost)+" DVD bits) You currently have "+formatNumber(dvdCount)+" logos</span><br><br>" +
 
                     "<button onclick='buyMultiplier(true)'>Upgrade Multiplier (all income)</button>"+spaces+"~"+spaces +
                     "<button onclick='buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);buyMultiplier(false);'>x5</button>"+spaces +
@@ -784,7 +800,7 @@
                     "<button onclick='for(let i=0;i<20;i++){buyMultiplier(false)}'>x20</button>"+spaces+
                     "<button onclick='toggleAuto(1,this)'>"+(autos[1] ? "Disable Autobuy" : "Enable Autobuy")+"</button>" + spaces +
                     "~"+spaces +
-                    "<span style='background-color:black;'>("+multCost+" DVD bits) Current multiplier: Level "+multiplier+"</span><br><br>" +
+                    "<span style='background-color:black;'>("+formatNumber(multCost)+" DVD bits) Current multiplier: Level "+multiplier+"</span><br><br>" +
 
                     "<button onclick='buySpeed(true);'>Increase all logo speeds</button>"+spaces+"~"+spaces +
                     "<button onclick='buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);buySpeed(false);'>x5</button>"+spaces +
@@ -792,7 +808,7 @@
                     "<button onclick='for(let i=0;i<20;i++){buySpeed(false)}'>x20</button>"+spaces+
                     "<button onclick='toggleAuto(2,this)'>"+(autos[2] ? "Disable Autobuy" : "Enable Autobuy")+"</button>" + spaces +
                     "~"+spaces +
-                    "<span style='background-color:black;'>("+speedCost+" DVD bits) Current speed multiplier: "+speedVal+"</span><br><br>" +
+                    "<span style='background-color:black;'>("+formatNumber(speedCost)+" DVD bits) Current speed multiplier: "+formatNumber(speedVal)+"</span><br><br>" +
                     "<br><br>" +
                     nmButton + "<br><br>" +
                     "<button onclick='window.open(\"https://utilities-8tvg.onrender.com/dvdMain.html\")'>More DVD stuff :)</button>"
