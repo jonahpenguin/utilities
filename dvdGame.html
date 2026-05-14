@@ -290,7 +290,9 @@
                 updateMonDisp();
             }, false);
             window.addEventListener('load', () => {
+                let previouslyVisited = false;
                 if (localStorage.getItem('dvdCount')) {
+                    previouslyVisited = true;
                     let target = parseInt(localStorage.getItem('dvdCount'));
                     for (let i = 0;i<target;i++) {
                         addDVD();
@@ -299,9 +301,11 @@
                     addDVD();
                 }
                 if (localStorage.getItem('dvdNathan')) {
+                    previouslyVisited = true;
                     nathanMode = true;
                 }
                 if (localStorage.getItem('dvdSpeed')) {
+                    previouslyVisited = true;
                     speedVal = parseInt(localStorage.getItem('dvdSpeed'));
                     let i = 0;
                     while(i<speedVal-1) {
@@ -311,14 +315,20 @@
                 }
                 canMove = true;
                 if (localStorage.getItem('dvdBits')) {
+                    previouslyVisited = true;
                     moneys = parseInt(localStorage.getItem('dvdBits'));
                     updateMonDisp();
                 }
                 if (localStorage.getItem('dvdMult')) {
+                    previouslyVisited = true;
                     multiplier = parseInt(localStorage.getItem('dvdMult'));
                     if (multiplier >= 10) {
                         toggleSubway();
                     }
+                }
+
+                if (!previouslyVisited) {
+                    alert("Welcome! Just a heads up, this may cause issues for photosensitive people; consider yourself warned")
                 }
             }, false);
             function handleCollisionAction(i) {
