@@ -48,7 +48,7 @@
         <script>
             let useCol = false;
             let dvdImg = 'dvd.png';
-            let dvdCount = 1;
+            let dvdCount = 0;
             let canMove = true;
             let spinInts = [];
             let allowConfetti = true;
@@ -261,15 +261,12 @@
             }
 
             window.addEventListener('load', mainMenu, false);
+            window.addEventListener('load', addDVD, false);
 
             let sameSpin = false;
             let leaveMode = false;
-            let positions = [
-                {x:0,y:0}
-            ]
-            let slopes = [
-                {rise:0.1,run:0.1}
-            ]
+            let positions = []
+            let slopes = []
             let int = setInterval(moveDVD, 5);
             let selectedAction = 0;
             function init(id, close=true) {
@@ -379,7 +376,8 @@
             }
             let randomTimers = [0];
             function moveDVD() {
-                if (!canMove || selectedAction == 9 || isDragging) {return;}
+                // if (!canMove || selectedAction == 9 || isDragging) {return;}
+                if (!canMove || selectedAction == 9) {return;}
                 for (let i = 0;i<positions.length;i++) {
                     positions[i].x += slopes[i].run;
                     positions[i].y += slopes[i].rise;
@@ -506,8 +504,8 @@
                         }
                    }
 
-                    document.getElementById('dvd'+i).style.top = positions[i].y+"%";
-                    document.getElementById('dvd'+i).style.left = positions[i].x+"%";
+                    document.getElementById(i).style.top = positions[i].y+"%";
+                    document.getElementById(i).style.left = positions[i].x+"%";
                 }
             }
             // setInterval(addDVD, 50);
@@ -596,16 +594,14 @@
                 mousePos.y = (event.clientY/window.innerHeight)*100;
             }, false);
             setInterval(() => {
-                return;
                 if (isDragging && dragId != -1) {
                     positions[dragId].y = mousePos.y;
                     positions[dragId].x = mousePos.x;
-                    document.getElementById('dvd'+dragId).style.top = positions[dragId].y+"%";
-                    document.getElementById('dvd'+dragId).style.left = positions[dragId].x+"%";
+                    document.getElementById(dragId).style.top = positions[dragId].y+"%";
+                    document.getElementById(dragId).style.left = positions[dragId].x+"%";
                 }
             }, 10);
             function startDrag(id) {
-                return;
                 dragId = id;
                 isDragging = true;
             }
@@ -632,7 +628,8 @@
                     pos = {x:x,y:y};
                 }
                 let elem = document.createElement("img");
-                elem.setAttribute('id', "dvd"+positions.length);
+                let id = positions.length;
+                elem.setAttribute('id', id);
                 elem.setAttribute('class', 'dvd');
                 elem.setAttribute("draggable", "true");
                 let goldRoll = Math.floor(Math.random()*10000);
@@ -648,11 +645,15 @@
                 elem.style.left = pos.x+"%";
                 elem.style.top = pos.y+"%";
                 elem.addEventListener('mousedown', () => {
-                    startDrag(positions.length-1);
+                    startDrag(
+                        parseInt(elem.id.split("dvd").join(""))
+                    );
                     event.preventDefault();
                 }, false);
                 elem.addEventListener('mouseup', () => {
-                    endDrag(positions.length-1);
+                    endDrag(
+                        parseInt(elem.id.split("dvd").join(""))
+                    );
                     event.preventDefault();
                 }, false);
                 document.body.appendChild(elem);
@@ -905,6 +906,6 @@
     </head>
     <body>
         <video id="brainVid1" src="subwayVid.mp4" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;display:none;" autoplay muted loop></video>
-        <img src="dvd.png" onmousedown="startDrag(0);event.preventDefault();" onmouseup="endDrag(0);event.preventDefault();" class="dvd" id="dvd0">
+        <!-- <img src="dvd.png" onmousedown="startDrag(0);event.preventDefault();" onmouseup="endDrag(0);event.preventDefault();" class="dvd" id="dvd0"> -->
     </body>
 </html>
