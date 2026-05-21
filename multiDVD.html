@@ -45,6 +45,21 @@
                 color: black;
                 font-style: italic;
             }
+            button.comingSoon {
+                background-color: grey;
+                color: black;
+                font-style: italic;
+            }
+            button.comingSoon:hover {
+                background-color: grey;
+                color: black;
+                font-style: italic;
+            }
+            button.comingSoon:focus {
+                background-color: grey;
+                color: black;
+                font-style: italic;
+            }
         </style>
         <script>
             let useCol = false;
@@ -142,6 +157,14 @@
                             "<button onclick='init(5.5)'>Set random spin (identical across logos) on collision</button>"
                         )
                         break;
+                    case 4:
+                        // Other
+                        popup(
+                            "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Other Modes</h2>" +
+                            "<button onclick='init(14)' class='new'>Shrinking border [NEW]</button><br><br>" +
+                            "<button class='comingSoon'>Black hole logo [Coming Soon]</button><br><br>"
+                        )
+                        break;
                     case 100:
                         // Combination modes
                         popup(
@@ -160,7 +183,7 @@
             let recentbounce = [false];
 
             function checkconfetti() {
-                // Unused; confetti check is done in moveDVD and calls confetti()
+                // Unused; confetti check is done through handleAction() and calls confetti()
                 if (!allowConfetti || useCol) {return}
                 if (recentbounce) {
                     confetti();
@@ -198,11 +221,11 @@
                 if (useCol) {
                     allowConfetti = true;
                     useCol = false;
-                    elem.innerText = "Enable Collision [BETA]";
+                    elem.innerText = "Enable Collision";
                 } else {
                     allowConfetti = false;
                     useCol = true;
-                    elem.innerText = "Disable Collision [BETA]";
+                    elem.innerText = "Disable Collision";
                 }
             }
 
@@ -235,6 +258,17 @@
             }
 
             function mainMenu() {
+                boundaries = {
+                    leftX: 0,
+                    rightX: 92,
+                    topY: 0,
+                    bottomY: 86
+                }
+                if (shrinkingInt) {
+                    clearInterval(shrinkingInt);
+                }
+                allowConfetti = true;
+                selectedAction = 0;
                 let d = new Date();
                 if (d.getDate() == 1 && d.getMonth() == 3) {
                     document.getElementById('dvd0').src = "IMG_6900.jpeg";
@@ -251,13 +285,15 @@
                     "<button onclick='showMenu(1)'>Modes that add multiple DVD logos</button><br><br>" +
                     "<button onclick='showMenu(2)'>Modes that affect speed/slope</button><br><br>" +
                     "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
+                    "<button class='new' onclick='showMenu(4)'>Other Modes [NEW]</button><br><br>" +
                     "<button onclick='showMenu(100)'>Combination modes (the fun stuff)</button><br><br>" +
                     "<br><hr><br><br>" +
                     "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button> - " +
                     "<button onclick='toggleSubway()'>Toggle Subway Surfers</button> - " +
-                    "<button class='new' onclick='toggleCol(this)'>"+(useCol? "Disable Collision [BETA]" : "Enable Collision [BETA]")+"</button> - " +
-                    "<button class='new' onclick='showKeybinds()'>Show Keyboard Shortcuts [NEW]</button> - " +
-                    "<button class='new' onclick='setLogoCount()'>Set Logo Count [NEW]</button>"
+                    "<button onclick='toggleCol(this)'>"+(useCol? "Disable Collision" : "Enable Collision")+"</button> - " +
+                    "<button onclick='showKeybinds()'>Show Keyboard Shortcuts</button> - " +
+                    "<button onclick='setLogoCount()'>Set Logo Count</button><br><br>" +
+                    "<button onclick='window.open(\"https://docs.google.com/forms/d/e/1FAIpQLScZsoEgArpuLhoXP8HJIrQgReFiKAhr-h8Cpw584KM9bYgGsg/viewform?usp=publish-editor\")'>Suggestions :)</button>"
                 )
             }
 
@@ -269,6 +305,7 @@
             let positions = []
             let slopes = []
             let int = setInterval(moveDVD, 5);
+            let shrinkingInt;
             let selectedAction = 0;
             function init(id, close=true) {
                 if (id == 5.5) {
@@ -323,8 +360,32 @@
                         }, timeVal);
                     }
                 }
+                if (id == 14) {
+                    allowConfetti = false;
+                    let box = document.createElement('div');
+                    box.style = 'position:fixed;top:0;left:0;width:100%;height:100%;border:1px solid white;'
+                    box.setAttribute('id', "shrinkingBox");
+                    document.body.appendChild(box);
+                    shrinkingInt = setInterval(() => {
+                        if (boundaries.topY < boundaries.bottomY) {
+                            boundaries.topY += 0.1;
+                            boundaries.bottomY -= 0.1;
+                        }
+                        if (boundaries.leftX < boundaries.rightX) {
+                            boundaries.leftX += 0.1;
+                            boundaries.rightX -= 0.1;
+                        }
+                        document.getElementById('shrinkingBox').style.width = Math.abs(boundaries.leftX-boundaries.rightX)+8+"%";
+                        document.getElementById('shrinkingBox').style.height = Math.abs(boundaries.topY-boundaries.bottomY)+14+"%";
+                        document.getElementById('shrinkingBox').style.top = boundaries.topY+"%";
+                        document.getElementById('shrinkingBox').style.left = boundaries.leftX+"%";
+                    }, 10);
+                }
                 /* Other IDs:
                     12: Random speed every 1/2 second
+                    13: Random speed every 1/2 second with pauses
+
+                    Note to self: make this a list of all modes and corresponding IDs later
                 */
                 if (close) {
                     closepop();
@@ -376,6 +437,12 @@
                 }
             }
             let randomTimers = [0];
+            let boundaries = {
+                leftX: 0,
+                rightX: 92,
+                topY: 0,
+                bottomY: 86
+            }
             function moveDVD() {
                 // if (!canMove || selectedAction == 9 || isDragging) {return;}
                 if (!canMove || selectedAction == 9) {return;}
@@ -440,26 +507,26 @@
                         }
                     }
 
-                    if (positions[i].x >= 92) {
+                    if (positions[i].x >= boundaries.rightX) {
                         handleAction(i);
                         slopes[i].run = -slopes[i].run
-                        positions[i].x = 91.9;
+                        positions[i].x = boundaries.rightX-0.1;
                     }
-                    if (positions[i].x <= 0) {
+                    if (positions[i].x <= boundaries.leftX) {
                         handleAction(i);
                         slopes[i].run = -slopes[i].run
-                        positions[i].x = 0.1;
+                        positions[i].x = boundaries.leftX+0.1;
                     }
 
-                    if (positions[i].y >= 86) {
+                    if (positions[i].y >= boundaries.bottomY) {
                         handleAction(i);
                         slopes[i].rise = -slopes[i].rise
-                        positions[i].y = 85.9;
+                        positions[i].y = boundaries.bottomY-0.1;
                     }
-                    if (positions[i].y <= 0) {
+                    if (positions[i].y <= boundaries.topY) {
                         handleAction(i);
                         slopes[i].rise = -slopes[i].rise
-                        positions[i].y = 0.1;
+                        positions[i].y = boundaries.topY+0.1;
                     }
 
                    if (positions[i].x < 50.1 && positions[i].x > 49.9) {
@@ -696,7 +763,7 @@
                 }
                 positions.pop();
                 slopes.pop();
-                document.getElementById("dvd"+positions.length).outerHTML = '';
+                document.getElementById(positions.length).outerHTML = '';
             }
 
             function randomSpin(i=0) {
