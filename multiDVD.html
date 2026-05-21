@@ -267,6 +267,9 @@
                 if (shrinkingInt) {
                     clearInterval(shrinkingInt);
                 }
+                if (document.getElementById('shrinkingBox')) {
+                    document.getElementById('shrinkingBox').outerHTML = '';
+                }
                 allowConfetti = true;
                 selectedAction = 0;
                 let d = new Date();
