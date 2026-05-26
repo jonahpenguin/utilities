@@ -677,7 +677,7 @@
                         break;
                 }
             }
-            function buyMultiplier(showPopup=true) {
+            function buyMultiplier(showPopup=true,updateShop=true) {
                 let multCost = Math.pow(2, multiplier+3);
                 if (moneys >= multCost) {
                     moneys -= multCost;
@@ -687,8 +687,10 @@
                     }
                     updateMonDisp();
                     saveGame();
-                    closepop();
-                    showShop();
+                    if (updateShop) {
+                        closepop();
+                        showShop();
+                    }
                     // alert("Upgraded to Level "+multiplier+" multiplier!");
                 } else {
                     if (showPopup) {
@@ -697,15 +699,17 @@
                 }
             }
             let multiplier = 1;
-            function buyLogo(showPopup=true) {
+            function buyLogo(showPopup=true,updateShop=true) {
                 let dvdCost = dvdCount*20;
 
                 if (moneys >= dvdCost) {
                     moneys -= dvdCost;
                     updateMonDisp();
                     addDVD();
-                    closepop();
-                    showShop();
+                    if (updateShop) {
+                        closepop();
+                        showShop();
+                    }
                 } else {
                     if (showPopup) {
                         alert("Not enough DVD bits...");
@@ -713,15 +717,17 @@
                 }
             }
             let speedVal = 1;
-            function buySpeed(showPopup=true) {
+            function buySpeed(showPopup=true,updateShop=true) {
                 let cost = 1000*(speedVal*2);
                 if (moneys >= cost) {
                     moneys -= cost;
                     increaseSpeed();
                     speedVal++;
                     saveGame();
-                    closepop();
-                    showShop();
+                    if (updateShop) {
+                        closepop();
+                        showShop();
+                    }
                 } else {
                     if (showPopup) {
                         alert("Not enough DVD bits...");
@@ -753,14 +759,18 @@
             let autos = [false,false,false];
             setInterval(() => {
                 // Autobuy interval
+                let updateShop = false;
+                if (document.getElementById('popup')) {
+                    updateShop = true;
+                }
                 if (autos[0]) {
-                    for(let i=0;i<20;i++){buyLogo(false)}
+                    for(let i=0;i<20;i++){buyLogo(false,updateShop)}
                 }
                 if (autos[1]) {
-                    for(let i=0;i<20;i++){buyMultiplier(false)}
+                    for(let i=0;i<20;i++){buyMultiplier(false,updateShop)}
                 }
                 if (autos[2]) {
-                    for(let i=0;i<20;i++){buySpeed(false)}
+                    for(let i=0;i<20;i++){buySpeed(false,updateShop)}
                 }
             }, 1);
             function toggleAuto(id, elem) {
