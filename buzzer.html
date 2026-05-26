@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <title>Buzzer</title>
+        <style>
+            body {
+                background-color: black;
+                color: lime;
+                font-family: monospace;
+                text-align: center;
+                zoom: 200%;
+            }
+        </style>
+        <script>
+            window.addEventListener('load', initialize, false);
+            let buzzed = false;
+            function initialize() {
+                buzzed = false;
+                let output = "Waiting on you..."
+                let id = Math.floor(Math.random()*10);
+                switch(id) {
+                    case 0:
+                        output = "You got this..."
+                        break;
+                    case 1:
+                        output = "This is the one..."
+                        break;
+                    case 2:
+                        output = "Brain is brainilating..."
+                        break;
+                    case 3:
+                        output = "Thinking in progress, please do not turn off your brain..."
+                        break;
+                    case 4:
+                        output = "What could go wrong..."
+                        break;
+                    case 5:
+                        output = "Surely that is the answer..."
+                        break;
+                    case 6:
+                        output = "Maybe a couple YouTube shorts and you'll find the answer..."
+                        break;
+                    case 7:
+                        output = "Buh-ra-rum..."
+                        break;
+                    case 8:
+                        output = "What is the meaning of 'I don't know half of you half as well as I should like; and I like less than half of you half as well as you deserve.'..."
+                        break;
+                    case 9:
+                        output = "[insert funny comment here]"
+                        break;
+                    default:
+                        output = "Buh-ra-rum..."
+                        break;
+                }
+                document.getElementById('content').innerHTML = "<i>"+output+"</i>";
+                    document.getElementById('resetMsg').innerText = "";
+            }
+            window.addEventListener('keydown', (event) => {
+                if (event.key == " " && !buzzed) {
+                    buzzed = true;
+                    let d = new Date();
+                    document.getElementById('content').innerText = "Buzzed in at "+d+" ("+d.getMilliseconds()+" ms)";
+                    document.getElementById('resetMsg').innerText = "Press 'r' to reset";
+                }
+                if (event.key == "r" && buzzed) {
+                    initialize();
+                }
+            }, false);
+        </script>
+    </head>
+    <body>
+        <br><br>
+        <span id="content">Loading...</span>
+        <br><br>
+        <span id="resetMsg"></span>
+    </body>
+</html>
