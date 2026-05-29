@@ -281,6 +281,11 @@
                     intId: 0
                 }
 
+                // Below is commented out so I can work on Prestige stuff; also see comment with "let offlineEarnings"
+
+                // let bitsAdded = parseInt(input.split('+').join(""));
+                // bitsInLastInt += bitsAdded;
+
                 let elem = document.createElement("span");
                 elem.setAttribute("id", "tn");
                 elem.style.position = 'fixed';
@@ -317,6 +322,28 @@
                 } else {
                     addDVD();
                 }
+
+                /*
+
+                FINISH OFFLINE STUFF; need to exclude clicking in bitsPerInt
+                
+                Below is commented out so I can work on Prestige stuff; also see comment with "let bitsPerInt"
+
+                */
+
+                // if (localStorage.getItem('bitsPerInt') && localStorage.getItem('lastActive')) {
+                //     bitsPerInt = parseInt(localStorage.getItem("bitsPerInt"));
+                //     let lastActive = parseInt(localStorage.getItem('lastActive'));
+                //     let newTime = Date.now()/1000;
+                //     let elapsedTime = newTime - lastActive;
+                //     let offlineEarnings = Math.round(bitsPerInt*(elapsedTime/5));
+                //     console.log(offlineEarnings);
+                //     moneys += offlineEarnings;
+                //     if (offlineEarnings != 0) {
+                //         alert("You got "+offlineEarnings+" DVD bits while offline")
+                //     }
+                //     previouslyVisited = true;
+                // }
                 if (localStorage.getItem('dvdNathan')) {
                     previouslyVisited = true;
                     nathanMode = true;
@@ -756,6 +783,19 @@
                     alert("An error occured");
                 }
             }
+            // Below is commented out so I can work on Prestige stuff; also see comment with "let bitsAdded"
+
+            // bitsPerInt is the saved one, bitsInLastInt is the one being mathed out currently
+            // let bitsPerInt = 0;
+            // let bitsInLastInt = 0;
+            // setInterval(() => {
+            //     bitsPerInt = parseInt(bitsInLastInt);
+            //     localStorage.setItem('bitsPerInt', bitsPerInt);
+            //     let d = new Date();
+            //     let lastActive = Date.now()/1000;
+            //     localStorage.setItem('lastActive',lastActive);
+            //     bitsInLastInt = 0;
+            // }, 5000);
             let autos = [false,false,false];
             setInterval(() => {
                 // Autobuy interval
