@@ -162,7 +162,7 @@
                         popup(
                             "<button onclick='mainMenu()' style='float:left;'>Back</button><br><h1>DVD v2</h1><h2>Other Modes</h2>" +
                             "<button onclick='init(14)' class='new'>Shrinking border [NEW]</button><br><br>" +
-                            "<button class='comingSoon'>Black hole logo [Coming Soon]</button><br><br>"
+                            "<button onclick='init(15)' class='new'>Evil logo [NEW]</button><br><br>"
                         )
                         break;
                     case 100:
@@ -175,6 +175,9 @@
                             "<button onclick='init(9)'>Spin, and add logo after 1 sec while not moving</button><br><br>" +
                             "<button onclick='init(10)'>Spin, and add logo after a custom amount of time</button><br><br>" +
                             "<button onclick='init(13)'>Random slope every 1/2 second with random pauses</button><br><br>" +
+                            "<button class='new' onclick='init(16)'>Evil logo and shrinking border [NEW]</button><br><br>" +
+                            "<button class='new' onclick='init(17)'>Evil logo and add logo every second [NEW]</button><br><br>" +
+                            "<button class='new' onclick='init(18)'>Evil logo and random slope every 1/2 second [NEW]</button><br><br>" +
                             "<button onclick='init(100)'>All. Of. Them. (will crash soon after starting)</button>"
                         )
                         break;
@@ -264,6 +267,10 @@
                     topY: 0,
                     bottomY: 86
                 }
+                if (evilId != -1) {
+                    document.getElementById(evilId).style.filter = '';
+                    evilId = -1;
+                }
                 if (shrinkingInt) {
                     clearInterval(shrinkingInt);
                 }
@@ -289,7 +296,7 @@
                     "<button onclick='showMenu(2)'>Modes that affect speed/slope</button><br><br>" +
                     "<button onclick='showMenu(3)'>Modes that affect spin</button><br><br>" +
                     "<button class='new' onclick='showMenu(4)'>Other Modes [NEW]</button><br><br>" +
-                    "<button onclick='showMenu(100)'>Combination modes (the fun stuff)</button><br><br>" +
+                    "<button class='new' onclick='showMenu(100)'>Combination modes (the fun stuff) [NEW]</button><br><br>" +
                     "<br><hr><br><br>" +
                     "<button onclick='runCmd(prompt(\"Enter a command:\"))'>Run cmd (dev)</button> - " +
                     "<button onclick='toggleSubway()'>Toggle Subway Surfers</button> - " +
@@ -310,6 +317,7 @@
             let int = setInterval(moveDVD, 5);
             let shrinkingInt;
             let selectedAction = 0;
+            let evilId = -1;
             function init(id, close=true) {
                 if (id == 5.5) {
                     id = 5;
@@ -319,19 +327,36 @@
                     id = 3;
                     leaveMode = true;
                 }
+                if (id == 15 || id == 100 || id == 16 || id == 17 || id == 18) {
+                    // Adds multiple by default to showcase evil logo
+                    if (dvdCount == 1) {
+                        addDVD();
+                    }
+                    if (dvdCount <= 0) {
+                        while(dvdCount<2) {
+                            addDVD();
+                        }
+                    }
+
+                    // Setting the evil one and making it evil
+                    evilId = 0
+                    document.getElementById(0).style.filter = "hue-rotate(100deg)";
+                }
                 selectedAction = parseInt(id);
                 if (id == 5 || id == 6 || id == 100 || id == 9 || id == 10) {
                     for (let i = 0;i<positions.length;i++) {
-                        document.getElementById('dvd'+i).style.rotate = "0deg";
+                        document.getElementById(i).style.rotate = "0deg";
                         spinInts[i] = setInterval(() => {
                             for (let j = 0;j<positions.length;j++) {
-                                let rotVal = parseInt(document.getElementById('dvd'+j).style.rotate);
+                                let rotVal = parseInt(document.getElementById(j).style.rotate);
                                 rotVal++;
-                                document.getElementById('dvd'+j).style.rotate = rotVal+"deg";
+                                document.getElementById(j).style.rotate = rotVal+"deg";
                             }
                         }, 10);
                     }
                 }
+
+                // This is old...I should probably get rid of it......nah XD
                 if ((id == 2 || id == 4 || id == 100 || id == 8 || id == 11 || id == 9 || id == 10) && !document.getElementById('countDisp')) {
                     let elem = document.createElement('span');
                     elem.innerText = 'DVDs: '+dvdCount;
@@ -339,9 +364,11 @@
                     elem.setAttribute("id", "countDisp");
                     document.body.appendChild(elem);
                 }
-                if (id == 7 || id == 100 || id == 9 || id == 10 || id == 11) {
+
+
+                if (id == 7 || id == 100 || id == 9 || id == 10 || id == 11 || id == 17) {
                     let timeVal;
-                    if (id == 100 || id == 9) {
+                    if (id == 100 || id == 9 || id == 17) {
                         timeVal = 1;
                     } else {
                         // For 7, 10 and 11
@@ -363,7 +390,7 @@
                         }, timeVal);
                     }
                 }
-                if (id == 14) {
+                if (id == 14 || id == 100 || id == 16) {
                     allowConfetti = false;
                     let box = document.createElement('div');
                     box.style = 'position:fixed;top:0;left:0;width:100%;height:100%;border:1px solid white;'
@@ -450,9 +477,12 @@
                 // if (!canMove || selectedAction == 9 || isDragging) {return;}
                 if (!canMove || selectedAction == 9) {return;}
                 for (let i = 0;i<positions.length;i++) {
+                    if (positions[i] == null || slopes[i] == null) {
+                        continue;
+                    }
                     positions[i].x += slopes[i].run;
                     positions[i].y += slopes[i].rise;
-                    if (useCol) {
+                    if (useCol || evilId != -1) {
                         for (let j = 0;j<positions.length;j++) {
                             // No collision with self
                             if (j == i) {continue}
@@ -461,6 +491,15 @@
                             if (positions[i].x+8 >= positions[j].x && positions[i].x <= positions[j].x+8) {
                                 // Check y
                                 if (positions[i].y >= positions[j].y && positions[i].y <= positions[j].y+14) {
+
+                                    if (evilId == i) {
+                                        removeDVD(j);
+                                        continue;
+                                    }
+
+                                    // The following case would occur if evil mode was on but collision wasn't
+                                    if (!useCol) {continue}
+
                                     // Epic collision coding by Copilot, because I'm really bad at this :D
                                     const xOverlap = Math.min(positions[i].x + 8, positions[j].x + 8) - Math.max(positions[i].x, positions[j].x);
                                     const yOverlap = Math.min(positions[i].y + 14, positions[j].y + 14) - Math.max(positions[i].y, positions[j].y);
@@ -489,12 +528,14 @@
                     }
 
                     // Increment random timers
-                    randomTimers[i]++;
-                    if (randomTimers[i] >= 50) {
-                        randomTimers[i] = 0;
-                        // Checks to make sure that the logo won't get stuck in a wall
-                        if ((selectedAction == 12 || selectedAction == 13 || selectedAction == 100) && positions[i].x > 1.1 && positions[i].x < 91 && positions[i].y > 1.1 && positions[i].y < 85) {
-                            randomSpeed(i);
+                    if (randomTimers[i] != -1) {
+                        randomTimers[i]++;
+                        if (randomTimers[i] >= 50) {
+                            randomTimers[i] = 0;
+                            // Checks to make sure that the logo won't get stuck in a wall
+                            if ((selectedAction == 12 || selectedAction == 13 || selectedAction == 100 || selectedAction == 18) && positions[i].x > 1.1 && positions[i].x < 91 && positions[i].y > 1.1 && positions[i].y < 85) {
+                                randomSpeed(i);
+                            }
                         }
                     }
                     
@@ -573,10 +614,12 @@
                                 positions[i].y = 36.1;
                             }
                         }
-                   }
+                    }
 
-                    document.getElementById(i).style.top = positions[i].y+"%";
-                    document.getElementById(i).style.left = positions[i].x+"%";
+                    if (document.getElementById(i)) {
+                        document.getElementById(i).style.top = positions[i].y+"%";
+                        document.getElementById(i).style.left = positions[i].x+"%";
+                    }
                 }
             }
             // setInterval(addDVD, 50);
@@ -737,20 +780,37 @@
                         if (spinInts[i]) {
                             clearInterval(spinInts[i]);
                         } else {
-                            document.getElementById('dvd'+i).style.rotate = '0deg';
+                            document.getElementById(i).style.rotate = '0deg';
                         }
                         spinInts[i] = setInterval(() => {
                             for (let j = 0;j<positions.length;j++) {
-                                let rotVal = parseInt(document.getElementById('dvd'+j).style.rotate);
+                                let rotVal = parseInt(document.getElementById(j).style.rotate);
                                 rotVal++;
-                                document.getElementById('dvd'+j).style.rotate = rotVal+"deg";
+                                document.getElementById(j).style.rotate = rotVal+"deg";
                             }
                         }, 10);
                     }
                 }
             }
-            function removeDVD() {
+            function removeDVD(id=-1) {
                 if (dvdCount == 0) {
+                    return;
+                }
+                if (id != -1) {
+                    positions[id] = -1;
+                    slopes[id] = -1;
+                    document.getElementById(id).outerHTML = '';
+                    randomTimers[id] = -1;
+                    dvdCount--;
+                    if (document.getElementById('countDisp')) {
+                        document.getElementById('countDisp').innerText = "DVDs: "+dvdCount;
+                    } else {
+                        let elem = document.createElement('span');
+                        elem.innerText = 'DVDs: '+dvdCount;
+                        elem.setAttribute('id', 'countDisp');
+                        elem.style = 'position:fixed;bottom:0;left:0;z-index:1;';
+                        document.body.appendChild(elem);
+                    }
                     return;
                 }
                 randomTimers.pop();
@@ -764,9 +824,18 @@
                     elem.style = 'position:fixed;bottom:0;left:0;z-index:1;';
                     document.body.appendChild(elem);
                 }
-                positions.pop();
+                let out = positions.pop();
                 slopes.pop();
-                document.getElementById(positions.length).outerHTML = '';
+                if (document.getElementById(positions.length)) {
+                    document.getElementById(positions.length).outerHTML = '';
+                }
+                while(out == null) {
+                    out = positions.pop();
+                    slopes.pop();
+                    if (document.getElementById(positions.length)) {
+                        document.getElementById(positions.length).outerHTML = '';
+                    }
+                }
             }
 
             function randomSpin(i=0) {
@@ -781,17 +850,17 @@
                 if (sameSpin) {
                     spinInts[0] = setInterval(() => {
                         for (let i = 0;i<positions.length;i++) {
-                            let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
+                            let rotVal = parseInt(document.getElementById(i).style.rotate);
                             rotVal+=stepVal;
-                            document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
+                            document.getElementById(i).style.rotate = rotVal+"deg";
                         }
                     }, 10);
                 } else {
                     spinInts[i] = setInterval(() => {
                         // for (let i = 0;i<positions.length;i++) {
-                            let rotVal = parseInt(document.getElementById('dvd'+i).style.rotate);
+                            let rotVal = parseInt(document.getElementById(i).style.rotate);
                             rotVal+=stepVal;
-                            document.getElementById('dvd'+i).style.rotate = rotVal+"deg";
+                            document.getElementById(i).style.rotate = rotVal+"deg";
                         // }
                     }, 10);
                 }
@@ -813,7 +882,7 @@
                 currentCol = parseInt(col);
                 if (update) {
                     for (let i = 0;i<positions.length;i++) {
-                        document.getElementById('dvd'+i).style.filter = 'hue-rotate('+currentCol+'deg)';
+                        document.getElementById(i).style.filter = 'hue-rotate('+currentCol+'deg)';
                     }
                 }
             }
@@ -858,19 +927,19 @@
                         break;
                     case 6:
                         setCol(300,i,false);
-                        document.getElementById('dvd'+i).style.filter = 'invert()';
+                        document.getElementById(i).style.filter = 'invert()';
                         break;
                     case 7:
                         setCol(350,i,false);
-                        document.getElementById('dvd'+i).style.filter = 'brightness(999)';
+                        document.getElementById(i).style.filter = 'brightness(999)';
                         break;
                     case 8:
                         setCol(400,i,false);
-                        document.getElementById('dvd'+i).style.filter = 'brightness(60%)';
+                        document.getElementById(i).style.filter = 'brightness(60%)';
                         break;
                     case 9:
                         setCol(450,i,false);
-                        document.getElementById('dvd'+i).style.filter = 'sepia(100%)';
+                        document.getElementById(i).style.filter = 'sepia(100%)';
                         break;
                     default:
                         setCol(0);
