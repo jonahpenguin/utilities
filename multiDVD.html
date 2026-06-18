@@ -231,11 +231,29 @@
                     }
                 }
                 popup(
-                    "<button onclick='showMenu(100)' style='float:left;'>Back</button><button style='float:right;' onclick='mixAndMatchSelect(true)'>Select All</button><br><button style='float:right;' onclick='mixAndMatchSelect(false)'>Deselect All</button><br><h1>DVD v2</h1><h2>Custom Combination</h2>" +
+                    "<button onclick='showMenu(100)' style='float:left;'>Back</button>" +
+                    "<button style='float:right;' onclick='mixAndMatchSelect(true)'>Select All</button><br>" +
+                    "<button style='float:right;' onclick='mixAndMatchSelect(false)'>Deselect All</button><br>" +
+                    "<button class='new' style='float:right;' onclick='randomCombo()'>Randomize [NEW]</button><br>" +
+                    "<h1>DVD v2</h1><h2>Custom Combination</h2>" +
                     output +
                     "<br><br><button onclick='startMixAndMatch()'>Start</button>"
                 )
                 document.getElementById(counter).outerHTML = '';
+            }
+            function randomCombo() {
+                for (let i = 0;i<mixAndMatchSelection.length;i++) {
+                    if (modeNames[i] == 0) {
+                        continue;
+                    }
+                    let roll = Math.floor(Math.random()*101);
+                    if (roll >= 50) {
+                        mixAndMatchSelection[i] = true;
+                    } else {
+                        mixAndMatchSelection[i] = false;
+                    }
+                }
+                mixAndMatchMenu();
             }
             function mixAndMatchSelect(isAll) {
                 let state = false;
