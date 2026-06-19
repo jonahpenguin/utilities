@@ -21,11 +21,13 @@
                 }
                 document.getElementById('sidewaysNotif').style.width = window.innerWidth;
                 document.getElementById('sidewaysNotif').style.height = window.innerHeight;
+                document.getElementById('img').style.width = window.innerWidth;
+                document.getElementById('img').style.height = window.innerHeight;
             }, 1);
         </script>
     </head>
     <body>
         <div id="sidewaysNotif" style="z-index:100;position:fixed;top:0;left:0;width:100%;height:100%;background-color:darkblue;"><br><br>Hold your phone sideways :)</div>
-        <img src="Father_s_Day_2026.png" style="z-index:1;position:fixed;top:0;left:0;width:100%;height:100%;">
+        <img id="img" src="Father_s_Day_2026.png" style="z-index:1;position:fixed;top:0;left:0;width:100%;height:100%;">
     </body>
 </html>
