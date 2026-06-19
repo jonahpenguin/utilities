@@ -8,7 +8,7 @@
             div {
                 color: white;
                 font-family: "comic sans ms", helvetica;
-                text-align: center;
+                text-align: left;
                 font-size: 48px;
             }
         </style>
@@ -19,6 +19,8 @@
                 } else {
                     document.getElementById("sidewaysNotif").style.display = 'none';
                 }
+                document.getElementById('sidewaysNotif').style.width = window.innerWidth;
+                document.getElementById('sidewaysNotif').style.height = window.innerHeight;
             }, 1);
         </script>
     </head>
