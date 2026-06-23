@@ -879,7 +879,7 @@
             function showDoubleOrNothing() {
                 closepop();
                 popup(
-                    "<button id='DONback' style='float:left;'>Back</button><br><br>" +
+                    "<button id='DONback' style='float:left;' onclick='closepop();showShop()'>Back</button><br><br>" +
                     "<h1>Double or Nothing</h1>" +
                     "<span id='DONspan'>Rolls a random number between 0-100. If it is greater than or equal to 50, you get double your current DVD bits. Otherwise, you loose all of them. You keep all your upgrades though.<br><br>" +
                     "<button onclick='doubleOrNothing()'>Let's do it!</button></span>"
