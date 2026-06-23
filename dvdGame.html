@@ -870,10 +870,55 @@
                     "~"+spaces +
                     "<span style='background-color:black;'>("+formatNumber(speedCost)+" DVD bits) Current speed multiplier: "+formatNumber(speedVal)+"</span><br><br>" +
                     "<br><br>" +
+                    "<button onclick='showDoubleOrNothing()'>Double or Nothing options</button> ~ " +
                     nmButton + "<br><br>" +
                     "<button onclick='window.open(\"https://utilities-8tvg.onrender.com/dvdMain.html\")'>More DVD stuff :)</button>"
                     // "<button onclick='buySubway()'>Buy Subway Surfers background (ultimate flex)</button> (1,000,000 DVD bits or Multiplier Level 100)<br><br>"
                 )
+            }
+            function showDoubleOrNothing() {
+                closepop();
+                popup(
+                    "<button id='DONback' style='float:left;'>Back</button><br><br>" +
+                    "<h1>Double or Nothing</h1>" +
+                    "<span id='DONspan'>Rolls a random number between 0-100. If it is greater than or equal to 50, you get double your current DVD bits. Otherwise, you loose all of them. You keep all your upgrades though.<br><br>" +
+                    "<button onclick='doubleOrNothing()'>Let's do it!</button></span>"
+                )
+            }
+            function doubleOrNothing() {
+                document.getElementById('DONback').style.display = 'none';
+                document.getElementById('DONspan').innerHTML =
+                    "Rolling...";
+                let roll = Math.floor(Math.random()*101);
+                let int = setInterval(() => {
+                    document.getElementById('DONspan').innerHTML =
+                        "Rolling...<br><br>"+roll;
+                    roll = Math.floor(Math.random()*101);
+                }, 500);
+                setTimeout(() => {
+                    clearInterval(int);
+                    document.getElementById('DONspan').innerHTML =
+                        "Your roll: <br><br>"+roll;
+                    setTimeout(() => {
+                        if (roll >= 50) {
+                            moneys *= 2;
+                            updateMonDisp();
+                            saveGame();
+                            document.getElementById('DONspan').innerHTML =
+                                "You doubled your money! You are now at " + moneys + " DVD bits!" +
+                                "<br><br>" +
+                                "<button onclick='closepop();showShop()'>Sweet!</button>"
+                        } else {
+                            moneys = 0;
+                            updateMonDisp();
+                            saveGame();
+                            document.getElementById('DONspan').innerHTML =
+                                "You lost all your money...better luck next time..." +
+                                "<br><br>" +
+                                "<button onclick='closepop();showShop()'>Aw...</button>"
+                        }
+                    }, 800);
+                }, 2000);
             }
             window.addEventListener("keydown", (event) => {
                 if (event.key == "f") {
