@@ -62,7 +62,14 @@ io.on("connection", (socket) => {
   // chat.html
   let chatUsers = [];
   socket.on("chatCheck", (msg) => {
-    if (chatNames.includes(msg)) {
+    let passed = true;
+    for (let i = 0;i<chatUsers.length;i++) {
+      if (chatUsers[i].name == msg) {
+        passed = false;
+        break;
+      }
+    }
+    if (!passed) {
       io.emit("chatCheckRes", "fail");
     } else {
       io.emit("chatCheckRes", "pass");
