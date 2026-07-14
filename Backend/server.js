@@ -42,6 +42,7 @@ io.on("connection", (socket) => {
     }
     if (msg == "incCount") {
       dvdMainVisits++;
+      console.log("Updated dvdMain visit counter to "+dvdMainVisits);
     }
   });
 });
