@@ -5,6 +5,8 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
+let dvdMainVisits = 0;
+
 const io = new Server(server, {
   cors: {
     origin: "*"
@@ -32,6 +34,15 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
+  });
+
+  socket.on("dvdMain", (msg) => {
+    if (msg == "visitCountReq") {
+      io.emit("dvdMain", dvdMainVisits);
+    }
+    if (msg == "incCount") {
+      dvdMainVisits++;
+    }
   });
 });
 
