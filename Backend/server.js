@@ -19,7 +19,11 @@ io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
   socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
+    if (msg == "How are you doing?") {
+        io.emit("chat message", "Good, how are you?");
+    } else {
+      io.emit("chat message", msg);
+    }
   });
 
   socket.on("disconnect", () => {
