@@ -61,15 +61,19 @@ io.on("connection", (socket) => {
 
   // betterChat.html
   let chatHistory = [];
-socket.on("chatRequest", () => {
-  let output = chatHistory.join("<br><br>");
-  io.emit("chatContent", output);
-});
-
+  
   socket.on("chatMsg", (msg) => {
     let d = new Date();
     chatHistory.push("<span title="+d.getHours()+":"+d.getMinutes()+">"+msg+"</span>");
+    let output = chatHistory.join("<br><br>");
+    io.emit("chatContent", output);
   });
+
+  // Below shouldddd go unused
+socket.on("chatRequest", () => {
+  io.emit("chatContent", output);
+});
+
   
   // chat.html - old
   // let chatUsers = [];
