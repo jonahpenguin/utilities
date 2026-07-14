@@ -103,7 +103,8 @@ io.on("connection", (socket) => {
     let t = Date.now();
     for (let i = 0;i<chatUsers.length;i++) {
       if (chatUsers[i].lastHeartbeat - t >= 5000) {
-        // Assume offline
+        // Assume offline and remove
+        chatUsers.splice(i, 1);
       }
     }
   }, 5000);
