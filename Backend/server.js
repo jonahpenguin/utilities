@@ -28,6 +28,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Buzzer.html
   socket.on("buzz", (msg) => {
     console.log(msg+" buzzed in at "+new Date());
   });
@@ -40,6 +41,8 @@ io.on("connection", (socket) => {
     console.log("User disconnected");
   });
 
+
+  // dvdMain
   socket.on("dvdMain", (msg) => {
     if (msg == "visitCountReq") {
       io.emit("dvdMain", dvdMainVisits);
@@ -54,6 +57,62 @@ io.on("connection", (socket) => {
       console.log("Updated dvdMain visit counter to "+dvdMainVisits);
     }
   });
+});
+
+// chat.html
+let chatUsers = [];
+socket.on("chatCheck", (msg) => {
+  if (chatNames.includes(msg)) {
+    io.emit("chatCheckRes", "fail");
+  } else {
+    io.emit("chatCheckRes", "pass");
+    chatUsers.push(
+      {
+        name: msg,
+        id: socket.id,
+        lastHeartbeat: 0
+      }
+    );
+});
+
+socket.on("chatHeartbeat", () => {
+  let wasSuccessful = false;
+  for (let i = 0; i<chatUsers.length; i++) {
+    if (chatUsers[i].id == socket.id) {
+      // Note to self: Date.now() is in ms
+      chatUsers[i].lastHeartbeat = Date.now();
+      wasSuccessful = true;
+    }
+  }
+  if (!wasSuccessful) {
+    console.log("**umm tried to heartbeat but ID not found in chatUsers");
+    io.emit("serverError", "User was disconnected for more than 5 seconds, so their entry was removed from Online Users");
+  }
+});
+
+// Clear offline users
+setInterval(() => {
+  let t = Date.now();
+  for (let i = 0;i<chatUsers.length;i++) {
+    if (chatUsers[i].lastHeartbeat - t >= 5000) {
+      // Assume offline
+    }
+  }
+}, 5000);
+
+socket.on("chatRequest", (msg) => {
+  if (msg == "onlineUsers") {
+    io.emit("userList", chatUsers);
+  }
+});
+
+socket.on("chatSend", (msg) => {
+  let dest = msg.split("!)$&")[0];
+  if (chatUsers[dest]) {
+    dest = chatUsers[dest].id;
+  }
+  let content = msg.split("!)$&")[1];
+  io.to(dest).emit("chatMsg", content+"!)$&"+socket.id);
 });
 
 server.listen(process.env.PORT || 3000);
