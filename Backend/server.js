@@ -26,6 +26,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("heartbeat", (msg) => {
+    io.emit(msg);
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
