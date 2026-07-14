@@ -28,6 +28,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("buzz", (msg) => {
+    console.log(msg+" buzzed in at "+new Date());
+  });
+  
   socket.on("heartbeat", (msg) => {
     io.emit("heartbeat", msg);
   });
