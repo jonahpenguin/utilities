@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("heartbeat", (msg) => {
-    io.emit(msg);
+    io.emit("heartbeat", msg);
   });
 
   socket.on("disconnect", () => {
