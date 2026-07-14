@@ -44,6 +44,11 @@ io.on("connection", (socket) => {
     if (msg == "visitCountReq") {
       io.emit("dvdMain", dvdMainVisits);
     }
+    if (msg.includes("visitCountSet")) {
+      let str = msg.split("visitCountSet").join("");
+      dvdMainVisits = parseInt(str);
+      console.log("Set dvdMain visits to "+dvdMainVisits);
+    }
     if (msg == "incCount") {
       dvdMainVisits++;
       console.log("Updated dvdMain visit counter to "+dvdMainVisits);
