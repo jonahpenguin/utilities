@@ -69,6 +69,10 @@ io.on("connection", (socket) => {
         break;
       }
     }
+
+    // Testing
+    passed = true
+    
     if (!passed) {
       io.emit("chatCheckRes", "fail");
     } else {
@@ -80,6 +84,7 @@ io.on("connection", (socket) => {
           lastHeartbeat: 0
         }
       );
+      console.log(chatUsers);
     }
   });
   
