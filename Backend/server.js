@@ -69,10 +69,11 @@ io.on("connection", (socket) => {
     io.emit("chatContent", output);
   });
 
-  // Below shouldddd go unused
-// socket.on("chatRequest", () => {
-  // io.emit("chatContent", output);
-// });
+  // Below should only be used at start
+socket.on("chatRequest", () => {
+  let output = chatHistory.join("<br><br>");
+  io.emit("chatContent", output);
+});
 
   
   // chat.html - old
