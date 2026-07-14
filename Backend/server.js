@@ -73,6 +73,7 @@ socket.on("chatCheck", (msg) => {
         lastHeartbeat: 0
       }
     );
+  }
 });
 
 socket.on("chatHeartbeat", () => {
