@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
   socket.on("dvdMain", (msg) => {
     if (msg == "visitCountReq") {
       let d = new Date();
-      io.emit("dvdMain", d.getHours()":"+d.getMinutes()+" on "+d.getMonth()+"/"+d.getDate()+"): "+dvdMainVisits);
+      io.emit("dvdMain", d.getHours()+":"+d.getMinutes()+" on "+d.getMonth()+"/"+d.getDate()+"): "+dvdMainVisits);
     }
     if (msg.includes("visitCountSet")) {
       let str = msg.split("visitCountSet").join("");
