@@ -70,9 +70,9 @@ io.on("connection", (socket) => {
   });
 
   // Below shouldddd go unused
-socket.on("chatRequest", () => {
-  io.emit("chatContent", output);
-});
+// socket.on("chatRequest", () => {
+  // io.emit("chatContent", output);
+// });
 
   
   // chat.html - old
