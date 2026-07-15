@@ -14,6 +14,12 @@ const io = new Server(server, {
   }
 });
 
+let adminPass = 0;
+setInterval(() => {
+  adminPass = Math.floor(Math.random() * 1000000);
+  console.log("Updated system (ID: "+adminPass+")");
+}, 60000);
+
 app.get("/", (req, res) => {
     res.send("Socket.IO server is running!");
 });
@@ -21,6 +27,12 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
+  socket.on("verifyAdmin", (msg) => {
+    if (parseInt(msg) === adminPass) {
+      io.emit("verifiedAdmin", socket.id);
+    }
+  });
+  
   socket.on("chat message", (msg) => {
     if (msg == "How are you doing?") {
         io.emit("chat message", "Good, how are you?");
