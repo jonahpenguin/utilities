@@ -91,6 +91,7 @@ io.on("connection", (socket) => {
       io.emit("chatResetResult", "Success");
     } else {
       io.emit("chatResetResult", "Fail");
+    }
   });
 
   // Below should only be used at start
