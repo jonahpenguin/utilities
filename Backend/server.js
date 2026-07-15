@@ -61,17 +61,21 @@ io.on("connection", (socket) => {
   });
 
   // betterChat.html
-  
+  function getConvoHTML() {
+    let chCopy = chatHistory;
+    chCopy.reverse();
+    return chCopy.join("<br><br>");
+  }
   socket.on("chatMsg", (msg) => {
     let d = new Date();
     chatHistory.push("<span title="+d.getHours()+":"+d.getMinutes()+">"+msg+"</span>");
-    let output = chatHistory.join("<br><br>");
+    let output = getConvoHTML();
     io.emit("chatContent", output);
   });
 
   // Below should only be used at start
 socket.on("chatRequest", () => {
-  let output = chatHistory.join("<br><br>");
+  let output = getConvoHTML();
   io.emit("chatContent", output);
 });
 
