@@ -6,6 +6,7 @@ const app = express();
 const server = http.createServer(app);
 
 let dvdMainVisits = 0;
+let chatHistory = [];
 
 const io = new Server(server, {
   cors: {
@@ -60,7 +61,6 @@ io.on("connection", (socket) => {
   });
 
   // betterChat.html
-  let chatHistory = [];
   
   socket.on("chatMsg", (msg) => {
     let d = new Date();
