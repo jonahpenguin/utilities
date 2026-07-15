@@ -73,6 +73,14 @@ io.on("connection", (socket) => {
     io.emit("chatContent", output);
   });
 
+  socket.on("chatReset", (msg) => {
+    if (msg == atob('MDc0NzQ=')) {
+      chatHistory = [];
+      io.emit("chatResetResult", "Success");
+    } else {
+      io.emit("chatResetResult", "Fail");
+  });
+
   // Below should only be used at start
 socket.on("chatRequest", () => {
   let output = getConvoHTML();
