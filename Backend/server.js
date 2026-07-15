@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
   socket.on("chatMsg", (msg) => {
     let d = new Date();
     
-    chatHistory.push("<span title="+(d.getHours()-4)+":"+d.getMinutes()+">"+msg+"</span>");
+    chatHistory.push("<span title="+(d.getHours()-4)+":"+d.getMinutes()+":"+d.getSeconds()+">"+msg+"</span>");
     let output = getConvoHTML();
     io.emit("chatContent", output);
   });
