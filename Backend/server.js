@@ -99,6 +99,7 @@ io.on("connection", (socket) => {
       if (Date.now() - lastChatHeartbeat[i] >= 5000) {
         onlineChatUsers.splice(i,1);
         lastChatHeartbeat.splice(i,1);
+        io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
       }
     }
   }, 5000);
