@@ -76,9 +76,7 @@ io.on("connection", (socket) => {
 
   // betterChat.html
   function getConvoHTML() {
-    let chCopy = chatHistory;
-    chCopy.reverse();
-    return chCopy.join("<br><br>");
+    return [...chatHistory].reverse().join("<br><br>");
   }
   socket.on("chatMsg", (msg) => {
     let d = new Date();
