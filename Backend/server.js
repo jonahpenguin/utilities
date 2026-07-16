@@ -88,6 +88,11 @@ io.on("connection", (socket) => {
     io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
   });
 
+  setInterval(() => {
+    let output = getConvoHTML();
+    io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
+  }, 5000);
+
   socket.on("chatHeartbeat", (msg) => {
     if (!onlineChatUsers.includes(msg)) {
       let index = onlineChatUsers.push(msg);
