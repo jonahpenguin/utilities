@@ -96,7 +96,7 @@ io.on("connection", (socket) => {
   });
   setInterval(() => {
     for (let i = 0;i<onlineChatUsers.length;i++) {
-      if (Date.now() - lastChatHeartbeat >= 5000) {
+      if (Date.now() - lastChatHeartbeat[i] >= 5000) {
         onlineChatUsers.splice(i,1);
         lastChatHeartbeat.splice(i,1);
       }
