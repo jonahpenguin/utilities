@@ -83,9 +83,32 @@ io.on("connection", (socket) => {
     
     chatHistory.push("<span title="+(d.getHours()-4)+":"+d.getMinutes()+":"+d.getSeconds()+">"+msg+"</span>");
     let output = getConvoHTML();
-    io.emit("chatContent", output);
+    io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+");
   });
 
+  let onlineChatUsers = [];
+  let lastChatHeartbeat = [];
+  socket.on("chatHeartbeat", (msg) => {
+    if (!onlineChatUsers.includes(msg)) {
+      let index = onlineChatUsers.push(msg);
+      lastChatHeartbeat[index] = Date.now();
+    }
+  });
+  setInterval(() => {
+    for (let i = 0;i<onlineChatUsers.length;i++) {
+      if (Date.now() - lastChatHeartbeat >= 5000) {
+        onlineChatUsers.splice(i,1);
+        lastChatHeartbeat.splice(i,1);
+      }
+    }
+  }, 5000);
+
+  socket.on("chatReloadRequest", (msg) => {
+    if (msg == atob("MDc0NzQ=")) {
+      io.emit("chatReload", msg);
+    }
+  });
+  
   socket.on("chatReset", (msg) => {
     if (msg == atob('MDc0NzQ=')) {
       chatHistory = [];
@@ -102,7 +125,7 @@ io.on("connection", (socket) => {
   // Below should only be used at start
 socket.on("chatRequest", () => {
   let output = getConvoHTML();
-  io.emit("chatContent", output);
+  io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+");
 });
 
   
