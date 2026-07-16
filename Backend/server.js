@@ -7,6 +7,8 @@ const server = http.createServer(app);
 
 let dvdMainVisits = 0;
 let chatHistory = [];
+let onlineChatUsers = [];
+let lastChatHeartbeat = [];
 
 const io = new Server(server, {
   cors: {
@@ -86,8 +88,6 @@ io.on("connection", (socket) => {
     io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
   });
 
-  let onlineChatUsers = [];
-  let lastChatHeartbeat = [];
   socket.on("chatHeartbeat", (msg) => {
     if (!onlineChatUsers.includes(msg)) {
       let index = onlineChatUsers.push(msg);
