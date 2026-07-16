@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
     
     chatHistory.push("<span title="+(d.getHours()-4)+":"+d.getMinutes()+":"+d.getSeconds()+">"+msg+"</span>");
     let output = getConvoHTML();
-    io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+");
+    io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
   });
 
   let onlineChatUsers = [];
