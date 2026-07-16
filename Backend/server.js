@@ -92,6 +92,9 @@ io.on("connection", (socket) => {
     if (!onlineChatUsers.includes(msg)) {
       let index = onlineChatUsers.push(msg);
       lastChatHeartbeat[index] = Date.now();
+    } else {
+      let index = onlineChatUsers.indexOf(msg);
+      lastChatHeartbeat[index] = Date.now();
     }
   });
   setInterval(() => {
