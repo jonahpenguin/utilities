@@ -125,7 +125,7 @@ io.on("connection", (socket) => {
   // Below should only be used at start
 socket.on("chatRequest", () => {
   let output = getConvoHTML();
-  io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+");
+  io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
 });
 
   
