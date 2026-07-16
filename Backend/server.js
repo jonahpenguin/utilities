@@ -95,6 +95,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("chatNameRemoteUpdateRequest", (msg) => {
+    io.emit("chatNameRemoteUpdate", msg);
+  });
+  
   // Below should only be used at start
 socket.on("chatRequest", () => {
   let output = getConvoHTML();
