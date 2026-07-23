@@ -25,7 +25,7 @@ const io = new Server(server, {
 // }, 60000);
 
 app.get("/", (req, res) => {
-    res.send("Socket.IO server is running!");
+    res.send("Server is running! Surely that means everything is going according to plan...nothing I code ever breaks :)");
 });
 
 io.on("connection", (socket) => {
@@ -88,6 +88,13 @@ io.on("connection", (socket) => {
     io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
   });
 
+  socket.on("chatDeleteMsg", (msg) => {
+    let verifCode = msg.split("&")[0];
+    let msgID = msg.split("&")[1];
+    if (verifCode == atob("MDc0NzQ=")) {
+      chatHistory.splice(msgID, 1);
+    }
+  });
 
   socket.on("chatHeartbeat", (msg) => {
     if (!onlineChatUsers.includes(msg)) {
