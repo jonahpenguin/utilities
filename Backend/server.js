@@ -93,6 +93,8 @@ io.on("connection", (socket) => {
     let msgID = msg.split("&")[1];
     if (verifCode == atob("MDc0NzQ=")) {
       chatHistory.splice(msgID, 1);
+      let output = getConvoHTML();
+      io.emit("chatContent", output+"(^#^#"+onlineChatUsers.join("+"));
     }
   });
 
