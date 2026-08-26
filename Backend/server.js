@@ -25,7 +25,11 @@ const io = new Server(server, {
 // }, 60000);
 
 app.get("/", (req, res) => {
-    res.send("Server is running! Surely that means everything is going according to plan...nothing I code ever breaks :)");
+    res.send("<script>location.replace('https://utilities-8tvg.onrender.com/renderIndex.html')</script>");
+});
+
+app.get("/status", (req, res) => {
+  res.send("Server is running! Surely that means everything is going according to plan...nothing I code ever breaks :)<br><br><a href='https://utilities-8tvg.onrender.com/renderIndex.html'>Go to Index</a>")
 });
 
 io.on("connection", (socket) => {
