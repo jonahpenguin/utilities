@@ -27,14 +27,28 @@ const io = new Server(server, {
 app.get("/", (req, res) => {
     res.send("<script>location.replace('https://utilities-8tvg.onrender.com/renderIndex.html')</script>");
 });
-
+let restartIncoming = false;
 app.get("/status", (req, res) => {
-  res.send("Server is running! Surely that means everything is going according to plan...nothing I code ever breaks :)<br><br><a href='https://utilities-8tvg.onrender.com/renderIndex.html'>Go to Index</a>")
+  res.send(
+    "Server is running! Surely that means everything is going according to plan...nothing I code ever breaks :)<br><br><a href='https://utilities-8tvg.onrender.com/renderIndex.html'>Go to Index</a>" +
+    "<br><br>" +
+    (restartIncoming ? "<u><i><b style='color:red;'>Server restart incoming; connection will drop soon</b></i></u>" : "")
+  )
 });
+
+
 
 io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
+  socket.on("restartIncoming", (msg) => {
+    if (parseInt(msg) == 1) {
+      restartIncoming = true;
+    } else if (parseInt(msg) == 0) {
+      restartIncoming = false;
+    }
+  });
+  
   socket.on("verifyAdmin", (msg) => {
     if (msg === atob('MDc0NzQ=')) {
       io.emit("verifiedAdmin", socket.id);
