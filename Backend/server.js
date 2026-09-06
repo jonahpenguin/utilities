@@ -10,6 +10,14 @@ let chatHistory = [];
 let onlineChatUsers = [];
 let onlineHSUsers = [];
 let lastChatHeartbeat = [];
+let hsGames = [
+  {
+    roomID: 123456,
+    maxPlayers: 10,
+    mapID: 3,
+    players: []
+  }
+];
 
 const io = new Server(server, {
   cors: {
@@ -42,6 +50,49 @@ app.get("/status", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
+  socket.on("HSplayerUpdate", (msg) => {
+    // roomID,username,animation,mapID,x,y
+    msg = msg.split(",");
+    let roomID = parseInt(msg[0]);
+    let playerName = msg[1];
+    let animation = msg[2];
+    let mapID = parseInt(msg[3]);
+    let x = parseFloat(msg[4]);
+    let y = parseFloat(msg[5]);
+    let gameIndex = hsGames.Map(function (e){return e.roomID;}).indexOf(roomID);
+    let playerIndex = hsGames[gameIndex].Map(function (e) {return e.username;}).indexOf(playerName);
+    if (playerIndex == -1) {
+      hsGames[gameIndex].players.push(
+        {
+          username: playerName,
+          x: x,
+          y: y,
+          mapID: ,
+          animation: animation
+        }
+      );
+    } else {
+      hsGames[gameIndex].players[playerIndex] = {
+          username: playerName,
+          x: x,
+          y: y,
+          mapID: ,
+          animation: animation
+        
+      }
+    }
+    function getGameData(roomID) {
+      // roomID,other data...&username,mapID,animation,x,y&
+      // Section before the first & is all room-related data, afterwards it is player data divided by more &s
+      let output = roomID;
+      for (let player in hsGames[roomID].players) {
+        output += "&"+player.username+","+player.mapID+","+player.animation+","+player.x+","+player.y
+      }
+      return output;
+    }
+    io.emit("HSupdate", getGameData(roomID));
+  });
+  
   socket.on("nameCheck", (msg) => {
     if (onlineHSUsers.includes(msg)) {
       socket.emit("nameCheckResult", "fail");
