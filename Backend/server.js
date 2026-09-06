@@ -67,7 +67,7 @@ io.on("connection", (socket) => {
           username: playerName,
           x: x,
           y: y,
-          mapID: ,
+          mapID: mapID,
           animation: animation
         }
       );
@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
           username: playerName,
           x: x,
           y: y,
-          mapID: ,
+          mapID: mapID,
           animation: animation
         
       }
