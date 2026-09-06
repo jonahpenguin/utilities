@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
   socket.on("HSplayerUpdate", (msg) => {
-    // roomID,username,animation,mapID,x,y
+    // roomID,username,animation,mapID,x,y,isHider
     msg = msg.split(",");
     let roomID = parseInt(msg[0]);
     let playerName = msg[1];
@@ -59,6 +59,7 @@ io.on("connection", (socket) => {
     let mapID = parseInt(msg[3]);
     let x = parseFloat(msg[4]);
     let y = parseFloat(msg[5]);
+    let isHider = (msg[6] == "true" ? true : false);
     let gameIndex = hsGames.Map(function (e){return e.roomID;}).indexOf(roomID);
     let playerIndex = hsGames[gameIndex].Map(function (e) {return e.username;}).indexOf(playerName);
     if (playerIndex == -1) {
@@ -68,7 +69,8 @@ io.on("connection", (socket) => {
           x: x,
           y: y,
           mapID: mapID,
-          animation: animation
+          animation: animation,
+          isHider: isHider
         }
       );
     } else {
@@ -78,15 +80,15 @@ io.on("connection", (socket) => {
           y: y,
           mapID: mapID,
           animation: animation
-        
+          isHider: isHider
       }
     }
     function getGameData(roomID) {
-      // roomID,other data...&username,mapID,animation,x,y&
+      // roomID,other data...&username,mapID,animation,x,y,isHider&
       // Section before the first & is all room-related data, afterwards it is player data divided by more &s
       let output = roomID;
       for (let player in hsGames[roomID].players) {
-        output += "&"+player.username+","+player.mapID+","+player.animation+","+player.x+","+player.y
+        output += "&"+player.username+","+player.mapID+","+player.animation+","+player.x+","+player.y+","+player.isHider
       }
       return output;
     }
