@@ -60,8 +60,8 @@ io.on("connection", (socket) => {
     let x = parseFloat(msg[4]);
     let y = parseFloat(msg[5]);
     let isHider = (msg[6] == "true" ? true : false);
-    let gameIndex = hsGames.Map(function (e){return e.roomID;}).indexOf(roomID);
-    let playerIndex = hsGames[gameIndex].Map(function (e) {return e.username;}).indexOf(playerName);
+    let gameIndex = hsGames.map(function (e){return e.roomID;}).indexOf(roomID);
+    let playerIndex = hsGames[gameIndex].map(function (e) {return e.username;}).indexOf(playerName);
     if (playerIndex == -1) {
       hsGames[gameIndex].players.push(
         {
