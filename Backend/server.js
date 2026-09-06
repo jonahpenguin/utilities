@@ -42,6 +42,14 @@ app.get("/status", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
+  socket.on("nameCheck", (msg) => {
+    if (onlineHSUsers.includes(msg)) {
+      socket.emit("nameCheckResult", "fail");
+    } else {
+      socket.emit("nameCheckResult", "pass");
+    }
+  });
+  
   socket.on("restartIncoming", (msg) => {
     if (parseInt(msg) == 1) {
       restartIncoming = true;
