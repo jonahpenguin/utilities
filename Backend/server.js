@@ -8,6 +8,7 @@ const server = http.createServer(app);
 let dvdMainVisits = 0;
 let chatHistory = [];
 let onlineChatUsers = [];
+let onlineHSUsers = [];
 let lastChatHeartbeat = [];
 
 const io = new Server(server, {
