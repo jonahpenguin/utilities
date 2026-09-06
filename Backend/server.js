@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
           x: x,
           y: y,
           mapID: mapID,
-          animation: animation
+          animation: animation,
           isHider: isHider
       }
     }
