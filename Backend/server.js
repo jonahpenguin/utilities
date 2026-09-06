@@ -54,6 +54,9 @@ io.on("connection", (socket) => {
     // roomID,username,animation,mapID,x,y,isHider
     msg = msg.split(",");
     let roomID = parseInt(msg[0]);
+    if (roomID == -1) {
+      return;
+    }
     let playerName = msg[1];
     let animation = msg[2];
     let mapID = parseInt(msg[3]);
