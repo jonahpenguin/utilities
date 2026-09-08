@@ -55,6 +55,7 @@ io.on("connection", (socket) => {
     msg = msg.split(",");
     let roomID = parseInt(msg[0]);
     if (roomID == -1) {
+      socket.emit("HSsessionExpired", "roomID");
       return;
     }
     let playerName = msg[1];
