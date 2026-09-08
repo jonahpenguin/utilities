@@ -99,6 +99,28 @@ io.on("connection", (socket) => {
     }
     io.emit("HSupdate", getGameData(roomID));
   });
+
+  socket.on("HSroomCountCheck", () => {
+    if (hsGames.length >= 10) {
+      socket.emit("HSrccResult", "fail:"+hsGames.length);
+    } else {
+      socket.emit("HSrccResult", "pass:"+hsGames.length);
+    }
+  });
+  
+  socket.on("HSroomCreation", (msg) => {
+    // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers
+
+    // ToDo: replace these with the correct values from msg and add reply to let client know that room is up and joinable, and provide room code
+    hsGames.push(
+      {
+        roomID: 123456,
+        maxPlayers: 10,
+        mapID: 3,
+        players: []
+      }
+    )
+  });
   
   socket.on("nameCheck", (msg) => {
     if (onlineHSUsers.includes(msg)) {
