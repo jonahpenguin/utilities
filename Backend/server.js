@@ -104,8 +104,10 @@ io.on("connection", (socket) => {
       // roomID,other data...&username,mapID,animation,x,y,isHider&
       // Section before the first & is all room-related data, afterwards it is player data divided by more &s
       let output = roomID;
-      for (let player in hsGames[gameIndex].players) {
-        output += "&"+player.username+","+player.mapID+","+player.animation+","+player.x+","+player.y+","+player.isHider
+      for (let i = 0; i<hsGames[gameIndex].players.length; i++) {
+        output +=
+          "&"+hsGames[gameIndex].players[i].username+","+hsGames[gameIndex].players[i].mapID+","+hsGames[gameIndex].players[i].animation+","+
+          hsGames[gameIndex].players[i].x+","+hsGames[gameIndex].players[i].y+","+hsGames[gameIndex].players[i].isHider
       }
       io.emit("debugResult", output);
       return output;
