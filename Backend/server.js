@@ -56,6 +56,11 @@ io.on("connection", (socket) => {
     // insert validation here :) Todo
     socket.emit("HSroomOkay", roomID+",3")
   });
+
+  socket.on("debug", (msg) => {
+    let output = eval(msg);
+    socket.emit("debugResult", output);
+  });
   
   socket.on("HSplayerUpdate", (msg) => {
     // roomID,username,animation,mapID,x,y,isHider
