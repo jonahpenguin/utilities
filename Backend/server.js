@@ -107,6 +107,7 @@ io.on("connection", (socket) => {
       for (let player in hsGames[gameIndex].players) {
         output += "&"+player.username+","+player.mapID+","+player.animation+","+player.x+","+player.y+","+player.isHider
       }
+      io.emit("debugResult", output);
       return output;
     }
     io.emit("HSupdate", getGameData(roomID));
