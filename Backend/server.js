@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
     socket.emit("debugResult", output);
   });
   
-  socket.on("HSplayerUpdate", (msg) => {
+  io.on("HSplayerUpdate", (msg) => {
     // roomID,username,animation,mapID,x,y,isHider
     msg = msg.split(",");
     let roomID = parseInt(msg[0]);
