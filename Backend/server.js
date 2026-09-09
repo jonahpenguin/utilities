@@ -50,6 +50,13 @@ app.get("/status", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
+  socket.on("HSroomCheck", (msg) => {
+    let username = msg.split(",")[0];
+    let roomID = parseInt(msg.split(",")[1]);
+    // insert validation here :) Todo
+    socket.emit("HSroomOkay", roomID+",3")
+  });
+  
   socket.on("HSplayerUpdate", (msg) => {
     // roomID,username,animation,mapID,x,y,isHider
     msg = msg.split(",");
