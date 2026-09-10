@@ -50,6 +50,15 @@ app.get("/status", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
+  socket.on("HSdisconnect", (msg) => {
+    let name = msg.split(",")[0];
+    let roomID = msg.split(",")[1];
+    let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username}).indexOf(name);
+    hsGames[gameIndex].players.splice(index, 1);
+    io.emit("disconnectNotif", roomID+","+username);
+  });
+  
   socket.on("HSroomCheck", (msg) => {
     let username = msg.split(",")[0];
     let roomID = parseInt(msg.split(",")[1]);
