@@ -70,12 +70,13 @@ io.on("connection", (socket) => {
   });
   
   socket.on("HSdisconnect", (msg) => {
+    // This is not working, it keeps getting stuck on line 77 [todo]
     let name = msg.split(",")[0];
     let roomID = parseInt(msg.split(",")[1]);
     let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
-    if (gameIndex == -1) {console.log("Line 70");return}
+    if (gameIndex == -1) {console.log("Line 77");return}
     let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username}).indexOf(name);
-    if (playerIndex == -1) {console.log("Line 72");return}
+    if (playerIndex == -1) {console.log("Line 79");return}
     hsGames[gameIndex].players.splice(playerIndex, 1);
     io.emit("disconnectNotif", roomID+","+name);
   });
