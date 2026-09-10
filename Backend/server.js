@@ -181,7 +181,7 @@ io.on("connection", (socket) => {
         }
       }
     }
-    if (hasPassed) {
+    if (hasPassed || true) {
       socket.emit("nameCheckResult", "fail");
     } else {
       socket.emit("nameCheckResult", "pass");
