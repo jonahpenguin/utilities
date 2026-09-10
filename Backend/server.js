@@ -15,7 +15,9 @@ let hsGames = [
     roomID: 123456,
     maxPlayers: 10,
     mapID: 3,
-    players: []
+    players: [],
+    isLocked: false,
+    hostName: "Jonah [Admin]"
   }
 ];
 
@@ -50,11 +52,30 @@ app.get("/status", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected: "+socket.id);
 
+  socket.on("HSroomLock", (msg) => {
+    // Format: roomID,username,lock/unlock
+    msg = msg.split(",");
+    let roomID = parseInt(msg[0]);
+    let username = msg[1];
+    let lockOrUnlock = parseInt(msg[2]);
+    let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    if (gameIndex == -1) {console.log("Line 61");return}
+    if (username == hsGames[gameIndex].hostName) {
+      if (lockOrUnlock == 1) {
+        hsGames[gameIndex].isLocked = true;
+      } else {
+        hsGames[gameIndex].isLocked = false;
+      }
+    }
+  });
+  
   socket.on("HSdisconnect", (msg) => {
     let name = msg.split(",")[0];
     let roomID = msg.split(",")[1];
     let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    if (gameIndex == -1) {console.log("Line 70");return}
     let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username}).indexOf(name);
+    if (playerIndex == -1) {console.log("Line 72");return}
     hsGames[gameIndex].players.splice(index, 1);
     io.emit("disconnectNotif", roomID+","+username);
   });
@@ -99,6 +120,7 @@ io.on("connection", (socket) => {
           isHider: isHider
         }
       );
+      io.emit("HSplayerJoin", roomID+","+playerName);
     } else {
       hsGames[gameIndex].players[playerIndex] = {
           username: playerName,
