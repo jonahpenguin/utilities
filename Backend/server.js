@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
   
   socket.on("HSdisconnect", (msg) => {
     let name = msg.split(",")[0];
-    let roomID = msg.split(",")[1];
+    let roomID = parseInt(msg.split(",")[1]);
     let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
     if (gameIndex == -1) {console.log("Line 70");return}
     let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username}).indexOf(name);
