@@ -170,7 +170,18 @@ io.on("connection", (socket) => {
   });
   
   socket.on("nameCheck", (msg) => {
-    if (onlineHSUsers.includes(msg)) {
+    let hasPassed = true;
+    loop1:
+    for (let i = 0;i<hsGames.length;i++) {
+      loop2:
+      for (let j = 0;j<hsGames[i].players.length;j++) {
+        if (msg == hsGames[i].players[j].username) {
+          hasPassed = false;
+          break loop1;
+        }
+      }
+    }
+    if (hasPassed) {
       socket.emit("nameCheckResult", "fail");
     } else {
       socket.emit("nameCheckResult", "pass");
