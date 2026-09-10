@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
     if (gameIndex == -1) {console.log("Line 70");return}
     let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username}).indexOf(name);
     if (playerIndex == -1) {console.log("Line 72");return}
-    hsGames[gameIndex].players.splice(index, 1);
+    hsGames[gameIndex].players.splice(playerIndex, 1);
     io.emit("disconnectNotif", roomID+","+username);
   });
   
