@@ -70,7 +70,7 @@ io.on("connection", (socket) => {
   });
   
   // socket.on("HSdisconnect", (msg) => {
-  //   // This is not working, it keeps getting stuck on line 77 [todo]
+  //   // This is not working, it keeps getting stuck on line 77 [see below for new solution]
   //   let name = msg.split(",")[0];
   //   let roomID = parseInt(msg.split(",")[1]);
   //   let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
@@ -81,17 +81,17 @@ io.on("connection", (socket) => {
   //   io.emit("disconnectNotif", roomID+","+name);
   // });
   socket.on("disconnect", () => {
-    loop1:
+    let isDone = false;
     for (let i = 0; i<hsGames.length;i++) {
-      loop2:
-      console.log(hsGames[i]);
       for (let j = 0;j<hsGames[i].players.length;j++) {
         if (hsGames[i].players[j].socketID === socket.id) {
           io.emit("disconnectNotif", hsGames[i].players[j].roomID+","+hsGames[i].players[j].username);
           hsGames[i].players.splice(j,1);
-          break loop1;
+          isDone = true;
+          break;
         }
       }
+      if (isDone) {break}
     }
   });
 
