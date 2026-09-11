@@ -101,6 +101,7 @@ io.on("connection", (socket) => {
       // roomID,other data...&username,mapID,animation,x,y,isHider&
       // Section before the first & is all room-related data, afterwards it is player data divided by more &s
       let output = roomID;
+      let gameIndex = hsGames.map(function (e){return e.roomID;}).indexOf(roomID);
       for (let i = 0; i<hsGames[gameIndex].players.length; i++) {
         output +=
           "&"+hsGames[gameIndex].players[i].username+","+hsGames[gameIndex].players[i].mapID+","+hsGames[gameIndex].players[i].animation+","+
