@@ -80,18 +80,36 @@ io.on("connection", (socket) => {
   //   hsGames[gameIndex].players.splice(playerIndex, 1);
   //   io.emit("disconnectNotif", roomID+","+name);
   // });
+
+  // Fact-check the following listener, it is 9:36pm so I can't guarantee that this works [todo]
   socket.on("disconnect", () => {
     let isDone = false;
+    let index = -1;
     for (let i = 0; i<hsGames.length;i++) {
       for (let j = 0;j<hsGames[i].players.length;j++) {
         if (hsGames[i].players[j].socketID === socket.id) {
           io.emit("disconnectNotif", hsGames[i].players[j].roomID+","+hsGames[i].players[j].username);
           hsGames[i].players.splice(j,1);
           isDone = true;
+          index = parseInt(i);
           break;
         }
       }
       if (isDone) {break}
+    }
+    function getGameData(roomID) {
+      // roomID,other data...&username,mapID,animation,x,y,isHider&
+      // Section before the first & is all room-related data, afterwards it is player data divided by more &s
+      let output = roomID;
+      for (let i = 0; i<hsGames[gameIndex].players.length; i++) {
+        output +=
+          "&"+hsGames[gameIndex].players[i].username+","+hsGames[gameIndex].players[i].mapID+","+hsGames[gameIndex].players[i].animation+","+
+          hsGames[gameIndex].players[i].x+","+hsGames[gameIndex].players[i].y+","+hsGames[gameIndex].players[i].isHider
+      }
+      return output;
+    }
+    if (index != -1) {
+      io.emit("HSupdate", getGameData(hsGames[index].roomID));
     }
   });
 
@@ -104,8 +122,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("debug", (msg) => {
-    let output = eval(msg);
-    socket.emit("debugResult", output);
+    // let output = eval(msg);
+    // socket.emit("debugResult", output);
+    console.log("debug")
   });
   
   socket.on("HSplayerUpdate", (msg) => {
