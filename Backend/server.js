@@ -84,6 +84,7 @@ io.on("connection", (socket) => {
     loop1:
     for (let i = 0; i<hsGames.length;i++) {
       loop2:
+      console.log(hsGames[i]);
       for (let j = 0;j<hsGames[i].players.length;j++) {
         if (hsGames[i].players[j].socketID === socket.id) {
           io.emit("disconnectNotif", hsGames[i].players[j].roomID+","+hsGames[i].players[j].username);
