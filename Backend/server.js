@@ -82,12 +82,12 @@ io.on("connection", (socket) => {
   // });
   socket.on("disconnect", () => {
     loop1:
-    for (let game in hsGames) {
+    for (let i = 0; i<hsGames.length;i++) {
       loop2:
-      for (let i = 0;i<game.players.length;i++) {
-        if (game.players[i].socketID === socket.id) {
-          io.emit("disconnectNotif", game.players[i].roomID+","+game.players[i].username);
-          game.players.splice(i,1);
+      for (let j = 0;j<hsGames[i].players.length;j++) {
+        if (hsGames[i].players[j].socketID === socket.id) {
+          io.emit("disconnectNotif", hsGames[i].players[j].roomID+","+hsGames[i].players[j].username);
+          hsGames[i].players.splice(j,1);
           break loop1;
         }
       }
