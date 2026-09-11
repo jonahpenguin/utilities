@@ -69,17 +69,31 @@ io.on("connection", (socket) => {
     }
   });
   
-  socket.on("HSdisconnect", (msg) => {
-    // This is not working, it keeps getting stuck on line 77 [todo]
-    let name = msg.split(",")[0];
-    let roomID = parseInt(msg.split(",")[1]);
-    let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
-    if (gameIndex == -1) {console.log("Line 77");return}
-    let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username}).indexOf(name);
-    if (playerIndex == -1) {console.log("Line 79");return}
-    hsGames[gameIndex].players.splice(playerIndex, 1);
-    io.emit("disconnectNotif", roomID+","+name);
+  // socket.on("HSdisconnect", (msg) => {
+  //   // This is not working, it keeps getting stuck on line 77 [todo]
+  //   let name = msg.split(",")[0];
+  //   let roomID = parseInt(msg.split(",")[1]);
+  //   let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+  //   if (gameIndex == -1) {console.log("Line 77");return}
+  //   let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username}).indexOf(name);
+  //   if (playerIndex == -1) {console.log("Line 79");return}
+  //   hsGames[gameIndex].players.splice(playerIndex, 1);
+  //   io.emit("disconnectNotif", roomID+","+name);
+  // });
+  socket.on("disconnect", () => {
+    loop1:
+    for (let game in hsGames) {
+      loop2:
+      for (let i = 0;i<game.players.length;i++) {
+        if (game.players[i].socketID === socket.id) {
+          io.emit("disconnectNotif", game.players[i].roomID+","+game.players[i].username);
+          game.players.splice(i,1);
+          break loop1;
+        }
+      }
+    }
   });
+
   
   socket.on("HSroomCheck", (msg) => {
     let username = msg.split(",")[0];
@@ -113,6 +127,7 @@ io.on("connection", (socket) => {
     if (playerIndex == -1) {
       hsGames[gameIndex].players.push(
         {
+          socketID: socket.id,
           username: playerName,
           x: x,
           y: y,
@@ -124,6 +139,7 @@ io.on("connection", (socket) => {
       io.emit("HSplayerJoin", roomID+","+playerName);
     } else {
       hsGames[gameIndex].players[playerIndex] = {
+          socketID: socket.id,
           username: playerName,
           x: x,
           y: y,
