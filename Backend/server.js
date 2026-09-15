@@ -118,8 +118,21 @@ io.on("connection", (socket) => {
   socket.on("HSroomCheck", (msg) => {
     let username = msg.split(",")[0];
     let roomID = parseInt(msg.split(",")[1]);
-    // insert validation here :) Todo
-    socket.emit("HSroomOkay", roomID+",3")
+    let gameID = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    if (gameID != -1) {
+      if (hsGames[gameID].isLocked) {
+        socket.emit("HSroomFail", "Room is locked");
+        return;
+      }
+      let playerCapReached = (hsGames[gameID].players.length >= hsGames[gameID].maxPlayers);
+      if (!playerCapReached) {
+        socket.emit("HSroomOkay", roomID+","+hsGames[gameID].mapID);
+      } else {
+        socket.emit("HSroomFail", "Room is full");
+      }
+    } else {
+      socket.emit("HSroomFail", "Room not found");
+    }
   });
 
   socket.on("debug", (msg) => {
