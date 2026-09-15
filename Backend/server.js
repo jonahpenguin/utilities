@@ -303,7 +303,7 @@ io.on("connection", (socket) => {
       }
     } else {
       HSusers.push(newName);
-      socket.emit("nameChangeRes", "pass");
+      socket.emit("nameChangeRes", "pass,"+newName);
       console.log("HSusers update: "+HSusers);
     }
   });
