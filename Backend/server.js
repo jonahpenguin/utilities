@@ -17,7 +17,8 @@ let hsGames = [
     mapID: 3,
     players: [],
     isLocked: false,
-    hostName: "Jonah [Admin]"
+    hostName: "Jonah [Admin]",
+    roomHeartbeat: Date.now()
   }
 ];
 
@@ -27,6 +28,15 @@ const io = new Server(server, {
   }
 });
 
+// Old HS room cleanup
+setInterval(() => {
+  for (let i = 0;i<hsGames.length;i++) {
+    if (Date.now() - hsGames[i].roomHeartbeat >= 60000*5) {
+      io.emit("HSgameExpiration", hsGames[i].roomID);
+      hsGames.splice(i,1);
+    }
+  }
+}, 10000);
 
 // Unused for now; I need to make a page specificly for admin stuff
 // let adminPass = 0;
@@ -158,6 +168,7 @@ io.on("connection", (socket) => {
     let isHider = (msg[6] == "true" ? true : false);
     let gameIndex = hsGames.map(function (e){return e.roomID;}).indexOf(roomID);
     if (gameIndex == -1) {return}
+    hsGames[gameIndex].roomHeartbeat = Date.now();
     let playerIndex = hsGames[gameIndex].players.map(function (e) {return e.username;}).indexOf(playerName);
     if (playerIndex == -1) {
       hsGames[gameIndex].players.push(
@@ -207,11 +218,15 @@ io.on("connection", (socket) => {
   });
   
   socket.on("HSroomCreation", (msg) => {
-    // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers
+    // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers+","+hostName
     msg = msg.split(",");
     let roomID = Math.floor(Math.random() * 1000000);
     let maxPlayers = parseInt(msg[3]);
     let mapID = parseInt(msg[0]);
+    let hostName = msg[4];
+    if (hostName == "" || hostName == "User") {
+      socket.emit("HSroomCreateFail", "No username set. Try changing your username, or contact Admin.");
+    }
     if (isNaN(mapID)) {
       socket.emit("HSroomCreateFail", "Invalid map. If this is unintentional, contact Admin.");
       return;
@@ -225,12 +240,22 @@ io.on("connection", (socket) => {
       socket.emit("HSroomCreateFail", "Invalid value for Max Players");
       return;
     }
+    // roomID: 123456,
+    // maxPlayers: 10,
+    // mapID: 3,
+    // players: [],
+    // isLocked: false,
+    // hostName: "Jonah [Admin]",
+    // roomHeartbeat: Date.now()
     hsGames.push(
       {
         roomID: roomID,
         maxPlayers: maxPlayers,
         mapID: mapID,
-        players: []
+        isLocked: false,
+        hostName: hostName,
+        players: [],
+        roomHeartbeat: Date.now()
       }
     )
     socket.emit("HSroomCreatePass", roomID);
