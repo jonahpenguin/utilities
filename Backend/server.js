@@ -8,7 +8,7 @@ const server = http.createServer(app);
 let dvdMainVisits = 0;
 let chatHistory = [];
 let onlineChatUsers = [];
-let onlineHSUsers = [];
+let HSUsers = [];
 let lastChatHeartbeat = [];
 let hsGames = [
   {
@@ -50,6 +50,7 @@ app.get("/status", (req, res) => {
 
 
 io.on("connection", (socket) => {
+  socket.emit("debugResult", socket);
   console.log("User connected: "+socket.id);
 
   socket.on("HSroomLock", (msg) => {
