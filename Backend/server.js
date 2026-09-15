@@ -208,16 +208,32 @@ io.on("connection", (socket) => {
   
   socket.on("HSroomCreation", (msg) => {
     // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers
-
-    // ToDo: replace these with the correct values from msg and add reply to let client know that room is up and joinable, and provide room code
+    msg = msg.split(",");
+    let roomID = Math.floor(Math.random() * 1000000);
+    let maxPlayers = parseInt(msg[3]);
+    let mapID = parseInt(msg[0]);
+    if (isNaN(mapID)) {
+      socket.emit("HSroomCreateFail", "Invalid map. If this is unintentional, contact Admin.");
+      return;
+    }
+    let seekerCount = parseInt(msg[1]);
+    if (isNaN(seekerCount)) {
+      socket.emit("HSroomCreateFail", "Invalid value for Seeker Count");
+      return;
+    }
+    if (isNaN(maxPlayers)) {
+      socket.emit("HSroomCreateFail", "Invalid value for Max Players");
+      return;
+    }
     hsGames.push(
       {
-        roomID: 123456,
-        maxPlayers: 10,
-        mapID: 3,
+        roomID: roomID,
+        maxPlayers: maxPlayers,
+        mapID: mapID,
         players: []
       }
     )
+    socket.emit("HSroomCreatePass", roomID);
   });
   
   socket.on("nameCheck", (msg) => {
