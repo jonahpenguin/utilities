@@ -235,25 +235,52 @@ io.on("connection", (socket) => {
     )
     socket.emit("HSroomCreatePass", roomID);
   });
-  
+
+  // Old version
+  // socket.on("nameCheck", (msg) => {
+  //   let hasPassed = true;
+  //   loop1:
+  //   for (let i = 0;i<hsGames.length;i++) {
+  //     loop2:
+  //     for (let j = 0;j<hsGames[i].players.length;j++) {
+  //       if (msg == hsGames[i].players[j].username) {
+  //         hasPassed = false;
+  //         break loop1;
+  //       }
+  //     }
+  //   }
+  //   if (!hasPassed) {
+  //     socket.emit("nameCheckResult", "fail");
+  //   } else {
+  //     socket.emit("nameCheckResult", "pass");
+  //   }
+  // });
+
   socket.on("nameCheck", (msg) => {
-    let hasPassed = true;
-    loop1:
-    for (let i = 0;i<hsGames.length;i++) {
-      loop2:
-      for (let j = 0;j<hsGames[i].players.length;j++) {
-        if (msg == hsGames[i].players[j].username) {
-          hasPassed = false;
-          break loop1;
-        }
-      }
-    }
-    if (!hasPassed) {
-      socket.emit("nameCheckResult", "fail");
+    if (HSusers.includes(msg)) {
+      socket.emit("nameCheckRes", "fail");
     } else {
-      socket.emit("nameCheckResult", "pass");
+      socket.emit("nameCheckRes", "pass");
     }
   });
+  socket.on("nameChange", (msg) => {
+    msg = msg.split(",");
+    let oldName = msg[0];
+    let newName = msg[1];
+    if (HSusers.includes(oldName) && oldName != "User") {
+      if (HSusers.includes(newName)) {
+        socket.emit("nameChangeRes", "fail");
+      } else {
+        let index = HSusers.indexOf(oldName);
+        HSusers[index] = newName;
+        socket.emit("nameChangeRes", "pass");
+      }
+    } else {
+      HSusers.push(newName);
+      socket.emit("nameChangeRes", "pass");
+    }
+  });
+
   
   socket.on("restartIncoming", (msg) => {
     if (parseInt(msg) == 1) {
