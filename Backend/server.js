@@ -298,11 +298,13 @@ io.on("connection", (socket) => {
       } else {
         let index = HSusers.indexOf(oldName);
         HSusers[index] = newName;
+        console.log("HSusers update: "+HSusers);
         socket.emit("nameChangeRes", "pass");
       }
     } else {
       HSusers.push(newName);
       socket.emit("nameChangeRes", "pass");
+      console.log("HSusers update: "+HSusers);
     }
   });
 
