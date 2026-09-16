@@ -17,8 +17,9 @@ let hsGames = [
     mapID: 3,
     players: [],
     isLocked: false,
-    hostName: "Jonah [Admin]",
-    roomHeartbeat: Date.now()
+    hostName: "Jonah <b>[Admin]</b>",
+    roomHeartbeat: Date.now(),
+    isStarted: false
   }
 ];
 
@@ -63,6 +64,44 @@ io.on("connection", (socket) => {
   // console.log(socket);
   console.log("User connected: "+socket.id);
 
+  socket.on("HSinfoRequest", (msg) => {
+    let output = "";
+    msg = msg.split(",");
+    let hudChoice = parseInt(msg[0]);
+    let roomID = parseInt(msg[1]);
+    if (isNaN(hudChoice) || isNaN(roomID)) {
+      console.log("NaN in HSinfoRequest");
+      return;
+    }
+    let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    if (gameIndex == -1) {
+      console.log("Game not found in HSinfoRequest");
+      return;
+    }
+    switch(hudChoice) {
+      case 1:
+        output = 0;
+        for (let player in hsGames[gameIndex].players) {
+          if (player.isHider) {
+            output++;
+          }
+        }
+        break;
+      case 2:
+        output = 0;
+        for (let player in hsGames[gameIndex].players) {
+          if (!player.isHider) {
+            output++;
+          }
+        }
+        break;
+      case 3:
+        output = hsGames[gameIndex].players.length;
+        break;
+    }
+    socket.emit("HSinfoReport", output);
+  });
+  
   socket.on("HSroomLock", (msg) => {
     // Format: roomID,username,lock/unlock
     msg = msg.split(",");
@@ -137,7 +176,7 @@ io.on("connection", (socket) => {
       }
       let playerCapReached = (hsGames[gameID].players.length >= hsGames[gameID].maxPlayers);
       if (!playerCapReached) {
-        socket.emit("HSroomOkay", roomID+","+hsGames[gameID].mapID+","+(hsGames[gameID].hostName==username ? "host" : "player"));
+        socket.emit("HSroomOkay", roomID+","+hsGames[gameID].mapID+","+(hsGames[gameID].hostName==username ? "host" : "player")+","+hsGames[gameID].isStarted);
       } else {
         socket.emit("HSroomFail", "Room is full");
       }
@@ -203,7 +242,7 @@ io.on("connection", (socket) => {
           "&"+hsGames[gameIndex].players[i].username+","+hsGames[gameIndex].players[i].mapID+","+hsGames[gameIndex].players[i].animation+","+
           hsGames[gameIndex].players[i].x+","+hsGames[gameIndex].players[i].y+","+hsGames[gameIndex].players[i].isHider
       }
-      io.emit("debugResult", output);
+      // io.emit("debugResult", output);
       return output;
     }
     io.emit("HSupdate", getGameData(roomID));
@@ -255,7 +294,8 @@ io.on("connection", (socket) => {
         isLocked: false,
         hostName: hostName,
         players: [],
-        roomHeartbeat: Date.now()
+        roomHeartbeat: Date.now(),
+        isStarted: false
       }
     )
     socket.emit("HSroomCreatePass", roomID);
