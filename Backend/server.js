@@ -125,7 +125,8 @@ io.on("connection", (socket) => {
   //   io.emit("disconnectNotif", roomID+","+name);
   // });
 
-  // Fact-check the following listener, it is 9:36pm so I can't guarantee that this works [todo]
+  // Fact-check the following listener, it is 9:36pm so I can't guarantee that this works
+  // Great news it works :D
   socket.on("disconnect", () => {
     let isDone = false;
     let index = -1;
