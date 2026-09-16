@@ -10,18 +10,7 @@ let chatHistory = [];
 let onlineChatUsers = [];
 let HSusers = [];
 let lastChatHeartbeat = [];
-let hsGames = [
-  {
-    roomID: 123456,
-    maxPlayers: 10,
-    mapID: 3,
-    players: [],
-    isLocked: false,
-    hostName: "Jonah <b>[Admin]</b>",
-    roomHeartbeat: Date.now(),
-    isStarted: false
-  }
-];
+let hsGames = [];
 
 const io = new Server(server, {
   cors: {
@@ -35,6 +24,7 @@ setInterval(() => {
     if (Date.now() - hsGames[i].roomHeartbeat >= 60000*5) {
       io.emit("HSgameExpiration", hsGames[i].roomID);
       hsGames.splice(i,1);
+      console.log("HS games count update: "+hsGames.length);
     }
   }
 }, 10000);
@@ -298,6 +288,7 @@ io.on("connection", (socket) => {
         isStarted: false
       }
     )
+    console.log("HS games count update: "+hsGames.length);
     socket.emit("HSroomCreatePass", roomID);
   });
 
