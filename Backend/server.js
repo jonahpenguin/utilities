@@ -18,7 +18,7 @@ const io = new Server(server, {
   }
 });
 
-// Old HS room cleanup
+// HS old room cleanup
 setInterval(() => {
   for (let i = 0;i<hsGames.length;i++) {
     if (Date.now() - hsGames[i].roomHeartbeat >= 60000*5) {
@@ -54,6 +54,30 @@ io.on("connection", (socket) => {
   // console.log(socket);
   console.log("User connected: "+socket.id);
 
+  socket.on("HSplayerListReq", (msg) => {
+    msg = msg.split(",");
+    let name = msg[0];
+    let roomID = parseInt(msg[1]);
+    if (isNaN(roomID)) {
+      socket.emit("HSalert", "Invalid room ID; try leaving and re-joining");
+      return;
+    }
+    let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    if (gameIndex == -1) {
+      socket.emit("HSalert", "Invalid room ID; try leaving and re-joining");
+      return;
+    }
+    if (name != hsGames[gameIndex].hostName) {
+      socket.emit("HSalert", "Could not verify that you are the host. Try leaving and re-joining");
+      return;
+    }
+    socket.emit("HSplayerListRes", hsGames[gameIndex].players.join(","));
+  });
+
+  socket.on("HSkick", (msg) => {
+    io.emit("HSkick", msg);
+  });
+  
   socket.on("HSinfoRequest", (msg) => {
     let output = "";
     msg = msg.split(",");
