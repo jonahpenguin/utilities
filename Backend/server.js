@@ -103,13 +103,13 @@ io.on("connection", (socket) => {
     if (username == hsGames[gameIndex].hostName) {
       if (lockOrUnlock == 1) {
         hsGames[gameIndex].isLocked = true;
-        socket.emit("HSroomLockRes", "Locked");
+        socket.emit("HSalert", "Locked");
       } else {
         hsGames[gameIndex].isLocked = false;
-        socket.emit("HSroomLockRes", "Unlocked");
+        socket.emit("HSalert", "Unlocked");
       }
     } else {
-      socket.emit("HSroomLockRes", "Failed - could not verify host status");
+      socket.emit("HSalert", "Failed - could not verify host status");
     }
   });
   
@@ -301,10 +301,10 @@ io.on("connection", (socket) => {
     msg = msg.split(",");
     let name = msg[0];
     let roomID = parseInt(msg[1]);
-    if (isNaN(roomID)) {socket.emit("HSroomLockRes", "Invalid room ID; try leaving and rejoining");return;}
+    if (isNaN(roomID)) {socket.emit("HSalert", "Invalid room ID; try leaving and rejoining");return;}
     let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
     if (hsGames[gameIndex].players.length <= hsGames[gameIndex].seekerCount) {
-      socket.emit("HSroomLockRes", "Not enough players ("+hsGames[gameIndex].players.length+"/"+(hsGames[gameIndex].seekerCount+1)+")");
+      socket.emit("HSalert", "Not enough players ("+hsGames[gameIndex].players.length+"/"+(hsGames[gameIndex].seekerCount+1)+")");
     }
     hsGames[gameIndex].isStarted = true;
     let indexes = [];
