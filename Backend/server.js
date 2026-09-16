@@ -310,8 +310,10 @@ io.on("connection", (socket) => {
       indexes.push(i);
     }
     for (let i = 0;i<hsGames[gameIndex].seekerCount;i++) {
+      console.log("indexes: "+indexes.join(","));
       let index = Math.floor(Math.random()*indexes.length);
       let nextPlayer = indexes[index];
+      console.log("nextPlayer"+nextPlayer);
       seekerNames.push(hsGames[gameIndex].players[nextPlayer].username);
       indexes.splice(index, 1);
       if (indexes.length == 0) {break}
