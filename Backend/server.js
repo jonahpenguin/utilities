@@ -236,7 +236,6 @@ io.on("connection", (socket) => {
           "&"+hsGames[gameIndex].players[i].username+","+hsGames[gameIndex].players[i].mapID+","+hsGames[gameIndex].players[i].animation+","+
           hsGames[gameIndex].players[i].x+","+hsGames[gameIndex].players[i].y+","+hsGames[gameIndex].players[i].isHider
       }
-      // io.emit("debugResult", output);
       return output;
     }
     io.emit("HSupdate", getGameData(roomID));
@@ -289,33 +288,37 @@ io.on("connection", (socket) => {
         hostName: hostName,
         players: [],
         roomHeartbeat: Date.now(),
-        isStarted: false
+        isStarted: false,
+        seekerCount: seekerCount
       }
     )
     console.log("HS games count update: "+hsGames.length);
     socket.emit("HSroomCreatePass", roomID);
   });
 
-  // Old version
-  // socket.on("nameCheck", (msg) => {
-  //   let hasPassed = true;
-  //   loop1:
-  //   for (let i = 0;i<hsGames.length;i++) {
-  //     loop2:
-  //     for (let j = 0;j<hsGames[i].players.length;j++) {
-  //       if (msg == hsGames[i].players[j].username) {
-  //         hasPassed = false;
-  //         break loop1;
-  //       }
-  //     }
-  //   }
-  //   if (!hasPassed) {
-  //     socket.emit("nameCheckResult", "fail");
-  //   } else {
-  //     socket.emit("nameCheckResult", "pass");
-  //   }
-  // });
-
+  socket.on("HSgameStart", (msg) => {
+    // username,roomID
+    msg = msg.split(",");
+    let name = msg[0];
+    let roomID = parseInt(msg[1]);
+    if (isNaN(roomID)) {socket.emit("HSroomLockRes", "Invalid room ID; try leaving and rejoining");return;}
+    let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    hsGames[gameIndex].isStarted = true;
+    let indexes = [];
+    let seekerNames = [];
+    for (let i = 0;i<hsGames[gameIndex].seekerCount;i++) {
+      indexes.push(i);
+    }
+    for (let i = 0;i<hsGames[gameIndex].seekerCount;i++) {
+      let index = Math.floor(Math.random()*indexes.length);
+      let nextPlayer = indexes[index];
+      seekerNames.push(hsGames[gameIndex].players[nextPlayer].username);
+      indexes.splice(index, 1);
+      if (indexes.length == 0) {break}
+    }
+    io.emit("HSstart", roomID+","+seekerNames.join("&"));
+  });
+  
   socket.on("nameCheck", (msg) => {
     if (HSusers.includes(msg)) {
       socket.emit("nameCheckRes", "fail");
@@ -384,7 +387,7 @@ io.on("connection", (socket) => {
   socket.on("dvdMain", (msg) => {
     if (msg == "visitCountReq") {
       let d = new Date();
-      io.emit("dvdMain", (d.getHours()-4)+":"+d.getMinutes()+" on "+(d.getMonth()-1)+"/"+d.getDate()+"): "+dvdMainVisits);
+      // io.emit("dvdMain", (d.getHours()-4)+":"+d.getMinutes()+" on "+(d.getMonth()-1)+"/"+d.getDate()+"): "+dvdMainVisits);
     }
     if (msg.includes("visitCountSet")) {
       let str = msg.split("visitCountSet").join("");
