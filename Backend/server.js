@@ -259,7 +259,7 @@ io.on("connection", (socket) => {
   socket.on("HSroomCreation", (msg) => {
     // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers+","+hostName
     msg = msg.split(",");
-    let roomID = Math.floor(Math.random() * 1000000);
+    let roomID = Math.floor(Math.random() * 90000)+100000;
     let maxPlayers = parseInt(msg[3]);
     let mapID = parseInt(msg[0]);
     let hostName = msg[4];
