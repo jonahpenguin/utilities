@@ -169,10 +169,6 @@ io.on("connection", (socket) => {
     let username = msg.split(",")[0];
     let roomID = parseInt(msg.split(",")[1]);
     let gameID = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
-    if (hsGames[gameID].players.map(function (e) {return e.username}).includes(username)) {
-      socket.emit("HSroomFail", "Already connected");
-      return;
-    }
     if (gameID != -1) {
       if (hsGames[gameID].isLocked) {
         socket.emit("HSroomFail", "Room is locked");
