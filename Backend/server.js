@@ -103,9 +103,13 @@ io.on("connection", (socket) => {
     if (username == hsGames[gameIndex].hostName) {
       if (lockOrUnlock == 1) {
         hsGames[gameIndex].isLocked = true;
+        socket.emit("HSroomLockRes", "Locked");
       } else {
         hsGames[gameIndex].isLocked = false;
+        socket.emit("HSroomLockRes", "Unlocked");
       }
+    } else {
+      socket.emit("HSroomLockRes", "Failed - could not verify host status");
     }
   });
   
