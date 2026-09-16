@@ -303,10 +303,13 @@ io.on("connection", (socket) => {
     let roomID = parseInt(msg[1]);
     if (isNaN(roomID)) {socket.emit("HSroomLockRes", "Invalid room ID; try leaving and rejoining");return;}
     let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    if (hsGames[gameIndex].players.length <= hsGames[gameIndex].seekerCount) {
+      socket.emit("HSroomLockRes", "Not enough players ("+hsGames[gameIndex].players.length+"/"+(hsGames[gameIndex].seekerCount+1)+")");
+    }
     hsGames[gameIndex].isStarted = true;
     let indexes = [];
     let seekerNames = [];
-    for (let i = 0;i<hsGames[gameIndex].seekerCount;i++) {
+    for (let i = 1;i<hsGames[gameIndex].seekerCount;i++) {
       indexes.push(i);
     }
     for (let i = 0;i<hsGames[gameIndex].seekerCount;i++) {
