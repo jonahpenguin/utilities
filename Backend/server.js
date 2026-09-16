@@ -132,7 +132,7 @@ io.on("connection", (socket) => {
     for (let i = 0; i<hsGames.length;i++) {
       for (let j = 0;j<hsGames[i].players.length;j++) {
         if (hsGames[i].players[j].socketID === socket.id) {
-          io.emit("disconnectNotif", hsGames[i].players[j].roomID+","+hsGames[i].players[j].username);
+          io.emit("HSdisconnectNotif", hsGames[i].players[j].roomID+","+hsGames[i].players[j].username);
           hsGames[i].players.splice(j,1);
           isDone = true;
           index = parseInt(i);
@@ -357,7 +357,7 @@ io.on("connection", (socket) => {
   
   socket.on("verifyAdmin", (msg) => {
     if (msg === atob('MDc0NzQ=')) {
-      io.emit("verifiedAdmin", socket.id);
+      socket.emit("verifiedAdmin", socket.id);
     }
   });
   
