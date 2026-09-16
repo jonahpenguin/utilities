@@ -71,7 +71,11 @@ io.on("connection", (socket) => {
       socket.emit("HSalert", "Could not verify that you are the host. Try leaving and re-joining");
       return;
     }
-    socket.emit("HSplayerListRes", hsGames[gameIndex].players.join(","));
+    let output = '';
+    for (let player in hsGames[gameIndex].players) {
+      output += player.username+",";
+    }
+    socket.emit("HSplayerListRes", output);
   });
 
   socket.on("HSkick", (msg) => {
