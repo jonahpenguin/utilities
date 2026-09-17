@@ -47,7 +47,11 @@ app.get("/status", (req, res) => {
     (restartIncoming ? "<u><i><b style='color:red;'>Server restart incoming; connection will drop soon</b></i></u>" : "")
   )
 });
-
+app.get("/hst", (req, res) => {
+  res.send(
+    "<script>location.replace('https://utilities-8tvg.onrender.com/HideAndSeekTag/hideAndSeekTag.html')</script>"
+  )
+});
 
 
 io.on("connection", (socket) => {
