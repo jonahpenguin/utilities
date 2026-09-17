@@ -54,6 +54,10 @@ io.on("connection", (socket) => {
   // console.log(socket);
   console.log("User connected: "+socket.id);
 
+  socket.on("HSchatMsg", (msg) => {
+    io.emit("HSchatMsg", msg);
+  });
+  
   socket.on("HSplayerListReq", (msg) => {
     msg = msg.split(",");
     let name = msg[0];
