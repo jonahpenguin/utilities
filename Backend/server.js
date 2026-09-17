@@ -348,6 +348,7 @@ io.on("connection", (socket) => {
     let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
     if (hsGames[gameIndex].players.length <= hsGames[gameIndex].seekerCount) {
       socket.emit("HSalert", "Not enough players ("+hsGames[gameIndex].players.length+"/"+(hsGames[gameIndex].seekerCount+1)+")");
+      return;
     }
     hsGames[gameIndex].isStarted = true;
     let indexes = [];
