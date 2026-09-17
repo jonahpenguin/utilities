@@ -339,7 +339,7 @@ io.on("connection", (socket) => {
     hsGames[gameIndex].isStarted = true;
     let indexes = [];
     let seekerNames = [];
-    for (let i = 1;i<hsGames[gameIndex].seekerCount;i++) {
+    for (let i = 0;i<hsGames[gameIndex].players.length;i++) {
       indexes.push(i);
     }
     for (let i = 0;i<hsGames[gameIndex].seekerCount;i++) {
