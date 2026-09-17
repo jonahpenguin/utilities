@@ -73,6 +73,8 @@ io.on("connection", (socket) => {
     }
     let output = '';
     for (let player in hsGames[gameIndex].players) {
+      console.log(output);
+      io.emit("debugResult", player);
       output += player.username+",";
     }
     socket.emit("HSplayerListRes", output);
@@ -268,6 +270,15 @@ io.on("connection", (socket) => {
       return output;
     }
     io.emit("HSupdate", getGameData(roomID));
+    let isDone = true;
+    for (let player in hsGames[gameIndex].players) {
+      if (player.isHider) {
+        isDone = false;
+      }
+    }
+    if (isDone) {
+      io.emit("HSgameEnd", hsGames[gameIndex].roomID);
+    }
   });
 
   socket.on("HSroomCountCheck", () => {
