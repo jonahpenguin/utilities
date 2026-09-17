@@ -318,7 +318,8 @@ io.on("connection", (socket) => {
         players: [],
         roomHeartbeat: Date.now(),
         isStarted: false,
-        seekerCount: seekerCount
+        seekerCount: seekerCount,
+        seekerReleaseTimer: 60
       }
     )
     console.log("HS games count update: "+hsGames.length);
@@ -351,6 +352,15 @@ io.on("connection", (socket) => {
       if (indexes.length == 0) {break}
     }
     io.emit("HSstart", roomID+","+seekerNames.join("&"));
+    let int = setInterval(() => {
+      hsGames[gameIndex].seekerReleaseTimer--;
+      if (hsGames[gameIndex].seekerReleaseTimer > 0) {
+        io.emit("HStimerUpdate", roomID+","+hsGames[gameIndex].seekerReleaseTimer);
+      } else {
+        io.emit("HSseekerRelease", hsGames[gameIndex].roomID+","+hsGames[gameIndex].mapID);
+        clearInterval(int);
+      }
+    }, 1000);
   });
   
   socket.on("nameCheck", (msg) => {
