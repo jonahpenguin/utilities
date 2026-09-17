@@ -270,6 +270,7 @@ io.on("connection", (socket) => {
       return output;
     }
     io.emit("HSupdate", getGameData(roomID));
+    if (!hsGames[gameIndex].isStarted) {return}
     let isDone = true;
     for (let player in hsGames[gameIndex].players) {
       if (player.isHider) {
@@ -278,6 +279,7 @@ io.on("connection", (socket) => {
     }
     if (isDone) {
       io.emit("HSgameEnd", hsGames[gameIndex].roomID);
+      hsGames[gameIndex].isStarted = false;
     }
   });
 
