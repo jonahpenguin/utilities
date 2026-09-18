@@ -87,6 +87,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("HSkick", (msg) => {
+    for (let i = 0;i<hsGames.length;i++) {
+      if (hsGames[i].players.includes(msg)) {
+        let index = hsGames[i].players.indexOf(msg);
+        hsGames[i].players.splice(index, 1);
+        break;
+      }
+    }
     io.emit("HSkick", msg);
   });
   
