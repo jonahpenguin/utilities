@@ -86,6 +86,19 @@ io.on("connection", (socket) => {
     socket.emit("HSplayerListRes", output);
   });
 
+  socket.on("HSroomClose", (msg) => {
+    // roomID,name
+    msg = msg.split(",");
+    let roomID = parseInt(msg[0]);
+    let username = msg[1];
+    if (hsGames[roomID].hostName == username) {
+      hsGames.splice(roomID, 1);
+      socket.emit("HSroomCloseRes", "pass");
+    } else {
+      socket.emit("HSnotif", "Could not verify that you are the host. Try leaving and re-joining");
+    }
+  });
+  
   socket.on("HSkick", (msg) => {
     for (let i = 0;i<hsGames.length;i++) {
       if (hsGames[i].players.includes(msg)) {
