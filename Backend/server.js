@@ -80,10 +80,8 @@ io.on("connection", (socket) => {
       return;
     }
     let output = '';
-    for (let player in hsGames[gameIndex].players) {
-      console.log(output);
-      io.emit("debugResult", player);
-      output += player.username+",";
+    for (let i = 0; i<hsGames[gameIndex].players.length;i++) {
+      output += hsGames[gameIndex].players[i].username+",";
     }
     socket.emit("HSplayerListRes", output);
   });
