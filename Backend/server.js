@@ -325,7 +325,7 @@ io.on("connection", (socket) => {
   });
   
   socket.on("HSroomCreation", (msg) => {
-    // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers+","+hostName
+    // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers+","+hostName+","+chatAllowed
     msg = msg.split(",");
     let roomID = Math.floor(Math.random() * 90000)+100000;
     let maxPlayers = parseInt(msg[3]);
@@ -365,7 +365,8 @@ io.on("connection", (socket) => {
         roomHeartbeat: Date.now(),
         isStarted: false,
         seekerCount: seekerCount,
-        seekerReleaseTimer: 60
+        seekerReleaseTimer: 60,
+        chatAllowed: (msg[5] == "true")
       }
     )
     console.log("HS games count update: "+hsGames.length);
@@ -398,7 +399,7 @@ io.on("connection", (socket) => {
       indexes.splice(index, 1);
       if (indexes.length == 0) {break}
     }
-    io.emit("HSstart", roomID+","+seekerNames.join("&"));
+    io.emit("HSstart", roomID+","+seekerNames.join("&")+","+hsGames[gameIndex].chatAllowed);
     let int = setInterval(() => {
       hsGames[gameIndex].seekerReleaseTimer--;
       if (hsGames[gameIndex].seekerReleaseTimer > 0) {
