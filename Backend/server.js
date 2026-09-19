@@ -303,12 +303,13 @@ io.on("connection", (socket) => {
     io.emit("HSupdate", getGameData(roomID));
     if (!hsGames[gameIndex].isStarted) {return}
     let isDone = true;
-    for (let player in hsGames[gameIndex].players) {
-      if (player.isHider) {
+    for (let i = 0; i<hsGames[gameIndex].players.length;i++) {
+      if (hsGames[gameIndex].players[i].isHider) {
         isDone = false;
       }
     }
     if (isDone) {
+      return;
       io.emit("HSgameEnd", hsGames[gameIndex].roomID);
       hsGames[gameIndex].isStarted = false;
     }
