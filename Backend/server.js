@@ -91,6 +91,7 @@ io.on("connection", (socket) => {
     msg = msg.split(",");
     let roomID = parseInt(msg[0]);
     let username = msg[1];
+    if (!hsGames[roomID]) {console.log("Room not found when closing");return}
     if (hsGames[roomID].hostName == username) {
       hsGames.splice(roomID, 1);
       socket.emit("HSroomCloseRes", "pass");
