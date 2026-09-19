@@ -91,8 +91,12 @@ io.on("connection", (socket) => {
     msg = msg.split(",");
     let roomID = parseInt(msg[0]);
     let username = msg[1];
-    if (!hsGames[roomID]) {console.log("Room not found when closing");return}
-    if (hsGames[roomID].hostName == username) {
+    let gameIndex = hsGames.map(function (e) {return e.roomID}).indexOf(roomID);
+    if (gameIndex == -1) {
+      socket.emit("HSalert", "Room not found. Try leaving and re-joining");
+      return;
+    }
+    if (hsGames[gameIndex].hostName == username) {
       hsGames.splice(roomID, 1);
       socket.emit("HSroomCloseRes", "pass");
     } else {
