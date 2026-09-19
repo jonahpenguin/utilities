@@ -97,7 +97,7 @@ io.on("connection", (socket) => {
       return;
     }
     if (hsGames[gameIndex].hostName == username) {
-      hsGames.splice(roomID, 1);
+      hsGames.splice(gameIndex, 1);
       socket.emit("HSroomCloseRes", "pass");
     } else {
       socket.emit("HSnotif", "Could not verify that you are the host. Try leaving and re-joining");
