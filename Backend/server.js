@@ -233,7 +233,7 @@ io.on("connection", (socket) => {
       }
       let playerCapReached = (hsGames[gameID].players.length >= hsGames[gameID].maxPlayers);
       if (!playerCapReached) {
-        socket.emit("HSroomOkay", roomID+","+hsGames[gameID].mapID+","+(hsGames[gameID].hostName==username ? "host" : "player")+","+hsGames[gameID].isStarted);
+        socket.emit("HSroomOkay", roomID+","+hsGames[gameID].mapID+","+(hsGames[gameID].hostName==username ? "host" : "player")+","+hsGames[gameID].isStarted+","+hsGames[gameID].chatAllowed);
       } else {
         socket.emit("HSroomFail", "Room is full");
       }
