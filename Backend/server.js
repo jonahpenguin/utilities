@@ -102,6 +102,7 @@ io.on("connection", (socket) => {
     } else {
       socket.emit("HSnotif", "Could not verify that you are the host. Try leaving and re-joining");
     }
+    console.log("HS games count update: "+hsGames.length);
   });
   
   socket.on("HSkick", (msg) => {
