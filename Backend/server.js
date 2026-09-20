@@ -97,6 +97,7 @@ io.on("connection", (socket) => {
       return;
     }
     if (hsGames[gameIndex].hostName == username) {
+      io.emit("HSroomClosed", hsGames[gameIndex].roomID);
       hsGames.splice(gameIndex, 1);
       socket.emit("HSroomCloseRes", "pass");
     } else {
