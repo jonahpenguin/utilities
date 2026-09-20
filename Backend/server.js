@@ -326,7 +326,7 @@ io.on("connection", (socket) => {
   });
   
   socket.on("HSroomCreation", (msg) => {
-    // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers+","+hostName+","+chatAllowed
+    // Format: startMap+","+seekerCount+","+allowCamo+","+maxPlayers+","+hostName+","+chatAllowed+","+seekerTimer
     msg = msg.split(",");
     let roomID = Math.floor(Math.random() * 90000)+100000;
     let maxPlayers = parseInt(msg[3]);
@@ -348,6 +348,10 @@ io.on("connection", (socket) => {
       socket.emit("HSroomCreateFail", "Invalid value for Max Players");
       return;
     }
+    let seekerCounter = parseInt(msg[6]);
+    if (isNaN(seekerCounter) || seekerCounter <= 0) {
+      socket.emit("HSroomCreateFail", "Invalid seeker timer value");
+    }
     // roomID: 123456,
     // maxPlayers: 10,
     // mapID: 3,
@@ -366,7 +370,7 @@ io.on("connection", (socket) => {
         roomHeartbeat: Date.now(),
         isStarted: false,
         seekerCount: seekerCount,
-        seekerReleaseTimer: 60,
+        seekerReleaseTimer: seekerCounter,
         chatAllowed: (msg[5] == "true")
       }
     )
