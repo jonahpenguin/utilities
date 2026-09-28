@@ -35,7 +35,11 @@ app.get("/status", (req, res) => {
     (restartIncoming ? "<u><i><b style='color:red;'>Server restart incoming; connection will drop soon</b></i></u>" : "")
   )
 });
-
+app.get("/fidget", (req, res) => {
+  res.send(
+    "<script>location.replace('https://utilities-8tvg.onrender.com/digitalFidget.html')</script><p>Loading...</p>"
+  )
+});
 
 
 io.on("connection", (socket) => {
