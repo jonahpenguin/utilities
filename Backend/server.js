@@ -52,6 +52,11 @@ app.get("/hst", (req, res) => {
     "<script>location.replace('https://utilities-8tvg.onrender.com/HideAndSeekTag/hideAndSeekTag.html')</script>"
   )
 });
+app.get("/fidget", (req, res) => {
+  res.send(
+    "<script>location.replace('https://utilities-8tvg.onrender.com/digitalFidget.html')</script><p>Loading...</p>"
+  )
+});
 
 
 io.on("connection", (socket) => {
