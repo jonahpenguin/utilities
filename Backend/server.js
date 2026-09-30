@@ -239,7 +239,7 @@ io.on("connection", (socket) => {
       }
       let playerCapReached = (hsGames[gameID].players.length >= hsGames[gameID].maxPlayers);
       if (!playerCapReached) {
-        socket.emit("HSroomOkay", roomID+","+hsGames[gameID].mapID+","+(hsGames[gameID].hostName==username ? "host" : "player")+","+hsGames[gameID].isStarted+","+hsGames[gameID].chatAllowed+","+hsGamems[gameID].seekerReleaseTimer);
+        socket.emit("HSroomOkay", roomID+","+hsGames[gameID].mapID+","+(hsGames[gameID].hostName==username ? "host" : "player")+","+hsGames[gameID].isStarted+","+hsGames[gameID].chatAllowed+","+hsGames[gameID].seekerReleaseTimer);
       } else {
         socket.emit("HSroomFail", "Room is full");
       }
